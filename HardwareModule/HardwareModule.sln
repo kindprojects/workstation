@@ -1,0 +1,58 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2013
+VisualStudioVersion = 12.0.21005.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ModuleConnect", "ModuleConnect\ModuleConnect.csproj", "{1E742822-3118-4630-A19E-803791BA7BC2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestModule", "TestModule\TestModule.csproj", "{A25D01D9-1A1C-4D25-80E9-0A8A1D503C8E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WinDLL", "WinDLL\WinDLL.csproj", "{6A663CA9-4873-4C9A-AA25-D28DC66C2272}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestApp", "TestApp\TestApp.csproj", "{086AC1A2-7A2F-4B26-8F24-1458511D001E}"
+EndProject
+Global
+	GlobalSection(TeamFoundationVersionControl) = preSolution
+		SccNumberOfProjects = 5
+		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
+		SccTeamFoundationServer = http://sp.steklodom.local:8080/tfs/defaultcollection
+		SccLocalPath0 = .
+		SccProjectUniqueName1 = ModuleConnect\\ModuleConnect.csproj
+		SccProjectName1 = ModuleConnect
+		SccLocalPath1 = ModuleConnect
+		SccProjectUniqueName2 = TestModule\\TestModule.csproj
+		SccProjectName2 = TestModule
+		SccLocalPath2 = TestModule
+		SccProjectUniqueName3 = WinDLL\\WinDLL.csproj
+		SccProjectName3 = WinDLL
+		SccLocalPath3 = WinDLL
+		SccProjectUniqueName4 = TestApp\\TestApp.csproj
+		SccProjectName4 = TestApp
+		SccLocalPath4 = TestApp
+	EndGlobalSection
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{1E742822-3118-4630-A19E-803791BA7BC2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1E742822-3118-4630-A19E-803791BA7BC2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1E742822-3118-4630-A19E-803791BA7BC2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1E742822-3118-4630-A19E-803791BA7BC2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A25D01D9-1A1C-4D25-80E9-0A8A1D503C8E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A25D01D9-1A1C-4D25-80E9-0A8A1D503C8E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A25D01D9-1A1C-4D25-80E9-0A8A1D503C8E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A25D01D9-1A1C-4D25-80E9-0A8A1D503C8E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6A663CA9-4873-4C9A-AA25-D28DC66C2272}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6A663CA9-4873-4C9A-AA25-D28DC66C2272}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6A663CA9-4873-4C9A-AA25-D28DC66C2272}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6A663CA9-4873-4C9A-AA25-D28DC66C2272}.Release|Any CPU.Build.0 = Release|Any CPU
+		{086AC1A2-7A2F-4B26-8F24-1458511D001E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{086AC1A2-7A2F-4B26-8F24-1458511D001E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{086AC1A2-7A2F-4B26-8F24-1458511D001E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{086AC1A2-7A2F-4B26-8F24-1458511D001E}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
