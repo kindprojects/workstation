@@ -80,7 +80,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Class1.cs" />
+    <Compile Include="RMasterItem.cs" />
     <Compile Include="ClassTemp.cs" />
     <Compile Include="RCollection.cs" />
     <Compile Include="RConfigSection.cs" />
@@ -94,11 +94,11 @@
     <Compile Include="RNavigatorButton.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Form1.cs">
+    <Compile Include="FMain.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Form1.Designer.cs">
-      <DependentUpon>Form1.cs</DependentUpon>
+    <Compile Include="FMain.Designer.cs">
+      <DependentUpon>FMain.cs</DependentUpon>
     </Compile>
     <Compile Include="IDBLink.cs" />
     <Compile Include="Program.cs" />
@@ -113,8 +113,8 @@
     <Compile Include="RModelNavigator.cs" />
     <Compile Include="RObjectPathLevel.cs" />
     <Compile Include="RTemplates.cs" />
-    <EmbeddedResource Include="Form1.resx">
-      <DependentUpon>Form1.cs</DependentUpon>
+    <EmbeddedResource Include="FMain.resx">
+      <DependentUpon>FMain.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Resource.resx">
       <Generator>ResXFileCodeGenerator</Generator>
@@ -152,6 +152,7 @@
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Screenshot.jpg" />
     <None Include="Resources\thin9.png" />
     <None Include="Resources\caret2.png" />
     <None Include="Resources\caret.png" />

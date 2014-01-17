@@ -34,7 +34,7 @@ namespace ProfileCut
         public RHardwareCommandElement this[int idx]
         {
             get { return (RHardwareCommandElement)BaseGet(idx); }
-        }       
+        }
     }
 
     public class RHardwareCommandElement : ConfigurationElement

@@ -15,7 +15,7 @@ using Awesomium.Windows;
 
 namespace ProfileCut
 {
-    public partial class Form1 : Form
+    public partial class FMain : Form
     {
         public RModel Model;
         
@@ -31,7 +31,7 @@ namespace ProfileCut
 
         public delegate void Navigated(object sender, EventArgs e);
 
-        public Form1()
+        public FMain()
         {
             InitializeComponent();
 

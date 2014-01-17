@@ -136,6 +136,7 @@ namespace Model
         private void _buildControls(Control owner)
         {
             int x = 0;
+			owner.Controls.Clear();
             foreach (RModelObjectNavigatorPathLevel lvl in this._levels)
             {
                 if (lvl.UiControlName != "")
