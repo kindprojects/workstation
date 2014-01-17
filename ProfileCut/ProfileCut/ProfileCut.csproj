@@ -80,8 +80,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="HardwareInterfaces.cs" />
     <Compile Include="RMasterItem.cs" />
-    <Compile Include="ClassTemp.cs" />
     <Compile Include="RCollection.cs" />
     <Compile Include="RConfigSection.cs" />
     <Compile Include="Resource.Designer.cs">
@@ -120,13 +120,7 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resource.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <None Include="Canes.tmp">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Include="DB.FDB">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Details.tmp">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Optimization.tmp">

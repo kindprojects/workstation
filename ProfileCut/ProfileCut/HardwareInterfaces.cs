@@ -5,8 +5,7 @@ namespace HardwareInterfaces
         void Execute();        
     }
 
-
-	public interface ITestFunction1: IHardwareCommand
+	public interface ITestCommand1: IHardwareCommand
 	{
 		int Test(int a, int b);
 	}
