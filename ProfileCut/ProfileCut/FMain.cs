@@ -27,7 +27,7 @@ namespace ProfileCut
         //private int _oldId;
         private bool _domIsReady;
         private JSObject _jsObject;
-        private RModelHardware _hardware;
+        private RHardwareCommands _hardware;
 
         public delegate void Navigated(object sender, EventArgs e);
 
@@ -42,7 +42,7 @@ namespace ProfileCut
             _navigator.Setup("", panelNavigator);
             _navigator.OnNavigated += OnNavigated;
 
-            _hardware = new RModelHardware();
+            _hardware = new RHardwareCommands();
             //_hardware.Setup(panelHardware, _conf.HardwareCommands);
 
             _fbDb = new RFbLink(_conf.ConnectionString);

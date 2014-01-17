@@ -90,7 +90,7 @@
       <DependentUpon>Resource.resx</DependentUpon>
     </Compile>
     <Compile Include="RConfigHardwareCommand.cs" />
-    <Compile Include="RModelHardware.cs" />
+    <Compile Include="RHardwareCommands.cs" />
     <Compile Include="RNavigatorButton.cs">
       <SubType>Component</SubType>
     </Compile>

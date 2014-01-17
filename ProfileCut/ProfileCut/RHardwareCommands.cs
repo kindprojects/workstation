@@ -9,7 +9,7 @@ using Model;
 
 namespace ProfileCut
 {   
-    class RModelHardware
+    class RHardwareCommands
     {
         private RBaseObject _object;
 

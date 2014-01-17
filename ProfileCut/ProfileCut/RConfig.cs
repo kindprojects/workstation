@@ -71,7 +71,7 @@ namespace ProfileCut
             try
             {
                 return Convert.ToInt32(s);
-            }catch(Exception e){
+            }catch{
                 throw new Exception("Значение параметра '" + key + "' имеет неверный формат");
             }
         }
