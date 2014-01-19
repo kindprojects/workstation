@@ -7,6 +7,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.IO;
+using System.Data.SqlClient;
 using Model;
 using Awesomium.ComponentModel;
 using Awesomium.Core;
@@ -30,7 +32,7 @@ namespace ProfileCut
         private RHardwareCommands _hardware;
 
         public delegate void Navigated(object sender, EventArgs e);
-
+        
         public FMain()
         {
             InitializeComponent();
@@ -45,7 +47,9 @@ namespace ProfileCut
             _hardware = new RHardwareCommands();
             //_hardware.Setup(panelHardware, _conf.HardwareCommands);
 
-            _fbDb = new RFbLink(_conf.ConnectionString);
+            string processedConnectionString = this._genLocalDBPathIfLocalDB(_conf.ConnectionString);
+            
+            _fbDb = new RFbLink(processedConnectionString);
             if (_conf.MasterItemsUpdateIntervalMs > 0)
             {
                 timer1.Interval = _conf.MasterItemsUpdateIntervalMs;
@@ -55,7 +59,21 @@ namespace ProfileCut
 
             //timer1.Start();
         }
-
+        
+        private string _genLocalDBPathIfLocalDB(string connectionString)
+        {
+            // строит путь к файлу БД от текущей папки, если в качестве сервера указан localhost или 127.0.0.1
+            FirebirdSql.Data.FirebirdClient.FbConnectionStringBuilder builder = new FirebirdSql.Data.FirebirdClient.FbConnectionStringBuilder(connectionString);
+            string server = builder.DataSource.ToLower();
+            if (server == "localhost" || server == "127.0.0.1")
+            {
+                string dbPath = new FileInfo(Application.ExecutablePath).Directory.FullName + Path.DirectorySeparatorChar;
+                dbPath += new FileInfo(builder.Database).Name;
+                builder.Database = dbPath;
+            }
+            return builder.ConnectionString;
+        }
+        
         private void OnNavigated(object sender, RBaseObject obj)
         {
             // навигация
