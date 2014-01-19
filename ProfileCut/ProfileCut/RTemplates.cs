@@ -11,8 +11,6 @@ namespace Model
     public class RTemplates
     {
         public RNotFoundMarks NotFoundMarks;
-        public string PreScript;
-        public string PostScript;
 
         private Dictionary<string, string> _items;
 

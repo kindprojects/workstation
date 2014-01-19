@@ -1,15 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-using FirebirdSql.Data.FirebirdClient;
 
 namespace Model
 {
     public interface IDataModel
     {
+        // интерфейс модели для её объектов
         bool FillCollection(RCollection coll);
         RCollection NewCollection(RBaseObject owner, string name);
         RBaseObject FindObjectById(int id, RBaseObject where);
@@ -21,20 +18,17 @@ namespace Model
         public RTemplates Templates;
         private IDBLink _db;
         private string _modelCode;
-        public bool DeferredLoad = true;
+        public bool DeferredLoad = true; // отложенная загрузка. Если false, то содержимое всей модели прогружается целиком, иначе частично, при обращении (для тяжёлых моделей)
         public Dictionary<int, RBaseObject> _listObjects;
 
         public RModel(IDBLink db, string modelCode, bool deferredLoad)
-        {            
+        {
             this._db = db;
             this._modelCode = modelCode;
             this._listObjects = new Dictionary<int, RBaseObject>();
             this.Templates = new RTemplates();
             this.DeferredLoad = deferredLoad;
             this.LoadModel(); // хз?
-
-            this.Templates.PreScript = "<a id='A%id%'></a>";
-            this.Templates.PostScript = "<a id='B%id%'></a>";
         }
 
         public RBaseObject FindObjectById(int id, RBaseObject where)
