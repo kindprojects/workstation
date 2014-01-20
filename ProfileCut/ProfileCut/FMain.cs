@@ -67,9 +67,13 @@ namespace ProfileCut
             string server = builder.DataSource.ToLower();
             if (server == "localhost" || server == "127.0.0.1")
             {
-                string dbPath = new FileInfo(Application.ExecutablePath).Directory.FullName + Path.DirectorySeparatorChar;
-                dbPath += new FileInfo(builder.Database).Name;
-                builder.Database = dbPath;
+				if (!builder.Database.Contains(Path.VolumeSeparatorChar))
+				{
+					// только если путь не полный, а относительный
+					string dbPath = new FileInfo(Application.ExecutablePath).Directory.FullName + Path.DirectorySeparatorChar;
+					dbPath += builder.Database;
+					builder.Database = dbPath;
+				}
             }
             return builder.ConnectionString;
         }
