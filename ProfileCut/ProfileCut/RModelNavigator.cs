@@ -175,7 +175,7 @@ namespace Model
             b.Left = l.Width;
             b.Top = 0;
             b.Click += new System.EventHandler(this._navButtonClick);
-            b.BackgroundImage = global::ProfileCut.Resource.arrow151;
+            b.BackgroundImage = global::Platform.Resource.arrow151;
             b.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
             b.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
 
@@ -187,7 +187,7 @@ namespace Model
             b.Left = l.Width+btnWidth + 1;
             b.Top = 0;
             b.Click += new System.EventHandler(this._navButtonClick);
-            b.BackgroundImage = global::ProfileCut.Resource.caret;
+            b.BackgroundImage = global::Platform.Resource.caret;
             b.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
             b.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
 

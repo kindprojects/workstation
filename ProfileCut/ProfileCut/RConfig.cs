@@ -18,7 +18,7 @@ namespace ProfileCut
         //public string NavigationPath { private set; get; }
         public string SelectedHtmlElementClass { private set; get; }
         public int MasterItemsUpdateIntervalMs { private set; get; }
-        public RConfigHardwareCommands HardwareCommands { private set; get; }
+        //public RConfigHardwareCommands HardwareCommands { private set; get; }
 
         public RConfig()
         {
@@ -33,23 +33,22 @@ namespace ProfileCut
 
             MasterItemsUpdateIntervalMs = _getInt("MasterItemsUpdateIntervalMs", null);
 
-            HardwareCommands = new RConfigHardwareCommands();
-            RConfigHardwareCommandsSection section = (RConfigHardwareCommandsSection)ConfigurationManager.GetSection("startupHardwareCommands");
-            foreach(RHardwareCommandElement item in section.HardwareCommandItems)
-            {
-                HardwareCommands.items.Add(new RConfigHardwareCommand()
-                {
-                    Name = item.Key,
-                    ApplyTo = item.ApplyTo,
-                    List = item.List,
-                    Step = item.Step,
-                    Send = item.Send,
-                    Module = item.Module,
-                    Func = item.Func,
-                    Text = item.Text                        
-                });
-            }
-
+            //HardwareCommands = new RConfigHardwareCommands();
+            //RConfigHardwareCommandsSection section = (RConfigHardwareCommandsSection)ConfigurationManager.GetSection("startupHardwareCommands");
+            //foreach(RHardwareCommandElement item in section.HardwareCommandItems)
+            //{
+            //    HardwareCommands.items.Add(new RConfigHardwareCommand()
+            //    {
+            //        Name = item.Key,
+            //        ApplyTo = item.ApplyTo,
+            //        List = item.List,
+            //        Step = item.Step,
+            //        Send = item.Send,
+            //        Module = item.Module,
+            //        Func = item.Func,
+            //        Text = item.Text                        
+            //    });
+            //}
         }
 
         private string _getString(string key, string defaultValue)

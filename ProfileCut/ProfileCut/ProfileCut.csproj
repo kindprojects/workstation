@@ -7,7 +7,7 @@
     <ProjectGuid>{5241879D-4C91-41F9-829B-5CA1D0827741}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>ProfileCut</RootNamespace>
+    <RootNamespace>Platform</RootNamespace>
     <AssemblyName>ProfileCut</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -83,50 +83,44 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="HardwareInterfaces.cs" />
-    <Compile Include="RMasterItem.cs" />
-    <Compile Include="RCollection.cs" />
-    <Compile Include="RConfigSection.cs" />
-    <Compile Include="Resource.Designer.cs">
+    <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
-      <DependentUpon>Resource.resx</DependentUpon>
+      <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <Compile Include="RConfigHardwareCommand.cs" />
-    <Compile Include="RHardwareCommands.cs" />
-    <Compile Include="RNavigatorButton.cs">
-      <SubType>Component</SubType>
-    </Compile>
+    <Compile Include="RConfigSection.cs" />
     <Compile Include="FMain.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="FMain.Designer.cs">
       <DependentUpon>FMain.cs</DependentUpon>
     </Compile>
-    <Compile Include="IDBLink.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="RBaseObject.cs">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="RConfig.cs" />
+    <Compile Include="RCut.cs" />
     <Compile Include="Repository\RFbRepository.cs" />
+    <Compile Include="Resource.Designer.cs">
+      <DependentUpon>Resource.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+    </Compile>
     <Compile Include="RFbLink.cs" />
-    <Compile Include="RModel.cs" />
-    <Compile Include="RModelNavigator.cs" />
-    <Compile Include="RObjectPathLevel.cs" />
-    <Compile Include="RTemplates.cs" />
+    <Compile Include="RNavigatorButton.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <EmbeddedResource Include="FMain.resx">
       <DependentUpon>FMain.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
     <EmbeddedResource Include="Resource.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resource.Designer.cs</LastGenOutput>
     </EmbeddedResource>
     <None Include="DB.FDB">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Optimization.tmp">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="packages.config" />
@@ -187,6 +181,12 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="bin\Debug\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Platform\Platform.csproj">
+      <Project>{578a8089-669d-4e44-a01f-da96922fe44f}</Project>
+      <Name>Platform</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

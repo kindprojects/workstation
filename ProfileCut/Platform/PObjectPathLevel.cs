@@ -3,13 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Model;
 
 namespace Platform
 {
-    public class RMasterItem
+    internal class PObjectLevelPath
     {
-        public string DispTitle { set; get; }
-        public RBaseObject Object { set; get; }
+        public string CollectionName { set; get; }
+        public int Index { set; get; }
     }
 }

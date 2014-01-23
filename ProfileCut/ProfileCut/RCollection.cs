@@ -4,20 +4,22 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using Platform;
+
 namespace Model
 {
     public class RCollection
     {
-        private List<RBaseObject> _items { set; get; }
-        public RBaseObject Owner;
+        private List<PBaseObject> _items { set; get; }
+        public PBaseObject Owner;
         public string Name;
         private bool _deferredLoad;
         private bool _loaded;
         private IDataModel _model;
 
-        public RCollection(RBaseObject owner, string name, bool deferredLoad, IDataModel model)
+        public RCollection(PBaseObject owner, string name, bool deferredLoad, IDataModel model)
         {
-            _items = new List<RBaseObject>();
+            _items = new List<PBaseObject>();
             Owner = owner;
             Name = name;
             _deferredLoad = deferredLoad;
@@ -25,13 +27,13 @@ namespace Model
             _model = model;
         }
 
-        public RBaseObject InsertObject(RBaseObject obj)
+        public PBaseObject InsertObject(PBaseObject obj)
         {
             _items.Add(obj);
             return obj;
         }
 
-        public RBaseObject GetObject(int index)
+        public PBaseObject GetObject(int index)
         {
             _loadIfNotLoaded();
 
@@ -54,11 +56,11 @@ namespace Model
             }
         }
 
-        public RBaseObject FindObjectByAttrValue(string name, string value)
+        public PBaseObject FindObjectByAttrValue(string name, string value)
         {
             _loadIfNotLoaded();
 
-            foreach (RBaseObject item in _items)
+            foreach (PBaseObject item in _items)
             {
                 string val = "";
                 if (item.GetAttr(name, out val))
@@ -73,19 +75,19 @@ namespace Model
             return null;
         }
 
-        public RBaseObject PrevSibling(RBaseObject obj)
+        public PBaseObject PrevSibling(PBaseObject obj)
         {
             int i = this._items.IndexOf(obj) - 1;
             return (i < 0) ? null : this._items[i];
         }
 
-        public RBaseObject NextSibling(RBaseObject obj)
+        public PBaseObject NextSibling(PBaseObject obj)
         {
             int i = this._items.IndexOf(obj) + 1;
             return (i >= this._items.Count()) ? null : this._items[i];
         }
 
-        public int IndexOf(RBaseObject obj)
+        public int IndexOf(PBaseObject obj)
         {
             if (obj != null)
                 return _items.IndexOf(obj);
@@ -93,5 +95,4 @@ namespace Model
                 return -1;
         }
     }
-
 }

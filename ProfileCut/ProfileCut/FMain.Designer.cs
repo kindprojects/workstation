@@ -51,12 +51,6 @@
             this.listBoxOptimizations.Name = "listBoxOptimizations";
             this.listBoxOptimizations.Size = new System.Drawing.Size(203, 487);
             this.listBoxOptimizations.TabIndex = 0;
-            this.listBoxOptimizations.SelectedIndexChanged += new System.EventHandler(this.listBox1_SelectedIndexChanged);
-            // 
-            // timer1
-            // 
-            this.timer1.Interval = 5000;
-            this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
             // 
             // panelNavigator
             // 
@@ -79,7 +73,7 @@
             // 
             // buttonRefresh
             // 
-            this.buttonRefresh.BackgroundImage = global::ProfileCut.Resource.refresh2;
+            this.buttonRefresh.BackgroundImage = global::Platform.Resource.refresh2;
             this.buttonRefresh.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
             this.buttonRefresh.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.buttonRefresh.Location = new System.Drawing.Point(175, 5);
@@ -87,7 +81,6 @@
             this.buttonRefresh.Size = new System.Drawing.Size(40, 38);
             this.buttonRefresh.TabIndex = 7;
             this.buttonRefresh.UseVisualStyleBackColor = true;
-            this.buttonRefresh.Click += new System.EventHandler(this.buttonRefresh_Click);
             // 
             // panelAwesomiumWebControl
             // 
@@ -107,9 +100,8 @@
             this.webControlDetails.Size = new System.Drawing.Size(637, 487);
             this.webControlDetails.TabIndex = 0;
             this.webControlDetails.ShowCreatedWebView += new Awesomium.Core.ShowCreatedWebViewEventHandler(this.Awesomium_Windows_Forms_WebControl_ShowCreatedWebView);
-            this.webControlDetails.DocumentReady += new Awesomium.Core.UrlEventHandler(this.Awesomium_Windows_Forms_WebControl_DocumentReady);
             // 
-            // Form1
+            // FMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -120,10 +112,9 @@
             this.Controls.Add(this.panelNavigator);
             this.Controls.Add(this.listBoxOptimizations);
             this.KeyPreview = true;
-            this.Name = "Form1";
+            this.Name = "FMain";
             this.Text = "Распил профиля";
-            this.Load += new System.EventHandler(this.Form1_Load);
-            this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.Form1_KeyDown);
+            this.Load += new System.EventHandler(this.FMain_Load);
             this.panelAwesomiumWebControl.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();

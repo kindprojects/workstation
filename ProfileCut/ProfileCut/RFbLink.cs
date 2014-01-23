@@ -5,10 +5,13 @@ using System.Text;
 using System.Threading.Tasks;
 
 using FirebirdSql.Data.FirebirdClient;
+using Platform;
+using System.IO;
+using System.Windows.Forms;
 
-namespace Model
+namespace ProfileCut
 {
-    public class RFbLink : IDBLink
+    public class RFbLink : IPDBLink
     {
         private FbConnection _db;
 
@@ -19,7 +22,7 @@ namespace Model
 
         public RFbLink(string ConnectionString)
         {
-            this._db = new FbConnection(ConnectionString);
+            this._db = new FbConnection(this._genLocalDBPathIfLocalDB(ConnectionString));
         }
 
         private void _ConnectDB()
@@ -173,6 +176,24 @@ namespace Model
             }
             
             return ret;
+        }
+
+        private string _genLocalDBPathIfLocalDB(string connectionString)
+        {
+            // строит путь к файлу БД от текущей папки, если в качестве сервера указан localhost или 127.0.0.1
+            FirebirdSql.Data.FirebirdClient.FbConnectionStringBuilder builder = new FirebirdSql.Data.FirebirdClient.FbConnectionStringBuilder(connectionString);
+            string server = builder.DataSource.ToLower();
+            if (server == "localhost" || server == "127.0.0.1")
+            {
+                if (!builder.Database.Contains(Path.VolumeSeparatorChar))
+                {
+                    // только если путь не полный, а относительный
+                    string dbPath = new FileInfo(Application.ExecutablePath).Directory.FullName + Path.DirectorySeparatorChar;
+                    dbPath += builder.Database;
+                    builder.Database = dbPath;
+                }
+            }
+            return builder.ConnectionString;
         }
     }
 }
