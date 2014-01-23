@@ -16,11 +16,6 @@ namespace Platform
             _model = new PModel(db, modelCode, defferedLoad);
         }
 
-        public List<T> GetCollectionObjects<T>(string collectionName, bool createIfNotFound)
-        {
-            List<PBaseObject> list = new List<PBaseObject>();
-
-            return list;
-        }    
+        
     }
 }

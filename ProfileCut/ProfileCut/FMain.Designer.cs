@@ -99,7 +99,6 @@
             this.webControlDetails.Location = new System.Drawing.Point(0, 0);
             this.webControlDetails.Size = new System.Drawing.Size(637, 487);
             this.webControlDetails.TabIndex = 0;
-            this.webControlDetails.ShowCreatedWebView += new Awesomium.Core.ShowCreatedWebViewEventHandler(this.Awesomium_Windows_Forms_WebControl_ShowCreatedWebView);
             // 
             // FMain
             // 
