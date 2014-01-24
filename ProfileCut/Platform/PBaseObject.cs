@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace Platform
 {
-    internal class PBaseObject
+    public class PBaseObject: IPBaseObject
     {
-        public int Id;
+        public int Id { set;get; }
         private Dictionary<string, string> _attrs;
         private List<PCollection> _collects;
         //private RBaseObject _owner;
@@ -26,21 +26,22 @@ namespace Platform
             _model = model;
         }
 
-        public PBaseObject NavigatorInitialization(string path)
+        public IPBaseObject NavigatorInitialize(string path)
         {
-            _navigator = new PModelObjectNavigator();
+            _navigator = new PModelObjectNavigator(this);
             _navigator.Setup(path);
-            _navigator.SetObject(this);
+            //_navigator.SetObject(this);
 
             return _navigator.Pointer;
         }
 
-        public void NavigatorSetPointer(PBaseObject obj)
-        {
-            _navigator.Pointer = obj;
-        }
+        //public void NavigatorSetPointer(PBaseObject obj)
+        //{
+        //    _navigator.Pointer = obj;
+        //}
 
-        public bool NavigatorNavigate(PModelObjectNavigatorPathLevel level, NAV_DIRECTION dir)
+        // int level
+        public IPBaseObject Navigate(PModelObjectNavigatorPathLevel level, NAV_DIRECTION dir)
         {
             return _navigator.Navigate(level, dir);
         }
@@ -48,6 +49,11 @@ namespace Platform
         public List<PModelObjectNavigatorPathLevel> GetLevels()
         {
             return _navigator.Levels;
+        }
+
+        public IPBaseObject GetPointer()
+        {
+            return _navigator.Pointer;
         }
 
         public bool GetAttr(string name, out string val)
@@ -115,9 +121,9 @@ namespace Platform
             return this._collects;
         }
 
-        public List<PObjectLevelPath> GetPathTo(PBaseObject toObject)
+        public List<int> GetPathTo(PBaseObject toObject)
         {
-            List<PObjectLevelPath> path = new List<PObjectLevelPath>();
+            List<int> path = new List<int>();
 
             if (toObject._ownerCollection == null)
                 return null;
@@ -125,11 +131,7 @@ namespace Platform
             PBaseObject obj = toObject;
             while (obj._ownerCollection.Owner != null)
             {
-                path.Insert(0, new PObjectLevelPath()
-                {
-                    CollectionName = obj._ownerCollection.Name,
-                    Index = obj._ownerCollection.IndexOf(obj)
-                });
+                path.Insert(0, obj._ownerCollection.IndexOf(obj));
 
                 if (obj._ownerCollection.Owner == this)
                 {
@@ -141,7 +143,7 @@ namespace Platform
             return null;
         }
 
-        internal PCollection GetCollection(string name, bool createIfNotFound)
+        public PCollection GetCollection(string name, bool createIfNotFound)
         {
             PCollection coll;
 

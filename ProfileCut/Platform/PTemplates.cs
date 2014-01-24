@@ -9,15 +9,15 @@ using System.Text.RegularExpressions;
 
 namespace Platform
 {
-    internal class PTemplates
+    public class PTemplates
     {
-        public RNotFoundMarks NotFoundMarks;
+        public PNotFoundMarks NotFoundMarks;
 
         private Dictionary<string, string> _items;
 
         public PTemplates()
         {
-            NotFoundMarks = new RNotFoundMarks();
+            NotFoundMarks = new PNotFoundMarks();
             _loadFiles(Directory.GetCurrentDirectory());
         }
 
@@ -123,7 +123,7 @@ namespace Platform
         }
     }
 
-    internal class RTemplateOperator
+    public class RTemplateOperator
     {
         public string OperatorText { set; get; }
 
@@ -133,7 +133,7 @@ namespace Platform
         }
     }
 
-    internal class RTemplateAttr : RTemplateOperator
+    public class RTemplateAttr : RTemplateOperator
     {
         public string Name;
         public RTemplateAttr(string operatorText)
@@ -143,7 +143,7 @@ namespace Platform
         }
     }
 
-    internal class RTemplateCollection : RTemplateOperator
+    public class RTemplateCollection : RTemplateOperator
     {
         public string collectionName { set; get; }
         public string templateName { set; get; }
@@ -160,24 +160,24 @@ namespace Platform
         }
     }
 
-    internal class RTagMarks
+    public class PTagMarks
     {
         public string Begin = "";
         public string End = "";
     }
 
-    internal class RNotFoundMarks
+    public class PNotFoundMarks
     {
-        public RTagMarks attrs;
-        public RTagMarks collections;
+        public PTagMarks attrs;
+        public PTagMarks collections;
 
-        public RNotFoundMarks()
+        public PNotFoundMarks()
         {
-            attrs = new RTagMarks();
+            attrs = new PTagMarks();
             attrs.Begin = "<";
             attrs.End = ">";
 
-            collections = new RTagMarks();
+            collections = new PTagMarks();
             collections.Begin = "<!";
             collections.End = "!>";
         }

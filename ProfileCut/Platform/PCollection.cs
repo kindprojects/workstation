@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 
 namespace Platform
 {
-    internal class PCollection
-    {
+    public class PCollection
+    {        
         private List<PBaseObject> _items { set; get; }
         public PBaseObject Owner;
         public string Name;

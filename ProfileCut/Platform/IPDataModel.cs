@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Platform
 {
-    internal interface IPDataModel
+    public interface IPDataModel
     {
         // интерфейс модели для её объектов
         bool FillCollection(PCollection coll);

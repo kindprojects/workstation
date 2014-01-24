@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace Platform
 {
-    internal class PObjectLevelPath
-    {
-        public string CollectionName { set; get; }
-        public int Index { set; get; }
-    }
+    //public class PObjectLevelPath
+    //{
+    //    public string CollectionName { set; get; }
+    //    public int Index { set; get; }
+    //}
 }

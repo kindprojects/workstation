@@ -9,15 +9,15 @@ using Platform;
 
 namespace ProfileCut
 {
-    class RNavigatorButton : Button
-    {
-        public PModelObjectNavigatorPathLevel NavigatorLevel { set; get; }
-        public NAV_DIRECTION NavDirection { set; get; }
+    //class RNavigatorButton : Button
+    //{
+    //    public PModelObjectNavigatorPathLevel NavigatorLevel { set; get; }
+    //    public NAV_DIRECTION NavDirection { set; get; }
 
-        public RNavigatorButton(PModelObjectNavigatorPathLevel level, NAV_DIRECTION dir)
-        {
-            NavigatorLevel = level;
-            NavDirection = dir;
-        }
-    }
+    //    public RNavigatorButton(PModelObjectNavigatorPathLevel level, NAV_DIRECTION dir)
+    //    {
+    //        NavigatorLevel = level;
+    //        NavDirection = dir;
+    //    }
+    //}
 }

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Platform
 {    
-    internal class PModel : IPDataModel
+    public class PModel : IPDataModel
     {
         public PBaseObject Data;
         public PTemplates Templates;

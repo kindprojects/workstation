@@ -4,16 +4,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using System.Windows;
+using System.Windows.Forms;
+using System.IO;
 using FirebirdSql.Data.FirebirdClient;
 using Platform;
-using System.IO;
-using System.Windows.Forms;
 
-using Api;
-
-namespace ProfileCut
+namespace Api
 {
-    public class RFbLink : IADBLink
+    public class AFbLink : IPDBLink
     {
         private FbConnection _db;
 
@@ -22,7 +21,7 @@ namespace ProfileCut
             return (_db.State == System.Data.ConnectionState.Open);
         }
 
-        public RFbLink(string ConnectionString)
+        public AFbLink(string ConnectionString)
         {
             this._db = new FbConnection(this._genLocalDBPathIfLocalDB(ConnectionString));
         }

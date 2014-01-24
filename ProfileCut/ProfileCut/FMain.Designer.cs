@@ -51,6 +51,7 @@
             this.listBoxOptimizations.Name = "listBoxOptimizations";
             this.listBoxOptimizations.Size = new System.Drawing.Size(203, 487);
             this.listBoxOptimizations.TabIndex = 0;
+            this.listBoxOptimizations.SelectedIndexChanged += new System.EventHandler(this.listBoxOptimizations_SelectedIndexChanged);
             // 
             // panelNavigator
             // 
