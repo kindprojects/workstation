@@ -17,51 +17,47 @@ namespace ProfileCut
         private RConfig _conf;
 
         // представление модели
-        private AApi _viewModel;
+        private AModel _viewModel;
 
         public FMain()
         {
             InitializeComponent();    
             
             _conf = new RConfig();            
-            _viewModel = new AApi(_conf.ConnectionString, _conf.ModelCode, true);
+            _viewModel = new AModel(_conf.ConnectionString, _conf.ModelCode, true);
+            _viewModel.GetRoot().NavigatorInitialize(_conf.MasterCollection);                
         }
-
            
         private void FMain_Load(object sender, EventArgs e)
         {
+            listBoxOptimizations.DisplayMember = "DispTitle";
+            listBoxOptimizations.ValueMember = "Object";
+
            _fillListBoxOptimizations();
         }
 
         private void _fillListBoxOptimizations()
-        { 
-            //List<IPBaseObject> masterList = _viewModel.GetMasterList(_conf.MasterCollection);
-            //foreach(IPBaseObject item in masterList)
-            //{
-            //    string text = _viewModel.Transform(_conf.MasterItemTemplate, item);
-            //    listBoxOptimizations.DisplayMember = "Text";
-            //    listBoxOptimizations.ValueMember = "Object";
-            //    listBoxOptimizations.Items.Add(new RMasterItem()
-            //    {
-            //        Text = text,
-            //        Object = item
-            //    });
-            //}
+        {
+            ABaseObject root = _viewModel.GetRoot();
+            ABaseObject obj = root.NavigatorPointer();
+            do
+            {                
+                obj = root.NavigatorPointer();
+                listBoxOptimizations.Items.Add(new RMasterItem() {
+                    DispTitle = _viewModel.Transform(_conf.MasterItemTemplate, obj),
+                    Object = obj
+                });
+            } while(obj != root.Navigate(0, 0));
         }
 
         private void listBoxOptimizations_SelectedIndexChanged(object sender, EventArgs e)
         {
-            //ListBox listBox = (sender as ListBox);
-            //if (listBox.SelectedItem != null)
-            //{
-            //    IPBaseObject obj = (listBox.SelectedItem as RMasterItem).Object;
-            //    _currentMasterObject = obj;
+            ListBox list_box = (sender as ListBox);
 
-            //    string html = _viewModel.Transform(_conf.DetailTemplate, obj);
-            //    _fbDb.DisconnectDB();
-
-            //    webControlDetails.LoadHTML(_addScriptsToBody(html));
-            //}
+            if (list_box.SelectedItem != null)
+            {
+                ABaseObject obj = (list_box.SelectedItem as RMasterItem).Object;
+            }
         }
 
         private string _addScriptsToBody(string text)

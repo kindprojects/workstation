@@ -40,7 +40,7 @@ namespace Platform
             _items.Add(name.ToLower(), text);
         }
 
-        public string TransformText(string templateName, PBaseObject obj, ref string path, bool addPath)
+        public string TransformText(string templateName, IPBaseObject obj, ref string path, bool addPath)
         {
             string template = "";
 

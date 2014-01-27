@@ -8,14 +8,13 @@ namespace Platform
 {
     public class PBaseObject: IPBaseObject
     {
-        public int Id { set;get; }
+        public int Id { set; get; }
         private Dictionary<string, string> _attrs;
         private List<PCollection> _collects;
         //private RBaseObject _owner;
         private IPDataModel _model;
         private PCollection _ownerCollection;
         private PModelObjectNavigator _navigator;
-
 
         public PBaseObject(int id, PCollection ownerCollection, IPDataModel model)
         {
@@ -26,13 +25,15 @@ namespace Platform
             _model = model;
         }
 
+        public IPBaseObject GetNavigatorPointer()
+        {
+            return _navigator.Pointer;
+        }
+
         public IPBaseObject NavigatorInitialize(string path)
         {
             _navigator = new PModelObjectNavigator(this);
-            _navigator.Setup(path);
-            //_navigator.SetObject(this);
-
-            return _navigator.Pointer;
+            return _navigator.Setup(path);            
         }
 
         //public void NavigatorSetPointer(PBaseObject obj)
@@ -41,20 +42,30 @@ namespace Platform
         //}
 
         // int level
-        public IPBaseObject Navigate(PModelObjectNavigatorPathLevel level, NAV_DIRECTION dir)
+        //public IPBaseObject Navigate(PModelObjectNavigatorPathLevel level, NAV_DIRECTION dir)
+        //{
+        //    return _navigator.Navigate(level, dir);
+        //}
+
+        public IPBaseObject Navigate(int depth, NAV_DIRECTION direction)
         {
-            return _navigator.Navigate(level, dir);
+            return _navigator.Navigate(depth, direction);
         }
 
-        public List<PModelObjectNavigatorPathLevel> GetLevels()
+        public IPBaseObject Navigate(string path)
         {
-            return _navigator.Levels;
+            return _navigator.Navigate(path);
         }
 
-        public IPBaseObject GetPointer()
-        {
-            return _navigator.Pointer;
-        }
+        //public List<PModelObjectNavigatorPathLevel> GetLevels()
+        //{
+        //    return _navigator.Levels;
+        //}
+
+        //public IPBaseObject GetPointer()
+        //{
+        //    return _navigator._pointer;
+        //}
 
         public bool GetAttr(string name, out string val)
         {

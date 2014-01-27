@@ -45,10 +45,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AApi.cs" />
-    <Compile Include="ABaseObject.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="AFbLink.cs" />
     <Compile Include="Repository\AFbRepository.cs" />
+    <Compile Include="AFbLink.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Platform\Platform.csproj">

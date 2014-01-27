@@ -13,7 +13,7 @@ using Api;
 
 namespace ProfileCut
 {
-    public class RFbLink : IADBLink
+    public class RFbLink : IADbLink
     {
         private FbConnection _db;
 

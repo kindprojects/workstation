@@ -10,7 +10,10 @@ namespace Platform
     {
         int Id { set; get; }
         IPBaseObject NavigatorInitialize(string path);
-        IPBaseObject Navigate(PModelObjectNavigatorPathLevel level, NAV_DIRECTION dir);
-        IPBaseObject GetPointer();
+        IPBaseObject Navigate(int depth, NAV_DIRECTION dir);
+        IPBaseObject Navigate(string path);
+        IPBaseObject GetNavigatorPointer();
+        bool GetAttr(string name, out string val);
+        PCollection GetCollection(string name, bool createIfNotFound);
     }
 }

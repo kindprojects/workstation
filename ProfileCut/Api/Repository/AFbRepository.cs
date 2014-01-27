@@ -7,8 +7,6 @@ using System.Threading.Tasks;
 using System.Configuration;
 using System.Collections;
 using System.Collections.Specialized;
-using FirebirdSql.Data.FirebirdClient;
-
 
 namespace Api
 {
