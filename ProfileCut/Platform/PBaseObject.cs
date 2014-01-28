@@ -30,6 +30,12 @@ namespace Platform
             return _navigator.Pointer;
         }
 
+        public void SetNavigatorPointer(int id)
+        {
+            PBaseObject obj = FindObjectById(id);
+            _navigator.Pointer = obj;           
+        }
+
         public IPBaseObject NavigatorInitialize(string path)
         {
             _navigator = new PModelObjectNavigator(this);
@@ -56,6 +62,10 @@ namespace Platform
         {
             return _navigator.Navigate(path);
         }
+        public IPBaseObject GetPointerAtLevel(int level)
+        {
+            return this._navigator.GetPointerAtLevel(level);
+        }
 
         //public List<PModelObjectNavigatorPathLevel> GetLevels()
         //{
@@ -66,6 +76,20 @@ namespace Platform
         //{
         //    return _navigator._pointer;
         //}
+
+        public List<string> GetPathFromObject(IPBaseObject obj)
+        {
+            List<string> lst = new List<string>();
+            PCollection c = this._ownerCollection;
+            while (c != null)
+            {
+                lst.Insert(0, c.Name);
+                if (c.Owner == obj)
+                    break;
+                c = c.Owner._ownerCollection;
+            }
+            return lst;
+        }
 
         public bool GetAttr(string name, out string val)
         {

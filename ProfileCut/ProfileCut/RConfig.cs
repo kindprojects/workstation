@@ -15,9 +15,12 @@ namespace ProfileCut
         public string MasterCollection { private set; get; }
         public string MasterItemTemplate { private set; get; }
         public string DetailTemplate { private set; get; }
-        //public string NavigationPath { private set; get; }
+        //public string DetailCollection { private set; get; }
+        public string Navigation { private set; get; }
         public string SelectedHtmlElementClass { private set; get; }
         public int MasterItemsUpdateIntervalMs { private set; get; }
+        public int PrintLevel { private set; get; }
+        public string PrintTemplate { private set; get; }
         //public RConfigHardwareCommands HardwareCommands { private set; get; }
 
         public RConfig()
@@ -28,10 +31,14 @@ namespace ProfileCut
 
             MasterItemTemplate = ConfigurationManager.AppSettings["MasterItemTemplate"];
             DetailTemplate = ConfigurationManager.AppSettings["DetailTemplate"];
-            //NavigationPath = ConfigurationManager.AppSettings["Navigation"];
+            //DetailCollection = ConfigurationManager.AppSettings["DetailCollection"];
+            Navigation = ConfigurationManager.AppSettings["Navigation"];
             SelectedHtmlElementClass = ConfigurationManager.AppSettings["SelectedHtmlElementClass"];
 
             MasterItemsUpdateIntervalMs = _getInt("MasterItemsUpdateIntervalMs", null);
+
+            PrintLevel = _getInt("PrintLevel", -1);
+            PrintTemplate = _getString("PrintTemplate", "");
 
             //HardwareCommands = new RConfigHardwareCommands();
             //RConfigHardwareCommandsSection section = (RConfigHardwareCommandsSection)ConfigurationManager.GetSection("startupHardwareCommands");

@@ -21,8 +21,8 @@ namespace Platform
         //private PBaseObject _current;
         //private PBaseObject _pointer;
 
-        public PBaseObject Pointer;
-        private PBaseObject _pointer
+        private PBaseObject _pointer;
+        public PBaseObject Pointer
         {
             set
             {
@@ -37,7 +37,7 @@ namespace Platform
                     {
                         _positionInLevel[ii] = path[ii];
                     }
-                    Pointer = value;
+                    _pointer = value;
                 }
                 else
                 {
@@ -46,7 +46,7 @@ namespace Platform
             }
             get
             {
-                return Pointer;
+                return _pointer;
             }
         }
 
@@ -58,21 +58,36 @@ namespace Platform
             _owner = owner;
         }
 
+        public PBaseObject GetPointerAtLevel(int level)
+        {
+            PBaseObject p = this._owner;
+            if (level > _levels.Count())
+                throw new Exception ("level > _level.Count()");
+            for (int ii = 0; ii < level; ii++){
+                PCollection coll = p.GetCollection(_levels[ii], false);
+                if (coll != null){
+                    p = coll.GetObject(_positionInLevel[ii]);
+                }
+            }
+            return p;
+        }
 
         // collection:index/collection:index/...
         private void _parseToLevels(string path)
         {
-            try 
+            try
             {
-                foreach (Match match in Regex.Matches(path, @"([^:/\\]+(?::[^:/\\]+)?)"))
+                _levels.Clear();
+                _positionInLevel.Clear();
+                foreach (Match match in Regex.Matches(path, @"([^:/\\]+(?::\d+)?)"))
                 {
                     MatchCollection partMatches = _parsePart(match.Groups[1].ToString());
-                    
-                    foreach(Match partMatch in partMatches)
+
+                    foreach (Match partMatch in partMatches)
                     {
                         _levels.Add(partMatch.Groups[1].Value.ToString());
                         _positionInLevel.Add(Convert.ToInt32(partMatch.Groups[2].Value.ToString()));
-                    }                    
+                    }
                 }
             }
             catch (Exception ex)
@@ -130,9 +145,46 @@ namespace Platform
 
         //    foreach (string lvl in _levels)
         //    {
-        //        ret += ((ret != "") ? "/" : "") + lvl + "[" + lvl.Index.ToString() + "]";
+        //        ret += ((ret != "") ? "/" : "") + lvl + "[" + lvl.ToString() + "]";
         //    }
         //    return ret;
+        //}
+
+
+
+
+        //private void _updatePointer()
+        //{
+        //    if (this._current == null)
+        //        throw new Exception("Текущий объект не задан");
+        //    RBaseObject o = this._current;
+        //    foreach (RModelObjectNavigatorPathLevel lvl in _levels)
+        //    {
+        //        RCollection coll = o.GetCollection(lvl.CollectionName, false);
+        //        if (coll == null)
+        //        {
+        //            throw new Exception("Указанная в конфигурации коллекция '" + lvl.CollectionName + "' не описана в переданном объекте");
+        //        }
+        //        else
+        //        {
+        //            int index = lvl.Index;
+        //            if (index < 0)
+        //            {
+        //                index = coll.Count() - 1;
+        //                lvl.Index = index;
+        //            }
+        //            o = coll.GetObject(index);
+        //            if (o != null)
+        //            {
+        //                this.Pointer = o;
+        //            }
+        //            else
+        //            {
+        //                break;
+        //            }
+        //        }
+        //    }
+        //    OnNavigated(this, this.Pointer);
         //}
 
         private void _updatePointer()
@@ -142,23 +194,32 @@ namespace Platform
                 throw new Exception("Текущий объект не задан");
             }
 
-            //PBaseObject o = _owner;
+            PBaseObject owner = _owner;
             for (int ii = 0; ii < _levels.Count(); ii++)
             {
                 string level = _levels[ii];
                 int position = _positionInLevel[ii];
 
-                PCollection collection = _owner.GetCollection(level, false);
+                PCollection collection = owner.GetCollection(level, false);
                 if (collection == null)
                 {
                     throw new Exception("Указанная в конфигурации коллекция '" + level + "' не описана в переданном объекте");
                 }
-                else {
-                    PBaseObject obj = collection.GetObject(position);
-                    if (obj != null) {
-                        this.Pointer = obj;
+                else
+                {
+                    if (position < 0)
+                    {
+                        position = collection.Count() - 1;
+                        _positionInLevel[ii] = position;
                     }
-                    else {
+                    PBaseObject obj = collection.GetObject(position);
+                    if (obj != null)
+                    {
+                        this.Pointer = obj;
+                        owner = obj;
+                    }
+                    else
+                    {
                         break;
                     }
                 }
@@ -170,14 +231,25 @@ namespace Platform
             if (_owner == null)
                 throw new Exception("Текущий объект не задан");
 
-            List<int> newPath = _positionInLevel;                        
-            newPath[depth] = newPath[depth] + 1;
+            int cnt = depth + 1;
+
+            List<int> newPath = new List<int>();
+            for (int ii = 0; ii < cnt; ii++ )
+            {
+                newPath.Add(_positionInLevel[ii]);
+            }
+
+
+                //_positionInLevel.ToList();
 
             if (_tryGetNewPath(ref newPath, dir))
             {
+                for (int ii = 0; ii < _levels.Count(); ii++)
+                {
+                    _positionInLevel[ii] = (ii < cnt) ? newPath[ii] : 0;
+                }
 
-                _positionInLevel = newPath;
-
+                //_positionInLevel = newPath;
                 //for (int ii = 0; ii < _levels.Count(); ii++)
                 //{
                 //    _positionInLevel[ii] = (ii < cnt) ? newPath[ii] : 0;
@@ -188,7 +260,7 @@ namespace Platform
             }
             else
             {
-                return null;
+                return Pointer;
             }
         }
 
@@ -257,7 +329,7 @@ namespace Platform
             _parseToLevels(path);
             _updatePointer();
 
-            return Pointer;            
+            return Pointer;
         }
 
         //public PBaseObject Navigate(int depth, NAV_DIRECTION direction)
@@ -293,7 +365,7 @@ namespace Platform
         //                }
         //                obj = Pointer._ownerCollection.GetObject(_positionInLevel[depth]);
         //            }
-                    
+
         //        }
         //        else
         //        {
@@ -369,7 +441,7 @@ namespace Platform
         //            path[ii] = (dir == NAV_DIRECTION.UP) ? -1 : 0;
         //        }
         //    }
-            
+
         //    return false;
         //}
 

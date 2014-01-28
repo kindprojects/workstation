@@ -36,6 +36,8 @@
             this.buttonRefresh = new System.Windows.Forms.Button();
             this.panelAwesomiumWebControl = new System.Windows.Forms.Panel();
             this.webControlDetails = new Awesomium.Windows.Forms.WebControl(this.components);
+            this.button1 = new System.Windows.Forms.Button();
+            this.printDocument1 = new System.Drawing.Printing.PrintDocument();
             this.panelAwesomiumWebControl.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -74,7 +76,7 @@
             // 
             // buttonRefresh
             // 
-            this.buttonRefresh.BackgroundImage = global::Platform.Resource.refresh2;
+            this.buttonRefresh.BackgroundImage = global::ProfileCut.Resource.refresh2;
             this.buttonRefresh.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
             this.buttonRefresh.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.buttonRefresh.Location = new System.Drawing.Point(175, 5);
@@ -100,12 +102,24 @@
             this.webControlDetails.Location = new System.Drawing.Point(0, 0);
             this.webControlDetails.Size = new System.Drawing.Size(637, 487);
             this.webControlDetails.TabIndex = 0;
+            this.webControlDetails.DocumentReady += new Awesomium.Core.UrlEventHandler(this.Awesomium_Windows_Forms_WebControl_DocumentReady);
+            // 
+            // button1
+            // 
+            this.button1.Location = new System.Drawing.Point(94, 20);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(75, 23);
+            this.button1.TabIndex = 9;
+            this.button1.Text = "button1";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
             // FMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(870, 548);
+            this.Controls.Add(this.button1);
             this.Controls.Add(this.panelAwesomiumWebControl);
             this.Controls.Add(this.buttonRefresh);
             this.Controls.Add(this.labeOpt);
@@ -130,6 +144,8 @@
         private System.Windows.Forms.Button buttonRefresh;
         private System.Windows.Forms.Panel panelAwesomiumWebControl;
         private Awesomium.Windows.Forms.WebControl webControlDetails;
+        private System.Windows.Forms.Button button1;
+        private System.Drawing.Printing.PrintDocument printDocument1;
     }
 }
 

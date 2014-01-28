@@ -105,7 +105,9 @@
       <AutoGen>True</AutoGen>
     </Compile>
     <Compile Include="RMasterItem.cs" />
-    <Compile Include="RNavigatorButton.cs" />
+    <Compile Include="RNavigatorButton.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <EmbeddedResource Include="FMain.resx">
       <DependentUpon>FMain.cs</DependentUpon>
     </EmbeddedResource>
@@ -116,6 +118,7 @@
     <EmbeddedResource Include="Resource.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resource.Designer.cs</LastGenOutput>
+      <CustomToolNamespace>ProfileCut</CustomToolNamespace>
     </EmbeddedResource>
     <None Include="DB.FDB">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>

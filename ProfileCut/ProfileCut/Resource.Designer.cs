@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Platform {
+namespace ProfileCut {
     using System;
     
     
