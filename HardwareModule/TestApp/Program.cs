@@ -10,8 +10,8 @@ namespace TestApp
 			try
 			{
 				Console.WriteLine("[ tester app ]");
-				HardwareModule m = new HardwareModule(@"D:\TFS\Prom\HardwareModule\TestModule\bin\Debug\TestModule.dll");
-				HardwareInterfaces.ITestFunction1 i = m.GetClassInstance<HardwareInterfaces.ITestFunction1>("HardwareModule", "TestFunction");
+				HardwareModule m = new HardwareModule(@"D:\RomycH\Github\workstation2\HardwareModule\TestModule\bin\Debug\TestModule.dll");
+				HardwareInterfaces.ITestFunction1 i = m.GetClassInstance<HardwareInterfaces.ITestFunction1>("TestModule", "Class1");
 				Console.WriteLine(i.Test(2, 3));
 
 				//TestModule m = new TestModule(@"D:\TFS\Prom\HardwareModule\TestModule\bin\Debug\TestModule.dll");
