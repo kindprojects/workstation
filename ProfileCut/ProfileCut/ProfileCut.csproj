@@ -183,6 +183,10 @@
     <Folder Include="bin\Debug\" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\SharpZebra\SharpZebra\Com.SharpZebra.csproj">
+      <Project>{31d7d48d-d093-4b68-b540-0cd4f2220c30}</Project>
+      <Name>Com.SharpZebra</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Api\Api.csproj">
       <Project>{f274f3ea-051d-4209-90c5-9614be0fe3f5}</Project>
       <Name>Api</Name>

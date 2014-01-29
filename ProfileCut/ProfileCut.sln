@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Platform", "Platform\Platfo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Api", "Api\Api.csproj", "{F274F3EA-051D-4209-90C5-9614BE0FE3F5}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Com.SharpZebra", "..\SharpZebra\SharpZebra\Com.SharpZebra.csproj", "{31D7D48D-D093-4B68-B540-0CD4F2220C30}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{F274F3EA-051D-4209-90C5-9614BE0FE3F5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F274F3EA-051D-4209-90C5-9614BE0FE3F5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F274F3EA-051D-4209-90C5-9614BE0FE3F5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{31D7D48D-D093-4B68-B540-0CD4F2220C30}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{31D7D48D-D093-4B68-B540-0CD4F2220C30}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{31D7D48D-D093-4B68-B540-0CD4F2220C30}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{31D7D48D-D093-4B68-B540-0CD4F2220C30}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
