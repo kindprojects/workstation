@@ -1,0 +1,138 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using ModuleConnect;
+using System.IO;
+using System.Windows.Forms;
+using System.Text.RegularExpressions;
+using HardwareInterfaces;
+
+namespace ProfileCut
+{
+    public class RPrinter
+    {
+        private HardwareModule _module;
+        public RPrinter(string modulePath)
+        {
+            if (!Path.IsPathRooted(modulePath))
+            {
+                modulePath = Path.GetFullPath(modulePath);
+            }
+            _module = new HardwareModule(modulePath);
+        }
+
+        public class RPrinterCommand
+        {
+            public string Code { private set; get; }
+            private Dictionary<string, string> _params;
+            public RPrinterCommand(string commandString){
+                _params = new Dictionary<string,string>();
+
+                // получение кода
+                Regex r = new Regex(@"(\S+)\s+(.*)");
+                Match m = r.Match(commandString);
+                if (m.Groups.Count > 1)
+                    Code = m.Groups[1].Value.ToString();
+                if (m.Groups.Count > 2)
+                {
+                    string sParams = m.Groups[2].Value.ToString().Trim();
+                    // список параметров
+                    r = new Regex(@"(\S+)\s*:\s*"+'"'+"([^\"]+)\"");
+
+                    m = r.Match(sParams);
+                    while (m.Groups.Count == 3)
+                    {
+                        _params.Add(m.Groups[1].Value.ToString().ToLower(), m.Groups[2].Value.ToString());
+                        m = m.NextMatch();
+                    }
+                }
+            }
+            public string GetParamStr(string name, string def=null)
+            {
+                if (_params.ContainsKey(name.ToLower()))
+                {
+                    return _params[name];
+                }
+                else if (def == null)
+                {
+                    throw new Exception("Параметр " + name + " не задан");
+                }
+                else
+                {
+                    return def;
+                }
+            }
+            public int GetParamInt(string name, int? def=null){
+                string s = GetParamStr(name, (def == null)?null:def.ToString());
+                try
+                {
+                    return Convert.ToInt32(s);
+                }
+                catch (Exception e)
+                {
+                    throw new Exception("Параметр " + name + " должен быть задан в виде целого числа");
+                }
+            }
+            public double GetParamFloat(string name, double? def = null)
+            {
+                string s = GetParamStr(name, (def == null) ? null : def.ToString());
+                try
+                {
+                    return Convert.ToDouble(s);
+                }
+                catch (Exception e)
+                {
+                    throw new Exception("Параметр " + name + " должен быть задан в виде числа с плавающей точкой");
+                }
+            }
+            public bool GetParamBool(string name, bool? def = null)
+            {
+                string s = GetParamStr(name, (def == null) ? null : ((bool)def?"1":"0")).ToLower();
+                try
+                {
+                    return (s == "1" || s == "true");
+                }
+                catch (Exception e)
+                {
+                    throw new Exception("Параметр " + name + " должен быть задан в виде 1|0 или TRUE|FALSE");
+                }
+            }
+        }
+
+        public void Print(string Commands)
+        {
+            IStickerPrinter printer = _module.GetClassInstance<IStickerPrinter>("ModulePrinter", "Printer");
+            string [] aCommands = Commands.Split('\n');
+            foreach(string line in aCommands){
+                RPrinterCommand cmd = new RPrinterCommand(line);
+                switch (cmd.Code.ToUpper())
+                {
+                    case "LBL":
+                        printer.WriteText(
+                            cmd.GetParamStr("text")
+                            , cmd.GetParamFloat("x")
+                            , cmd.GetParamFloat("y")
+                            , cmd.GetParamInt("alignHor", -1)
+                            , cmd.GetParamInt("alignVer", -1)
+                            , cmd.GetParamFloat("angle", 0)
+                            , cmd.GetParamFloat("maxWidth", 0)
+                            , cmd.GetParamFloat("maxHeight", 0)
+                            , cmd.GetParamBool("shrink", false)
+                            , cmd.GetParamBool("grow", false)
+                        );
+                        break;
+                    case "FNT":
+                        printer.SetFont(cmd.GetParamStr("name"), cmd.GetParamInt("size"));
+                        break;
+                    case "PAGE":
+                        printer.NewPage(cmd.GetParamFloat("width"), cmd.GetParamFloat("height"));
+                        break;
+                    default:
+                        throw new Exception("Неизвестный параметр "+cmd.Code);
+                }
+            }
+        }
+    }
+}

@@ -13,7 +13,7 @@ namespace ModuleConnect
 
 		public T GetClassInstance<T>(string nameSpace, string className) where T : class
 		{
-			string classPath = nameSpace+'.'+className;
+            string classPath = nameSpace + '.' + className;
 			Type classType = this._asm.GetType(classPath);
 			if (classType == null)
 			{

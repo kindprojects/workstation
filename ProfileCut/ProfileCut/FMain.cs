@@ -17,8 +17,7 @@ using Awesomium.Web;
 using Awesomium.Windows;
 using System.Text.RegularExpressions;
 using Api;
-
-
+using JsonPrinter;
 
 namespace ProfileCut
 {
@@ -304,13 +303,25 @@ namespace ProfileCut
         {
             if (_master != null)
             {
-                ABaseObject p = _master.GetNavigatorPointer();
-                if (p != null && _conf.PrintTemplate != "")
+                ABaseObject pointer = _master.GetNavigatorPointer();
+                if (pointer != null && _conf.PrintTemplate != "" && _conf.PrinterModule != "")
                 {
                     ABaseObject o = _master.GetPointerAtLevel(_conf.PrintLevel);
-                    //MessageBox.Show(_viewModel.Transform(_conf.PrintTemplate, o));
+                    string commands = _viewModel.Transform(_conf.PrintTemplate, o);
+                    RPrinter printer = new RPrinter(_conf.PrinterModule);
+                    printer.Print(commands);
 
-                    int requestID = webControlDetails.PrintToFile(@"c:\temp", PrintConfig.Default);
+
+                    //JPrinter p = new JPrinter();
+                    //p.Commands.Add(new JCommandLabel(10, 12, "test"));
+                    //string json = Serializer.GetJson(p);
+                    //MessageBox.Show(json);
+
+                    STest x = new STest();
+                    string json = Serializer.GetJsonTest(x);
+
+
+                    //JPrinter p = JsonPrinter.Serializer.GetPrinter(json);
                 }
             }
         }
