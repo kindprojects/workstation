@@ -309,13 +309,13 @@ namespace ProfileCut
                 {
                     ABaseObject o = _master.GetPointerAtLevel(_conf.PrintLevel);
                     //MessageBox.Show(_viewModel.Transform(_conf.PrintTemplate, o));
+
+                    int requestID = webControlDetails.PrintToFile(@"c:\temp", PrintConfig.Default);
                 }
             }
         }
 
-        private void printButton_Click(object sender, EventArgs e)
-        {            
-        }
+      
     }
 }
 
