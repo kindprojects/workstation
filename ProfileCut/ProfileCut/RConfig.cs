@@ -22,6 +22,7 @@ namespace ProfileCut
         public int PrintLevel { private set; get; }
         public string PrintTemplate { private set; get; }
         public string PrinterModule { private set; get; }
+        public string PrinterName { private set; get; }
         //public RConfigHardwareCommands HardwareCommands { private set; get; }
 
         public RConfig()
@@ -41,6 +42,7 @@ namespace ProfileCut
             PrintLevel = _getInt("PrintLevel", -1);
             PrintTemplate = _getString("PrintTemplate", "");
             PrinterModule = _getString("PrinterModule", "");
+            PrinterName = _getString("PrinterName", "");
 
             //HardwareCommands = new RConfigHardwareCommands();
             //RConfigHardwareCommandsSection section = (RConfigHardwareCommandsSection)ConfigurationManager.GetSection("startupHardwareCommands");

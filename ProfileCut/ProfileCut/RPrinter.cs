@@ -14,13 +14,21 @@ namespace ProfileCut
     public class RPrinter
     {
         private HardwareModule _module;
-        public RPrinter(string modulePath)
+        private IStickerPrinter _printer;
+
+        public RPrinter(string modulePath, string printerName)
         {
             if (!Path.IsPathRooted(modulePath))
             {
                 modulePath = Path.GetFullPath(modulePath);
             }
             _module = new HardwareModule(modulePath);
+
+            _printer = _module.GetClassInstance<IStickerPrinter>("ModuleZebraPrinter", "Printer");
+            if (printerName != "")
+            {
+                _printer.Init(printerName);
+            }
         }
 
         public class RPrinterCommand
@@ -49,7 +57,7 @@ namespace ProfileCut
                     }
                 }
             }
-            public string GetParamStr(string name, string def=null)
+            public string GetParamStr(string name, string def = null)
             {
                 if (_params.ContainsKey(name.ToLower()))
                 {
@@ -57,7 +65,7 @@ namespace ProfileCut
                 }
                 else if (def == null)
                 {
-                    throw new Exception("Параметр " + name + " не задан");
+                    throw new Exception("В комманде " + Code + " параметр " + name + " не задан");
                 }
                 else
                 {
@@ -70,7 +78,7 @@ namespace ProfileCut
                 {
                     return Convert.ToInt32(s);
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
                     throw new Exception("Параметр " + name + " должен быть задан в виде целого числа");
                 }
@@ -82,7 +90,7 @@ namespace ProfileCut
                 {
                     return Convert.ToDouble(s);
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
                     throw new Exception("Параметр " + name + " должен быть задан в виде числа с плавающей точкой");
                 }
@@ -94,7 +102,7 @@ namespace ProfileCut
                 {
                     return (s == "1" || s == "true");
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
                     throw new Exception("Параметр " + name + " должен быть задан в виде 1|0 или TRUE|FALSE");
                 }
@@ -102,37 +110,42 @@ namespace ProfileCut
         }
 
         public void Print(string Commands)
-        {
-            IStickerPrinter printer = _module.GetClassInstance<IStickerPrinter>("ModulePrinter", "Printer");
+        {           
             string [] aCommands = Commands.Split('\n');
-            foreach(string line in aCommands){
+            foreach(string line in aCommands)
+            {
                 RPrinterCommand cmd = new RPrinterCommand(line);
-                switch (cmd.Code.ToUpper())
+                if (cmd.Code != null)
                 {
-                    case "LBL":
-                        printer.WriteText(
-                            cmd.GetParamStr("text")
-                            , cmd.GetParamFloat("x")
-                            , cmd.GetParamFloat("y")
-                            , cmd.GetParamInt("alignHor", -1)
-                            , cmd.GetParamInt("alignVer", -1)
-                            , cmd.GetParamFloat("angle", 0)
-                            , cmd.GetParamFloat("maxWidth", 0)
-                            , cmd.GetParamFloat("maxHeight", 0)
-                            , cmd.GetParamBool("shrink", false)
-                            , cmd.GetParamBool("grow", false)
-                        );
-                        break;
-                    case "FNT":
-                        printer.SetFont(cmd.GetParamStr("name"), cmd.GetParamInt("size"));
-                        break;
-                    case "PAGE":
-                        printer.NewPage(cmd.GetParamFloat("width"), cmd.GetParamFloat("height"));
-                        break;
-                    default:
-                        throw new Exception("Неизвестный параметр "+cmd.Code);
+                    switch (cmd.Code.ToUpper())
+                    {
+                        case "LBL":
+                            _printer.WriteText(
+                                cmd.GetParamStr("text")
+                                , cmd.GetParamFloat("x")
+                                , cmd.GetParamFloat("y")
+                                , cmd.GetParamInt("alignHor", -1)
+                                , cmd.GetParamInt("alignVer", -1)
+                                , cmd.GetParamFloat("angle", 0)
+                                , cmd.GetParamFloat("maxWidth", 0)
+                                , cmd.GetParamFloat("maxHeight", 0)
+                                , cmd.GetParamBool("shrink", false)
+                                , cmd.GetParamBool("grow", false)
+                            );
+                            break;
+                        case "FNT":
+                            _printer.SetFont(cmd.GetParamStr("name"), cmd.GetParamInt("size"));
+                            break;
+                        case "PAGE":
+                            _printer.NewPage(cmd.GetParamFloat("width"), cmd.GetParamFloat("height"));
+                            break;
+                        default:
+                            throw new Exception("Неизвестный параметр " + cmd.Code);
+                    }
                 }
             }
+
+            _printer.Execute();
         }
     }
 }

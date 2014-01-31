@@ -17,13 +17,13 @@ using Awesomium.Web;
 using Awesomium.Windows;
 using System.Text.RegularExpressions;
 using Api;
-using JsonPrinter;
+
 
 namespace ProfileCut
 {
     public partial class FMain : Form
     {
-        private StreamReader streamToPrint;
+        //private StreamReader streamToPrint;
 
         private bool _domIsReady;
         private JSObject _jsObject;
@@ -308,7 +308,7 @@ namespace ProfileCut
                 {
                     ABaseObject o = _master.GetPointerAtLevel(_conf.PrintLevel);
                     string commands = _viewModel.Transform(_conf.PrintTemplate, o);
-                    RPrinter printer = new RPrinter(_conf.PrinterModule);
+                    RPrinter printer = new RPrinter(_conf.PrinterModule, _conf.PrinterName);
                     printer.Print(commands);
 
 
@@ -317,8 +317,8 @@ namespace ProfileCut
                     //string json = Serializer.GetJson(p);
                     //MessageBox.Show(json);
 
-                    STest x = new STest();
-                    string json = Serializer.GetJsonTest(x);
+                    //STest x = new STest();
+                    //string json = Serializer.GetJsonTest(x);
 
 
                     //JPrinter p = JsonPrinter.Serializer.GetPrinter(json);

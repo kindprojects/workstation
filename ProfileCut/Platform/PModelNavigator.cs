@@ -51,7 +51,7 @@ namespace Platform
         }
 
         public delegate void NavigatedEventHandler(object sender, PBaseObject o);
-        public event NavigatedEventHandler OnNavigated;
+        //public event NavigatedEventHandler OnNavigated;
 
         public PModelObjectNavigator(PBaseObject owner)
         {

@@ -18,5 +18,6 @@ namespace HardwareInterfaces
         void DrawLine(float x1, float y1, float x2, float y2);
         void DrawLine(Point p1, Point p2);
         void NewPage(double width, double height);
+        void Init(string printerName);
     }
 }

@@ -56,7 +56,7 @@ namespace Api
                         Dictionary<string, string> row = new Dictionary<string, string>();
                         for (int jj = 0; jj < reader.FieldCount; jj++)
                         {
-                            row.Add(reader.GetName(jj).ToLower(), reader.GetString(jj));
+                            row.Add(reader.GetName(jj).ToLower(), reader.GetString(jj));                            
                         }
                         ret.Add(row);
                     }
@@ -130,19 +130,30 @@ namespace Api
             Dictionary<string,string> ret = new Dictionary<string,string>();
 
             string[] paramList = { "code", modelCode};
-            List<Dictionary<string, string>> q = this.SqlSelect("select t.templatecode, t.templatedata"
+            List<Dictionary<string, string>> q = this.SqlSelect("select t.templatecode, t.templatedata, t.append_line_break"
                 + " from models m"
                 + " join templates t on t.modelid = m.modelid"
                 + " where upper(m.modelcode) = upper(@code)", paramList);
+
+            
+
             foreach (Dictionary<string, string> row in q)
             {
                 string tplName = "";
-                string tplData = "";
+                string tplData = "";                
                 if (row.TryGetValue("templatecode", out tplName)
                     && row.TryGetValue("templatedata", out tplData)
                   )
                 {
-                    ret.Add(tplName, tplData);
+                    string line_break = "";
+                    string tplBreak = "";
+                    if (row.TryGetValue("append_line_break", out tplBreak))
+                    { 
+                        if (tplBreak != "0")
+                            line_break = "\n";
+                    }
+
+                    ret.Add(tplName, tplData + line_break);
                 }
             }
             
