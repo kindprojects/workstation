@@ -23,12 +23,10 @@ namespace ProfileCut
 {
     public partial class FMain : Form
     {
-        //private StreamReader streamToPrint;
-
-        private bool _domIsReady;
         private JSObject _jsObject;
 
         private RConfig _conf;
+
         // представление модели
         private AModel _viewModel;
         
@@ -50,7 +48,7 @@ namespace ProfileCut
 
             _viewModel = new AModel(_conf.ConnectionString, _conf.ModelCode, true);
             _master = _viewModel.GetRoot().NavigatorInitialize(_conf.MasterCollection);
-            _domIsReady = false;
+
             buttonPrint.Enabled = false;
 
             _navButtonsEnable(panelNavigator, false);
@@ -61,23 +59,9 @@ namespace ProfileCut
             listBoxOptimizations.DisplayMember = "DispTitle";
             listBoxOptimizations.ValueMember = "Object";
 
-           _fillListBoxOptimizations();
+            _refreshOptimizationList();
         }
-
-        private void _fillListBoxOptimizations()
-        {
-            ABaseObject root = _viewModel.GetRoot();
-            ABaseObject obj;
-            do
-            {
-                obj = root.GetNavigatorPointer();
-                listBoxOptimizations.Items.Add(new RMasterItem() {
-                    DispTitle = _viewModel.Transform(_conf.MasterItemTemplate, obj),
-                    Object = obj
-                });
-            } while(obj.Id != root.Navigate(0, 0).Id);
-        }
-
+  
         private void listBoxOptimizations_SelectedIndexChanged(object sender, EventArgs e)
         {
             ListBox list_box = (sender as ListBox);
@@ -199,8 +183,6 @@ namespace ProfileCut
             var obj = _master.NavigatorInitialize(_detailPath);
             _updateActiveHtmlElement(0, obj.Id, true);
             _previousId = obj.Id;
-
-            _domIsReady = true;
             _navButtonsEnable(panelNavigator, true);
             buttonPrint.Enabled = true;
         }
@@ -313,6 +295,56 @@ namespace ProfileCut
                     RPrinter printer = new RPrinter(_conf.PrinterModule, _conf.PrinterName);
                     printer.Print(commands);
                 }
+            }
+        }
+
+        private void buttonRefresh_Click(object sender, EventArgs e)
+        {
+            object selectedItem = this.listBoxOptimizations.SelectedItem;
+
+            _viewModel = new AModel(_conf.ConnectionString, _conf.ModelCode, true);
+            _master = _viewModel.GetRoot().NavigatorInitialize(_conf.MasterCollection);           
+            _refreshOptimizationList();
+
+            if (selectedItem != null)
+            {
+                int id = (selectedItem as RMasterItem).Object.Id;
+                _selectListItemById(id);
+            }
+        }
+
+        private void  _refreshOptimizationList()
+        {
+            listBoxOptimizations.Items.Clear();
+            ABaseObject root = _viewModel.GetRoot();
+            ABaseObject obj;
+            do
+            {
+                obj = root.GetNavigatorPointer();
+                listBoxOptimizations.Items.Add(new RMasterItem()
+                {
+                    DispTitle = _viewModel.Transform(_conf.MasterItemTemplate, obj),
+                    Object = obj
+                });
+            } while (obj.Id != root.Navigate(0, 0).Id);
+        }
+
+        private void _selectListItemById(int id)
+        {
+            //listBoxOptimizations.SelectedIndexChanged -= new System.EventHandler(this.listBoxOptimizations_SelectedIndexChanged);
+            try
+            {
+                for (int ii = 0; ii < listBoxOptimizations.Items.Count; ii++)
+                {
+                    if ((listBoxOptimizations.Items[ii] as RMasterItem).Object.Id == id)
+                    {
+                        listBoxOptimizations.SelectedIndex = ii;
+                    }
+                }
+            }
+            finally
+            {
+               //listBoxOptimizations.SelectedIndexChanged += new System.EventHandler(this.listBoxOptimizations_SelectedIndexChanged);
             }
         }
     }

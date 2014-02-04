@@ -84,6 +84,7 @@
             this.buttonRefresh.Size = new System.Drawing.Size(40, 38);
             this.buttonRefresh.TabIndex = 7;
             this.buttonRefresh.UseVisualStyleBackColor = true;
+            this.buttonRefresh.Click += new System.EventHandler(this.buttonRefresh_Click);
             // 
             // panelAwesomiumWebControl
             // 
@@ -107,7 +108,7 @@
             // buttonPrint
             // 
             this.buttonPrint.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.buttonPrint.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.buttonPrint.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
             this.buttonPrint.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.buttonPrint.Location = new System.Drawing.Point(777, 498);
             this.buttonPrint.Name = "buttonPrint";
