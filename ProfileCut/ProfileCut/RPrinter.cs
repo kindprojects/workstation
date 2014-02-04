@@ -27,7 +27,7 @@ namespace ProfileCut
             _printer = _module.GetClassInstance<IStickerPrinter>("ModuleZebraPrinter", "Printer");
             if (printerName != "")
             {
-                _printer.Init(printerName);
+                _printer.Init();
             }
         }
 
@@ -47,7 +47,7 @@ namespace ProfileCut
                 {
                     string sParams = m.Groups[2].Value.ToString().Trim();
                     // список параметров
-                    r = new Regex(@"(\S+)\s*:\s*"+'"'+"([^\"]+)\"");
+                    r = new Regex(@"(\S+)\s*:\s*"+'"'+"([^\"]*)\"");
 
                     m = r.Match(sParams);
                     while (m.Groups.Count == 3)
@@ -114,31 +114,63 @@ namespace ProfileCut
             string [] aCommands = Commands.Split('\n');
             foreach(string line in aCommands)
             {
-                RPrinterCommand cmd = new RPrinterCommand(line);
+                string cmdLine = line.Trim();
+                if (cmdLine == string.Empty)
+                    continue;
+                RPrinterCommand cmd = new RPrinterCommand(cmdLine);
                 if (cmd.Code != null)
                 {
                     switch (cmd.Code.ToUpper())
                     {
+                        //case "LBL":
+                        //    _printer.WriteText(
+                        //        cmd.GetParamStr("text")
+                        //        , cmd.GetParamFloat("x")
+                        //        , cmd.GetParamFloat("y")
+                        //        , cmd.GetParamInt("alignHor", -1)
+                        //        , cmd.GetParamInt("alignVer", -1)
+                        //        , cmd.GetParamFloat("angle", 0)
+                        //        , cmd.GetParamFloat("maxWidth", 0)
+                        //        , cmd.GetParamFloat("maxHeight", 0)
+                        //        , cmd.GetParamBool("shrink", false)
+                        //        , cmd.GetParamBool("grow", false)
+                        //    );
+                        //    break;
+
                         case "LBL":
-                            _printer.WriteText(
-                                cmd.GetParamStr("text")
-                                , cmd.GetParamFloat("x")
-                                , cmd.GetParamFloat("y")
-                                , cmd.GetParamInt("alignHor", -1)
-                                , cmd.GetParamInt("alignVer", -1)
-                                , cmd.GetParamFloat("angle", 0)
-                                , cmd.GetParamFloat("maxWidth", 0)
-                                , cmd.GetParamFloat("maxHeight", 0)
-                                , cmd.GetParamBool("shrink", false)
-                                , cmd.GetParamBool("grow", false)
-                            );
+                            string lblText = cmd.GetParamStr("text");
+                            if (lblText != "")
+                            {
+                                _printer.WriteText(
+                                    cmd.GetParamStr("text")
+                                    , cmd.GetParamFloat("x")
+                                    , cmd.GetParamFloat("y")
+                                    , cmd.GetParamInt("angle", 0)
+                                );
+                            }
                             break;
+
                         case "FNT":
-                            _printer.SetFont(cmd.GetParamStr("name"), cmd.GetParamInt("size"));
+                            _printer.SetFont(cmd.GetParamStr("name"));
                             break;
+
                         case "PAGE":
                             _printer.NewPage(cmd.GetParamFloat("width"), cmd.GetParamFloat("height"));
                             break;
+
+                        case "BAR":
+                            string barText = cmd.GetParamStr("text");
+                            if (barText != "")
+                            {
+                            _printer.WriteBarcode(barText,
+                                cmd.GetParamFloat("x"), 
+                                cmd.GetParamFloat("y"),                                
+                                cmd.GetParamFloat("height"),
+                                cmd.GetParamFloat("width") 
+                                );
+                            }
+                            break;
+
                         default:
                             throw new Exception("Неизвестный параметр " + cmd.Code);
                     }

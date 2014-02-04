@@ -36,8 +36,8 @@
             this.buttonRefresh = new System.Windows.Forms.Button();
             this.panelAwesomiumWebControl = new System.Windows.Forms.Panel();
             this.webControlDetails = new Awesomium.Windows.Forms.WebControl(this.components);
-            this.button1 = new System.Windows.Forms.Button();
             this.printDocument1 = new System.Drawing.Printing.PrintDocument();
+            this.buttonPrint = new System.Windows.Forms.Button();
             this.panelAwesomiumWebControl.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -61,7 +61,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.panelNavigator.Location = new System.Drawing.Point(221, 498);
             this.panelNavigator.Name = "panelNavigator";
-            this.panelNavigator.Size = new System.Drawing.Size(637, 38);
+            this.panelNavigator.Size = new System.Drawing.Size(550, 38);
             this.panelNavigator.TabIndex = 4;
             // 
             // labeOpt
@@ -104,22 +104,25 @@
             this.webControlDetails.TabIndex = 0;
             this.webControlDetails.DocumentReady += new Awesomium.Core.UrlEventHandler(this.Awesomium_Windows_Forms_WebControl_DocumentReady);
             // 
-            // button1
+            // buttonPrint
             // 
-            this.button1.Location = new System.Drawing.Point(94, 20);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(75, 23);
-            this.button1.TabIndex = 9;
-            this.button1.Text = "button1";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
+            this.buttonPrint.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.buttonPrint.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.buttonPrint.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.buttonPrint.Location = new System.Drawing.Point(777, 498);
+            this.buttonPrint.Name = "buttonPrint";
+            this.buttonPrint.Size = new System.Drawing.Size(81, 38);
+            this.buttonPrint.TabIndex = 8;
+            this.buttonPrint.Text = "Печать";
+            this.buttonPrint.UseVisualStyleBackColor = true;
+            this.buttonPrint.Click += new System.EventHandler(this.print_Click);
             // 
             // FMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(870, 548);
-            this.Controls.Add(this.button1);
+            this.Controls.Add(this.buttonPrint);
             this.Controls.Add(this.panelAwesomiumWebControl);
             this.Controls.Add(this.buttonRefresh);
             this.Controls.Add(this.labeOpt);
@@ -144,8 +147,8 @@
         private System.Windows.Forms.Button buttonRefresh;
         private System.Windows.Forms.Panel panelAwesomiumWebControl;
         private Awesomium.Windows.Forms.WebControl webControlDetails;
-        private System.Windows.Forms.Button button1;
         private System.Drawing.Printing.PrintDocument printDocument1;
+        private System.Windows.Forms.Button buttonPrint;
     }
 }
 

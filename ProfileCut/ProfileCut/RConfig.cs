@@ -23,6 +23,7 @@ namespace ProfileCut
         public string PrintTemplate { private set; get; }
         public string PrinterModule { private set; get; }
         public string PrinterName { private set; get; }
+
         //public RConfigHardwareCommands HardwareCommands { private set; get; }
 
         public RConfig()
@@ -45,21 +46,21 @@ namespace ProfileCut
             PrinterName = _getString("PrinterName", "");
 
             //HardwareCommands = new RConfigHardwareCommands();
-            //RConfigHardwareCommandsSection section = (RConfigHardwareCommandsSection)ConfigurationManager.GetSection("startupHardwareCommands");
-            //foreach(RHardwareCommandElement item in section.HardwareCommandItems)
-            //{
-            //    HardwareCommands.items.Add(new RConfigHardwareCommand()
-            //    {
-            //        Name = item.Key,
-            //        ApplyTo = item.ApplyTo,
-            //        List = item.List,
-            //        Step = item.Step,
-            //        Send = item.Send,
-            //        Module = item.Module,
-            //        Func = item.Func,
-            //        Text = item.Text                        
-            //    });
-            //}
+            RConfigHardwareCommandsSection section = (RConfigHardwareCommandsSection)ConfigurationManager.GetSection("startupHardwareCommands");
+            foreach (RHardwareCommandElement item in section.HardwareCommandItems)
+            {
+                //HardwareCommands.items.Add(new RConfigHardwareCommand()
+                //{
+                //    Name = item.Key,
+                //    ApplyTo = item.ApplyTo,
+                //    List = item.List,
+                //    Step = item.Step,
+                //    Send = item.Send,
+                //    Module = item.Module,
+                //    Func = item.Func,
+                //    Text = item.Text
+                //});
+            }
         }
 
         private string _getString(string key, string defaultValue)

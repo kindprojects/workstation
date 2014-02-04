@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 using System.Configuration;
 
-namespace Platform
+namespace ProfileCut
 {
     
     class RConfigHardwareCommandsSection : ConfigurationSection

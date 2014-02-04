@@ -51,6 +51,7 @@ namespace ProfileCut
             _viewModel = new AModel(_conf.ConnectionString, _conf.ModelCode, true);
             _master = _viewModel.GetRoot().NavigatorInitialize(_conf.MasterCollection);
             _domIsReady = false;
+            buttonPrint.Enabled = false;
 
             _navButtonsEnable(panelNavigator, false);
         }
@@ -201,6 +202,7 @@ namespace ProfileCut
 
             _domIsReady = true;
             _navButtonsEnable(panelNavigator, true);
+            buttonPrint.Enabled = true;
         }
 
         private void _parseNavigation(string path)
@@ -299,7 +301,7 @@ namespace ProfileCut
             _previousId = obj.Id;
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        private void print_Click(object sender, EventArgs e)
         {
             if (_master != null)
             {
@@ -310,23 +312,9 @@ namespace ProfileCut
                     string commands = _viewModel.Transform(_conf.PrintTemplate, o);
                     RPrinter printer = new RPrinter(_conf.PrinterModule, _conf.PrinterName);
                     printer.Print(commands);
-
-
-                    //JPrinter p = new JPrinter();
-                    //p.Commands.Add(new JCommandLabel(10, 12, "test"));
-                    //string json = Serializer.GetJson(p);
-                    //MessageBox.Show(json);
-
-                    //STest x = new STest();
-                    //string json = Serializer.GetJsonTest(x);
-
-
-                    //JPrinter p = JsonPrinter.Serializer.GetPrinter(json);
                 }
             }
         }
-
-      
     }
 }
 
