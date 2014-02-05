@@ -146,7 +146,8 @@ namespace ProfileCut
                                     , cmd.GetParamFloat("x")
                                     , cmd.GetParamFloat("y")
                                     , cmd.GetParamInt("angle", 0)
-                                );
+                                    , cmd.GetParamStr("align", "L")
+                                    , cmd.GetParamFloat("width", 0));
                             }
                             break;
 

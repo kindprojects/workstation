@@ -303,7 +303,7 @@ namespace ProfileCut
             object selectedItem = this.listBoxOptimizations.SelectedItem;
 
             _viewModel = new AModel(_conf.ConnectionString, _conf.ModelCode, true);
-            _master = _viewModel.GetRoot().NavigatorInitialize(_conf.MasterCollection);           
+            _viewModel.GetRoot().NavigatorInitialize(_conf.MasterCollection);           
             _refreshOptimizationList();
 
             if (selectedItem != null)
@@ -313,7 +313,7 @@ namespace ProfileCut
             }
         }
 
-        private void  _refreshOptimizationList()
+        private void _refreshOptimizationList()
         {
             listBoxOptimizations.Items.Clear();
             ABaseObject root = _viewModel.GetRoot();
@@ -331,7 +331,7 @@ namespace ProfileCut
 
         private void _selectListItemById(int id)
         {
-            //listBoxOptimizations.SelectedIndexChanged -= new System.EventHandler(this.listBoxOptimizations_SelectedIndexChanged);
+            listBoxOptimizations.SelectedIndexChanged -= new System.EventHandler(this.listBoxOptimizations_SelectedIndexChanged);
             try
             {
                 for (int ii = 0; ii < listBoxOptimizations.Items.Count; ii++)
@@ -344,7 +344,7 @@ namespace ProfileCut
             }
             finally
             {
-               //listBoxOptimizations.SelectedIndexChanged += new System.EventHandler(this.listBoxOptimizations_SelectedIndexChanged);
+               listBoxOptimizations.SelectedIndexChanged += new System.EventHandler(this.listBoxOptimizations_SelectedIndexChanged);
             }
         }
     }

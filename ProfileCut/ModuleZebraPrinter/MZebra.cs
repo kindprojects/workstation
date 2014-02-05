@@ -78,7 +78,7 @@ namespace ModuleZebraPrinter
 
         private string _clearPrinter()
         {
-            return string.Format("^MMT^LH{0},{1}", XHomePos, YHomePos);
+            return string.Format("^MMT^LH{0},{1}^PW750", XHomePos, YHomePos);
        }
     }
 
@@ -133,16 +133,27 @@ namespace ModuleZebraPrinter
             }
         }
 
-        public void WriteText(string text, double x, double y, int angle)
+        public void WriteText(string text, double x, double y, int angle, string align, double width)
         {
             _assertPage();
 
             string fntZpl = string.Format("^A@,{0},{1},{2}", _font.Height, _font.Width, _font.Name);
             _currentPage.AddLine(fntZpl);
 
-            MPoint coord = _getCoordInPixel(x, y);
-            string textZpl = string.Format("^FW{0}^FO{1},{2}^FD{3}^FS", _getOreintation(angle), _floor(coord.X), _floor(coord.Y), text);
+            int xInPixel = _getInPixel(x, _currentPage.Width);
+            int yInPixel = _getInPixel(y, _currentPage.Height);
+            int widthInPixel = _getInPixel(width, _currentPage.Width);
+
+            if (align.ToUpper().Trim() == "R")
+            {
+                xInPixel = xInPixel - widthInPixel;
+                string blockDefZpl = string.Format("^FB{0},,,{1},", widthInPixel, align);
+                _currentPage.AddLine(blockDefZpl);
+            }
+
+            string textZpl = string.Format("^FW{0}^FO{1},{2}^FD{3}^FS", _getOreintation(angle), xInPixel, yInPixel, text, align);
             _currentPage.AddLine(textZpl);        
+
         }
 
         public void WriteBarcode(string text, double x, double y, double height, double width)
@@ -179,9 +190,14 @@ namespace ModuleZebraPrinter
         private MPoint _getCoordInPixel(double x, double y)
         {
             return new MPoint() {
-                X = (_currentPage.Width *  x / 100) * _conf.Dpm,
-                Y = (_currentPage.Height *  y / 100) * _conf.Dpm
+                X = _getInPixel(x, _currentPage.Width),
+                Y = _getInPixel(y, _currentPage.Height)
             };
+        }
+
+        private int _getInPixel(double value, double width)
+        {
+            return _floor((width * value / 100) * _conf.Dpm);
         }
 
         private string _getOreintation(int angle)

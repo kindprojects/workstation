@@ -15,7 +15,7 @@ namespace HardwareInterfaces
     {
         void SetFont(string name);
 
-        void WriteText(string text, double x, double y, int angle);
+        void WriteText(string text, double x, double y, int angle, string align, double width);
 
         //void WriteText(string text, double x, double y, int alignHor, int alignVer, double angle, double maxWidth, double maxHeight, bool doShrink, bool doGrow);
         //void DrawLine(float x1, float y1, float x2, float y2);
