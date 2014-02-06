@@ -36,6 +36,8 @@ namespace ProfileCut
         private string _detailPath;
         private List<string> _buttonNames;
 
+        private bool _domIsReady;       
+
         public FMain()
         {
             InitializeComponent();
@@ -52,6 +54,8 @@ namespace ProfileCut
             buttonPrint.Enabled = false;
 
             _navButtonsEnable(panelNavigator, false);
+            
+            _domIsReady = true;            
         }
            
         private void FMain_Load(object sender, EventArgs e)
@@ -66,15 +70,51 @@ namespace ProfileCut
         {
             ListBox list_box = (sender as ListBox);
 
-            if (list_box.SelectedItem != null)
+            // нельзя грузить html в awesomium если загрузка уже идет
+            if (_domIsReady)
             {
-                ABaseObject obj = (list_box.SelectedItem as RMasterItem).Object;
-                _master = obj;
-
-                string html = _viewModel.Transform(_conf.DetailTemplate, obj);
-                webControlDetails.LoadHTML(_addScriptsToBody(html));
+                _loadHtml();
             }
-        }        
+        }
+
+        // загружает в awesomium html выбранной оптимизации
+        private void _loadHtml()
+        {
+            if (listBoxOptimizations.SelectedItem != null)
+            {                
+                ABaseObject obj = (listBoxOptimizations.SelectedItem as RMasterItem).Object;
+
+                if (obj != null)
+                {
+                    _domIsReady = false;
+
+                    _master = obj;
+                    string html = _viewModel.Transform(_conf.DetailTemplate, obj);
+                    webControlDetails.LoadHTML(_addScriptsToBody(html));
+                }
+            }
+        }
+
+        // загружает html только если выбранная оптимизация отлична от текущей
+        private void _reloadHtml()
+        {
+            if (listBoxOptimizations.SelectedItem != null)
+            {                
+                ABaseObject obj = (listBoxOptimizations.SelectedItem as RMasterItem).Object;
+
+                if (obj != null)
+                {
+                    if (obj.Id != _master.Id)
+                    {
+                        _domIsReady = false;
+
+                        _master = obj;
+                        string html = _viewModel.Transform(_conf.DetailTemplate, obj);
+                        webControlDetails.LoadHTML(_addScriptsToBody(html));
+                    }
+                }
+            }
+        }
 
         private void _updateActiveHtmlElement(int deselectObjectId, int selectObjectId, bool doScroll)
         {
@@ -185,6 +225,12 @@ namespace ProfileCut
             _previousId = obj.Id;
             _navButtonsEnable(panelNavigator, true);
             buttonPrint.Enabled = true;
+
+            _domIsReady = true;
+
+            // загрузим новую оптимизацию, если выбранная оптимизация отлична от текущей
+            // такая ситуация возможна при быстром перемещении по списку оптимизаций          
+            _reloadHtml();
         }
 
         private void _parseNavigation(string path)
