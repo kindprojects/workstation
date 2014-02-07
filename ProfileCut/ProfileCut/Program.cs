@@ -7,7 +7,7 @@ using System.Windows.Forms;
 namespace ProfileCut
 {
     static class Program
-    {     
+    {
         [STAThread]
         static void Main()
         {
