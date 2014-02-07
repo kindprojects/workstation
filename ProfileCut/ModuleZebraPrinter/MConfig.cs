@@ -11,8 +11,8 @@ namespace ModuleZebraPrinter
     class MConfig
     {
         public double Dpm;
-        public int XHomePos;
-        public int YHomePos;
+        //public int XHomePos;
+        //public int YHomePos;
 
         private Dictionary<string, MFont> _fonts;
 
@@ -23,15 +23,32 @@ namespace ModuleZebraPrinter
             Configuration config = ConfigurationManager.OpenExeConfiguration(this.GetType().Assembly.Location);
             MConfigFontsSection section = (MConfigFontsSection)config.GetSection("printerSettings");
             
-            Dpm = Convert.ToDouble(section.SettingsItems[0].Value);
-            XHomePos = Convert.ToInt32(section.SettingsItems[1].Value);
-            YHomePos = Convert.ToInt32(section.SettingsItems[2].Value);
+            Dpm = _getDouble(section.SettingsItems[0].Value);
 
             foreach (MFontElement item in section.FontItems)
             {
                 _fonts.Add(item.Key.ToLower(), _createFont(item));
             }
         }
+
+        private double _getDouble(string value)
+        {
+            var currentCulture = System.Globalization.CultureInfo.InstalledUICulture;
+            var numberFormat = (System.Globalization.NumberFormatInfo) currentCulture .NumberFormat.Clone();
+            numberFormat .NumberDecimalSeparator = "."; 
+
+            double number;
+            bool succeeded = double.TryParse(value, System.Globalization.NumberStyles.Any, numberFormat , out number);
+            if (succeeded) 
+            {
+                return number;
+            }
+            else 
+            {
+                throw new Exception(string.Format("Значение {0} имеет неверный формат. Невозможно преобразовать в double", value));
+            }
+        }
+
 
         public MFont GetFont(string name)
         {

@@ -35,7 +35,8 @@ namespace ProfileCut
         {
             public string Code { private set; get; }
             private Dictionary<string, string> _params;
-            public RPrinterCommand(string commandString){
+            public RPrinterCommand(string commandString)
+            {
                 _params = new Dictionary<string,string>();
 
                 // получение кода
@@ -57,6 +58,7 @@ namespace ProfileCut
                     }
                 }
             }
+
             public string GetParamStr(string name, string def = null)
             {
                 if (_params.ContainsKey(name.ToLower()))
@@ -107,6 +109,27 @@ namespace ProfileCut
                     throw new Exception("Параметр " + name + " должен быть задан в виде 1|0 или TRUE|FALSE");
                 }
             }
+
+            public List<int> GetParamListInt(string name, string def = null)
+            {
+                List<int> ret = new List<int>();
+                string s = GetParamStr(name, (def == null) ? null : def);
+
+                try
+                {
+                    string[] strs = s.Split(',');
+                    foreach(string str in strs)
+                    {
+                        ret.Add(Convert.ToInt32(str));
+                    }
+
+                    return ret;
+                }
+                catch (Exception)
+                {
+                    throw new Exception("Параметр " + name + " должен быть задан в виде чисел разделенных запятой");
+                }
+            }
         }
 
         public void Print(string Commands)
@@ -147,7 +170,8 @@ namespace ProfileCut
                                     , cmd.GetParamFloat("y")
                                     , cmd.GetParamInt("angle", 0)
                                     , cmd.GetParamStr("align", "L")
-                                    , cmd.GetParamFloat("width", 0));
+                                    , cmd.GetParamFloat("width", 100)
+                                );
                             }
                             break;
 
@@ -156,18 +180,31 @@ namespace ProfileCut
                             break;
 
                         case "PAGE":
-                            _printer.NewPage(cmd.GetParamFloat("width"), cmd.GetParamFloat("height"));
+                            List<int> fields = cmd.GetParamListInt("fields", "0");
+                            if (fields.Count() == 1)
+                            {
+                                _printer.NewPage(cmd.GetParamFloat("width"), cmd.GetParamFloat("height"), fields[0], fields[0], fields[0], fields[0]);
+                            }
+                            else if (fields.Count() == 4)
+                            {
+                                _printer.NewPage(cmd.GetParamFloat("width"), cmd.GetParamFloat("height"), fields[0], fields[1], fields[2], fields[3]);
+                            }
+                            else
+                            {
+                                throw new Exception("У тэга PAGE неверно задан параметр fields");
+                            }                            
+
                             break;
 
                         case "BAR":
                             string barText = cmd.GetParamStr("text");
                             if (barText != "")
                             {
-                            _printer.WriteBarcode(barText,
-                                cmd.GetParamFloat("x"), 
-                                cmd.GetParamFloat("y"),                                
-                                cmd.GetParamFloat("height"),
-                                cmd.GetParamFloat("width") 
+                                _printer.WriteBarcode(barText,
+                                    cmd.GetParamFloat("x"), 
+                                    cmd.GetParamFloat("y"),                                
+                                    cmd.GetParamFloat("width"),
+                                    cmd.GetParamFloat("height") 
                                 );
                             }
                             break;

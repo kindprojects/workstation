@@ -7,23 +7,24 @@ using System.Windows.Forms;
 namespace ProfileCut
 {
     static class Program
-    {
-        /// <summary>
-        /// The main entry point for the application.
-        /// </summary>
+    {     
         [STAThread]
         static void Main()
         {
+#if !DEBUG
             try
             {
+#endif
                 Application.EnableVisualStyles();
                 Application.SetCompatibleTextRenderingDefault(false);
                 Application.Run(new FMain());
+#if !DEBUG
             }
             catch (Exception e)
             {
                 MessageBox.Show(e.GetType().ToString() + ":\n" + e.Message, Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+#endif
         }
     }
 }

@@ -21,7 +21,8 @@ namespace HardwareInterfaces
         //void DrawLine(float x1, float y1, float x2, float y2);
         //void DrawLine(Point p1, Point p2);
         void WriteBarcode(string text, double x, double y, double height, double width);
-        void NewPage(double width, double height);
+        //void NewPage(double width, double height);
+        void NewPage(double width, double height, int fieldLeft, int fieldTop, int fieldRight, int filedBottom);
         void Init();
     }
 }
