@@ -140,7 +140,7 @@ namespace ProfileCut
 			}
         }
 
-		struct Fields
+		public struct Fields
 		{
 			public int left, right, top, bottom;
 			public Fields(int left, int top, int right, int bottom)
