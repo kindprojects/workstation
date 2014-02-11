@@ -86,12 +86,12 @@ namespace ProfileCut
                     throw new Exception("Параметр " + name + " должен быть задан в виде целого числа");
                 }
             }
-            public double GetParamFloat(string name, double? def = null)
+            public float GetParamFloat(string name, double? def = null)
             {
                 string s = GetParamStr(name, (def == null) ? null : def.ToString());
                 try
                 {
-                    return Convert.ToDouble(s);
+                    return (float)Convert.ToDouble(s);
                 }
                 catch (Exception)
                 {
@@ -166,18 +166,22 @@ namespace ProfileCut
                             if (lblText != "")
                             {
                                 _printer.WriteText(
-                                    cmd.GetParamStr("text")
-                                    , cmd.GetParamFloat("x")
-                                    , cmd.GetParamFloat("y")
-                                    , cmd.GetParamInt("angle", 0)
-                                    , cmd.GetParamStr("align", "L")
-                                    , cmd.GetParamFloat("width", 100)
+									new System.Drawing.RectangleF(
+										cmd.GetParamFloat("x")
+										, cmd.GetParamFloat("y")
+										, cmd.GetParamFloat("width", 100)
+										, cmd.GetParamFloat("height", 100)
+										)
+									, cmd.GetParamInt("halign", -1)
+									, cmd.GetParamInt("valign", -1)
+                                    , cmd.GetParamStr("text")
+									, cmd.GetParamFloat("angle", 0)
                                 );
                             }
                             break;
 
                         case "FNT":
-                            _printer.SetFont(cmd.GetParamStr("name"));
+                            _printer.SetFont(cmd.GetParamStr("name"), cmd.GetParamInt("size"));
                             break;
 
                         case "PAGE":
@@ -201,11 +205,15 @@ namespace ProfileCut
                             string barText = cmd.GetParamStr("text");
                             if (barText != "")
                             {
-                                _printer.WriteBarcode(barText,
-                                    cmd.GetParamFloat("x"),
-                                    cmd.GetParamFloat("y"),
-                                    cmd.GetParamFloat("width"),
-                                    cmd.GetParamFloat("height")
+                                _printer.WriteBarcode(
+									new System.Drawing.PointF(
+										cmd.GetParamFloat("x")
+										, cmd.GetParamFloat("y")
+									)
+                                    , cmd.GetParamFloat("height")
+									, cmd.GetParamInt("halign", -1)
+									, cmd.GetParamInt("valign", -1)
+									, barText
                                 );
                             }
                             break;
