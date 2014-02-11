@@ -23,6 +23,6 @@ namespace HardwareInterfaces
         void WriteBarcode(string text, double x, double y, double height, double width);
         //void NewPage(double width, double height);
         void NewPage(double width, double height, int fieldLeft, int fieldTop, int fieldRight, int filedBottom);
-        void Init();
+        void Init(string printerName);
     }
 }

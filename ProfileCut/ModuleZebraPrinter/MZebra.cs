@@ -9,54 +9,56 @@ using System.Configuration;
 
 namespace ModuleZebraPrinter
 {
-    public class MPoint
-    {
-        public double X { set; get; }
-        public double Y { set; get; }
-    }
-
     public class MZebraPrinter
     {
-        public void Print(string content)
+        public void Print(string printerName, string content)
         {
             try
             {
-                LocalPrintServer srv = new LocalPrintServer();
-                PrintQueue defaultPrintQueue = LocalPrintServer.GetDefaultPrintQueue();
-                PrintSystemJobInfo myPrintJob = defaultPrintQueue.AddJob();
-                Stream myStream = myPrintJob.JobStream;
-                System.IO.StreamWriter writer = new System.IO.StreamWriter(myStream, Encoding.Unicode);
-                writer.Write(content);
+                using (PrintServer ps = new PrintServer())
+                {
+                    using (PrintQueue pq = new PrintQueue(ps, printerName, PrintSystemDesiredAccess.AdministratePrinter))
+                    {
+                        using (PrintQueueStream pqs = new PrintQueueStream(pq, Guid.NewGuid().ToString()))
+                        {
+                            using (System.IO.StreamWriter writer = new System.IO.StreamWriter(pqs, Encoding.Unicode))
+                            {
+                                writer.Write(content);
 
-                writer.Flush();
-                writer.Close();
-                myStream.Close();
+                                writer.Flush();
+                                writer.Close();
+
+                            }
+                            pqs.Close();
+                        }
+                    }
+                }
             }
             catch (Exception ex)
             {
-                throw new Exception("Ошибка печати. " + ex.Message); 
+                throw new Exception("Ошибка печати. " + ex.Message);
             }
         }
-    } 
-  
+    }
+
     public class MPage
     {
         public List<string> _pageStrings { set; get; }
         public double Width { set; get; }
         public double Height { set; get; }
         public double Dpm { set; get; }
-        public int FieldLeft  { set; get; }
-        public int FieldTop  { set; get; }
-        public int FieldRight  { set; get; }
+        public int FieldLeft { set; get; }
+        public int FieldTop { set; get; }
+        public int FieldRight { set; get; }
         public int FieldBottom { set; get; }
-        
+
         public MPage(double dpm, double width, double height, int fieldLeft, int fieldTop, int fieldRight, int fieldBottom)
         {
             Dpm = dpm;
 
             Width = (width - fieldLeft - fieldRight) * dpm;
             Height = (height - fieldTop - fieldBottom) * dpm;
-            
+
             FieldLeft = Convert.ToInt32(Math.Floor(fieldLeft * dpm));
             FieldTop = Convert.ToInt32(Math.Floor(fieldTop * dpm));
             FieldRight = Convert.ToInt32(Math.Floor(fieldRight * dpm));
@@ -66,10 +68,10 @@ namespace ModuleZebraPrinter
         }
 
         public string GetContentPage()
-        {           
+        {
             string page = "^XA";
             page += _clearPrinter();
-            foreach(string line in _pageStrings)
+            foreach (string line in _pageStrings)
             {
                 page += line;
             }
@@ -86,23 +88,25 @@ namespace ModuleZebraPrinter
         private string _clearPrinter()
         {
             return string.Format("^MMT^LH{0},{1}^PW750", FieldLeft, FieldTop + 18);
-       }
+        }
     }
 
-    public class Printer: IStickerPrinter
+    public class Printer : IStickerPrinter
     {
         private MZebraPrinter _printer;
         private List<MPage> _pages;
         private MPage _currentPage;
         private MFont _font;
         private MConfig _conf;
-        
-        public void Init()
+        private string _printerName;
+
+        public void Init(string printerName)
         {
-            
+
             _conf = new MConfig();
             _printer = new MZebraPrinter();
             _pages = new List<MPage>();
+            _printerName = printerName;
 
             // шрифт по умолчаню
             _font = new MFont()
@@ -118,7 +122,7 @@ namespace ModuleZebraPrinter
             if (_printer == null)
             {
                 throw new Exception("Принтер не задан");
-            }            
+            }
         }
 
         private void _assertPage()
@@ -146,16 +150,16 @@ namespace ModuleZebraPrinter
 
             string fntZpl = string.Format("^A@,{0},{1},{2}", _font.Height, _font.Width, _font.Name);
             _currentPage.AddLine(fntZpl);
-            
+
             int widthInPixel = _getInPixel(width, _currentPage.Width);
             string blockDefZpl = string.Format("^FB{0},,,{1},", widthInPixel, align.ToUpper().Trim());
             _currentPage.AddLine(blockDefZpl);
 
             int xInPixel = _getAlignX(_getInPixel(x, _currentPage.Width), widthInPixel, align);
-            int yInPixel = _getInPixel(y, _currentPage.Height);                        
+            int yInPixel = _getInPixel(y, _currentPage.Height);
 
             string textZpl = string.Format("^FW{0}^FO{1},{2}^FD{3}^FS", _getOreintation(angle), xInPixel, yInPixel, text, align);
-            _currentPage.AddLine(textZpl);        
+            _currentPage.AddLine(textZpl);
 
         }
 
@@ -167,7 +171,7 @@ namespace ModuleZebraPrinter
             }
             else if (align.ToUpper().Trim() == "C")
             {
-                return (x - width) / 2;
+                return x - width / 2;
             }
             else
             {
@@ -177,15 +181,15 @@ namespace ModuleZebraPrinter
 
         public void WriteBarcode(string text, double x, double y, double width, double height)
         {
-            _assertPage();            
+            _assertPage();
 
-            string zpl = string.Format("^FO{0},{1}^BY{2}^BCN,{3},N,N,N^FD>;{4}^FS", 
+            string zpl = string.Format("^FO{0},{1}^BY{2}^BCN,{3},N,N,N^FD>;{4}^FS",
                 _floor(_getInPixel(x, _currentPage.Width)),
                 _floor(_getInPixel(y, _currentPage.Height)),
-                width, 
-                _floor(_getInPixel(height, _currentPage.Height)), 
+                width,
+                _floor(_getInPixel(height, _currentPage.Height)),
                 text
-            );                                             
+            );
 
             _currentPage.AddLine(zpl);
         }
@@ -195,22 +199,15 @@ namespace ModuleZebraPrinter
             _assertPriner();
 
             _currentPage = new MPage(_conf.Dpm, width, height, fieldLeft, fieldTop, fieldRight, fieldBottom);
-            _pages.Add(_currentPage);            
+            _pages.Add(_currentPage);
         }
-        //public void NewPage(double width, double height)
-        //{
-        //    _assertPriner();
-
-        //    _currentPage = new MPage(width, height, _conf.XHomePos, _conf.YHomePos);
-        //    _pages.Add(_currentPage);            
-        //}       
 
         public void Execute()
         {
             _assertPriner();
-            foreach(MPage page in _pages)
+            foreach (MPage page in _pages)
             {
-                _printer.Print(page.GetContentPage());
+                _printer.Print(_printerName, page.GetContentPage());
             }
         }
 
@@ -218,14 +215,6 @@ namespace ModuleZebraPrinter
         {
             return Convert.ToInt32(Math.Floor(value));
         }
-
-        //private MPoint _getCoordInPixel(double x, int dpm)
-        //{
-        //    return new MPoint() {
-        //        X = _getInPixel(x*dpm);
-        //        Y = _getInPixel(y, _currentPage.Height)
-        //    };
-        //}
 
         private int _getInPixel(double value, double width)
         {
@@ -239,11 +228,11 @@ namespace ModuleZebraPrinter
             {
                 oreintation = "N";
             }
-            else if (angle >= 90 && angle < 180 )
+            else if (angle >= 90 && angle < 180)
             {
                 oreintation = "R";
             }
-            else if (angle >= 180 && angle < 270) 
+            else if (angle >= 180 && angle < 270)
             {
                 oreintation = "B";
             }

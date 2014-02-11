@@ -27,7 +27,7 @@ namespace ProfileCut
             _printer = _module.GetClassInstance<IStickerPrinter>("ModuleZebraPrinter", "Printer");
             if (printerName != "")
             {
-                _printer.Init();
+                _printer.Init(printerName);
             }
         }
 
@@ -37,7 +37,7 @@ namespace ProfileCut
             private Dictionary<string, string> _params;
             public RPrinterCommand(string commandString)
             {
-                _params = new Dictionary<string,string>();
+                _params = new Dictionary<string, string>();
 
                 // получение кода
                 Regex r = new Regex(@"(\S+)\s+(.*)");
@@ -48,7 +48,7 @@ namespace ProfileCut
                 {
                     string sParams = m.Groups[2].Value.ToString().Trim();
                     // список параметров
-                    r = new Regex(@"(\S+)\s*:\s*"+'"'+"([^\"]*)\"");
+                    r = new Regex(@"(\S+)\s*:\s*" + '"' + "([^\"]*)\"");
 
                     m = r.Match(sParams);
                     while (m.Groups.Count == 3)
@@ -74,8 +74,9 @@ namespace ProfileCut
                     return def;
                 }
             }
-            public int GetParamInt(string name, int? def=null){
-                string s = GetParamStr(name, (def == null)?null:def.ToString());
+            public int GetParamInt(string name, int? def = null)
+            {
+                string s = GetParamStr(name, (def == null) ? null : def.ToString());
                 try
                 {
                     return Convert.ToInt32(s);
@@ -99,7 +100,7 @@ namespace ProfileCut
             }
             public bool GetParamBool(string name, bool? def = null)
             {
-                string s = GetParamStr(name, (def == null) ? null : ((bool)def?"1":"0")).ToLower();
+                string s = GetParamStr(name, (def == null) ? null : ((bool)def ? "1" : "0")).ToLower();
                 try
                 {
                     return (s == "1" || s == "true");
@@ -118,7 +119,7 @@ namespace ProfileCut
                 try
                 {
                     string[] strs = s.Split(',');
-                    foreach(string str in strs)
+                    foreach (string str in strs)
                     {
                         ret.Add(Convert.ToInt32(str));
                     }
@@ -133,9 +134,9 @@ namespace ProfileCut
         }
 
         public void Print(string Commands)
-        {           
-            string [] aCommands = Commands.Split('\n');
-            foreach(string line in aCommands)
+        {
+            string[] aCommands = Commands.Split('\n');
+            foreach (string line in aCommands)
             {
                 string cmdLine = line.Trim();
                 if (cmdLine == string.Empty)
@@ -192,7 +193,7 @@ namespace ProfileCut
                             else
                             {
                                 throw new Exception("У тэга PAGE неверно задан параметр fields");
-                            }                            
+                            }
 
                             break;
 
@@ -201,10 +202,10 @@ namespace ProfileCut
                             if (barText != "")
                             {
                                 _printer.WriteBarcode(barText,
-                                    cmd.GetParamFloat("x"), 
-                                    cmd.GetParamFloat("y"),                                
+                                    cmd.GetParamFloat("x"),
+                                    cmd.GetParamFloat("y"),
                                     cmd.GetParamFloat("width"),
-                                    cmd.GetParamFloat("height") 
+                                    cmd.GetParamFloat("height")
                                 );
                             }
                             break;
