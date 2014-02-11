@@ -165,18 +165,25 @@ namespace ProfileCut
                             string lblText = cmd.GetParamStr("text");
                             if (lblText != "")
                             {
-                                _printer.WriteText(
-									new System.Drawing.RectangleF(
-										cmd.GetParamFloat("x")
-										, cmd.GetParamFloat("y")
-										, cmd.GetParamFloat("width", 100)
-										, cmd.GetParamFloat("height", 100)
-										)
-									, cmd.GetParamInt("halign", -1)
-									, cmd.GetParamInt("valign", -1)
-                                    , cmd.GetParamStr("text")
-									, cmd.GetParamFloat("angle", 0)
-                                );
+								try
+								{
+									_printer.WriteText(
+										new System.Drawing.RectangleF(
+											cmd.GetParamFloat("x")
+											, cmd.GetParamFloat("y")
+											, cmd.GetParamFloat("width", 100)
+											, cmd.GetParamFloat("height", 100)
+											)
+										, cmd.GetParamInt("halign", -1)
+										, cmd.GetParamInt("valign", -1)
+										, cmd.GetParamStr("text")
+										, cmd.GetParamFloat("angle", 0)
+									);
+								}
+								catch (Exception ex)
+								{
+									throw new Exception("Параметры LBL: x, y, width, height, halign, valign, text, angle", ex);
+								}
                             }
                             break;
 
