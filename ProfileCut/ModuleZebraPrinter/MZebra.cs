@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Printing;
+using System.Drawing.Printing;
 using System.IO;
 using System.Text;
 
@@ -11,6 +12,12 @@ namespace ModuleZebraPrinter
 {
     public class MZebraPrinter
     {
+        public void Print2(string printerName, string content)
+        {            
+                            
+                    
+        }
+
         public void Print(string printerName, string content)
         {
             try
