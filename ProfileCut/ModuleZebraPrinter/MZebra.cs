@@ -26,10 +26,7 @@ namespace ModuleZebraPrinter
                                 writer.Write(content);
 
                                 writer.Flush();
-                                writer.Close();
-
                             }
-                            pqs.Close();
                         }
                     }
                 }
