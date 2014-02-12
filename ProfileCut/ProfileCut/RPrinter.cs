@@ -24,7 +24,7 @@ namespace ProfileCut
             }
             _module = new HardwareModule(modulePath);
 
-            _printer = _module.GetClassInstance<IStickerPrinter>("ModuleZebraPrinter", "Printer");
+            _printer = _module.GetClassInstance<IStickerPrinter>("ModuleDrawingPrinter", "Printer");
             if (printerName != "")
             {
                 _printer.Init(printerName);

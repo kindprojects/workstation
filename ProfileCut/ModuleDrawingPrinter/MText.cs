@@ -14,23 +14,33 @@ namespace ModuleDrawingPrinter
         public string Text { set; get; }
         public Font Font { set; get; }
         public Brush Brush { set; get; }
-        public RectangleF Rectangle { set; get; }
+        public RectangleF Rectangle { set; get; }        
+        public int HorAlign { set; get; }
+        public int VerAlign { set; get; }
 
-        public MText(MPage ownerPage, string text, Font font, RectangleF rectangle)
+
+        public MText(MPage ownerPage, string text, Font font, RectangleF rectangle, int horAlign, int verAlign)
         {
             OwnerPage = ownerPage;
+
             Text = text;
             Font = font;
+            HorAlign = horAlign;
+            VerAlign = verAlign;
 
             if (ownerPage != null)
             {
-                RectangleF rect = new RectangleF(
-                    ownerPage.Width * rectangle.X / 100 * ownerPage.Dpm,
-                    ownerPage.Height * rectangle.Y / 100 * ownerPage.Dpm,
-                    ownerPage.Width * (rectangle.X + rectangle.Width) / 100 * ownerPage.Dpm,
-                    ownerPage.Height * (rectangle.Y + rectangle.Height) / 100 * ownerPage.Dpm);
+                int l = (int)Math.Truncate(rectangle.Left * ownerPage.Width / 100);
+                int t = (int)Math.Truncate(rectangle.Top * ownerPage.Height / 100);
+                int w = (int)Math.Truncate(rectangle.Width * ownerPage.Width / 100);
+                int h = (int)Math.Truncate(rectangle.Height * ownerPage.Height / 100);
+                Rectangle = new RectangleF(l, t, w, h);
             }
-            
+            else
+            {
+                throw new Exception("Страница не задана");
+            }
+                        
             Brush = Brushes.Black;
         }
     }

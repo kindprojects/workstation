@@ -22,13 +22,13 @@ namespace ModuleDrawingPrinter
         {
             Dpm = dpm;
 
-            Width = (width - fieldLeft - fieldRight) * dpm;
-            Height = (height - fieldTop - fieldBottom) * dpm;
+            Width = (width - fieldLeft - fieldRight) * dpm * 0.351F;
+            Height = (height - fieldTop - fieldBottom) * dpm * 0.351F;
 
-            FieldLeft = Convert.ToInt32(Math.Floor(fieldLeft * dpm));
-            FieldTop = Convert.ToInt32(Math.Floor(fieldTop * dpm));
-            FieldRight = Convert.ToInt32(Math.Floor(fieldRight * dpm));
-            FieldBottom = Convert.ToInt32(Math.Floor(fieldBottom * dpm));
+            FieldLeft = Convert.ToInt32(Math.Floor(fieldLeft * dpm) * 0.351F);
+            FieldTop = Convert.ToInt32(Math.Floor(fieldTop * dpm) * 0.351F);
+            FieldRight = Convert.ToInt32(Math.Floor(fieldRight * dpm) * 0.351F);
+            FieldBottom = Convert.ToInt32(Math.Floor(fieldBottom * dpm) * 0.351F);
 
             Content = new List<object>();
         }

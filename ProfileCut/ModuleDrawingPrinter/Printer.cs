@@ -35,7 +35,7 @@ namespace ModuleDrawingPrinter
         {
             _assertPage();
 
-            MText txt = new MText(_currentPage, text, _currentFont, bounds);            
+            MText txt = new MText(_currentPage, text, _currentFont, bounds, horAlign, verAlign);            
             _currentPage.Content.Add(txt);
         }
         public void WriteBarcode(PointF origin, float height, int horAlign, int verAlign, string text)
@@ -52,7 +52,7 @@ namespace ModuleDrawingPrinter
         }
         public void Init(string printerName)
         {
-            _printer = new MPrinter();
+            _printer = new MPrinter(printerName, new System.Drawing.Printing.PaperSize("custom", 500, 500));
         }
 
         private void _assertPriner()
@@ -73,7 +73,7 @@ namespace ModuleDrawingPrinter
 
         public void Execute()
         {
-
+            _printer.Print(_pages);
         }
     }
 }
