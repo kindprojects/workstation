@@ -8,7 +8,15 @@ namespace ModuleConnect
 		Assembly _asm;
 		public HardwareModule(string dllPath)
 		{
-			this._asm = Assembly.LoadFile(dllPath);
+			try
+			{
+				this._asm = Assembly.LoadFile(dllPath);
+			}
+			catch (Exception ex)
+			{
+				throw new Exception("Не удалось загрузить модуль:\n" + dllPath
+					+ "\nОписание:\n" + ex.Message, ex);
+			}
 		}
 
 		public T GetClassInstance<T>(string nameSpace, string className) where T : class

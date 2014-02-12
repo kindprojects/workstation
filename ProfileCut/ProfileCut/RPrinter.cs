@@ -128,10 +128,78 @@ namespace ProfileCut
                 }
                 catch (Exception)
                 {
-                    throw new Exception("Параметр " + name + " должен быть задан в виде чисел разделенных запятой");
+                    throw new Exception("Параметр " + name + " должен быть задан в виде чисел, разделённых запятой");
                 }
             }
+			public float GetParamLimited(string paramName, float min, float max, float? def)
+			{
+				float val = this.GetParamFloat(paramName, def);
+				if (val < min || val > max)
+					throw new Exception(string.Format("Параметр {0} должен принимать значение в интервале от {1} до {2}", paramName, min, max));
+				return val;
+			}
         }
+
+		public struct Fields
+		{
+			public int left, right, top, bottom;
+			public Fields(int left, int top, int right, int bottom)
+			{
+				this.left = left;
+				this.right = right;
+				this.top = top;
+				this.bottom = bottom;
+			}
+		}
+
+		public class RCustomizedPrinterCommand : RPrinterCommand
+		{
+			public RCustomizedPrinterCommand(string commandString) : base(commandString) { }
+
+			public int GetParamAlign(string paramName, int? def = null){
+				return (int)Math.Truncate(this.GetParamLimited(paramName, -1, 1, def));
+			}
+
+			public Fields GetParamFields(string paramName, string def){
+				List<int> fields = this.GetParamListInt(paramName, def);
+				int cnt = fields.Count();
+				while (fields.Count < 4)
+					fields.Add(fields[0]);
+				Fields f = new Fields(fields[0], fields[1], fields[2], fields[3]);
+				if (cnt == 1)
+				{
+					f.top = f.left;
+					f.right = f.left;
+					f.bottom = f.left;
+				}
+				else if (cnt == 2)
+				{
+					f.right = f.left;
+					f.bottom = f.top;
+				}
+				else if (cnt == 3)
+				{
+					f.bottom = f.top;
+				}
+				else
+				{
+					throw new Exception("Параметр "+paramName+" должен состоять из 1,2,3 либо 4 целых чисел, разделённых запятой");
+				}
+				return f;
+			}
+
+			public float GetParamPercent(string paramName, float? def = null){
+				return this.GetParamLimited(paramName, 0, 100, def);
+			}
+
+			public int GetParamIntPositive(string paramName, int? def = null)
+			{
+				int val = this.GetParamInt(paramName, def);
+				if (val <= 0)
+					throw new Exception("Значение параметра " + paramName + " должно быть строго положительным (больше нуля)");
+				return val;
+			}
+		}
 
         public void Print(string Commands)
         {
@@ -141,7 +209,7 @@ namespace ProfileCut
                 string cmdLine = line.Trim();
                 if (cmdLine == string.Empty)
                     continue;
-                RPrinterCommand cmd = new RPrinterCommand(cmdLine);
+                RCustomizedPrinterCommand cmd = new RCustomizedPrinterCommand(cmdLine);
                 if (cmd.Code != null)
                 {
                     switch (cmd.Code.ToUpper())
@@ -169,60 +237,70 @@ namespace ProfileCut
 								{
 									_printer.WriteText(
 										new System.Drawing.RectangleF(
-											cmd.GetParamFloat("x")
-											, cmd.GetParamFloat("y")
-											, cmd.GetParamFloat("width", 100)
-											, cmd.GetParamFloat("height", 100)
+											cmd.GetParamPercent("x")
+											, cmd.GetParamPercent("y")
+											, cmd.GetParamPercent("width", 100)
+											, cmd.GetParamPercent("height", 100)
 											)
-										, cmd.GetParamInt("halign", -1)
-										, cmd.GetParamInt("valign", -1)
-										, cmd.GetParamStr("text")
-										, cmd.GetParamFloat("angle", 0)
+										, cmd.GetParamAlign("halign", -1)
+										, cmd.GetParamAlign("valign", -1)
+										, lblText
+										, cmd.GetParamLimited("angle", -360, 360, 0)
 									);
 								}
 								catch (Exception ex)
 								{
-									throw new Exception("Параметры LBL: x, y, width, height, halign, valign, text, angle", ex);
+									throw new Exception(ex.Message + "\nПараметры LBL: x, y, width, height, halign, valign, text, angle", ex);
 								}
                             }
                             break;
 
                         case "FNT":
-                            _printer.SetFont(cmd.GetParamStr("name"), cmd.GetParamInt("size"));
+							try
+							{
+								_printer.SetFont(cmd.GetParamStr("name"), cmd.GetParamIntPositive("size"));
+							}
+							catch (Exception ex)
+							{
+								throw new Exception(ex.Message + "\nПараметры FNT: name, size", ex);
+							}
                             break;
 
-                        case "PAGE":
-                            List<int> fields = cmd.GetParamListInt("fields", "0");
-                            if (fields.Count() == 1)
-                            {
-                                _printer.NewPage(cmd.GetParamFloat("width"), cmd.GetParamFloat("height"), fields[0], fields[0], fields[0], fields[0]);
-                            }
-                            else if (fields.Count() == 4)
-                            {
-                                _printer.NewPage(cmd.GetParamFloat("width"), cmd.GetParamFloat("height"), fields[0], fields[1], fields[2], fields[3]);
-                            }
-                            else
-                            {
-                                throw new Exception("У тэга PAGE неверно задан параметр fields");
-                            }
+						case "PAGE":
+							try
+							{
+								Fields fields = cmd.GetParamFields("fields", "0");
+								_printer.NewPage(cmd.GetParamIntPositive("width"), cmd.GetParamIntPositive("height"), fields.left, fields.top, fields.right, fields.bottom);
+							}
+							catch (Exception ex)
+							{
+								throw new Exception(ex.Message+"\nПараметры PAGE: width, height, fields");
+							}
 
-                            break;
+							break;
 
                         case "BAR":
-                            string barText = cmd.GetParamStr("text");
-                            if (barText != "")
-                            {
-                                _printer.WriteBarcode(
-									new System.Drawing.PointF(
-										cmd.GetParamFloat("x")
-										, cmd.GetParamFloat("y")
-									)
-                                    , cmd.GetParamFloat("height")
-									, cmd.GetParamInt("halign", -1)
-									, cmd.GetParamInt("valign", -1)
-									, barText
-                                );
-                            }
+							try
+							{
+								string barText = cmd.GetParamStr("text");
+								if (barText != "")
+								{
+									_printer.WriteBarcode(
+										new System.Drawing.PointF(
+											cmd.GetParamPercent("x")
+											, cmd.GetParamPercent("y")
+										)
+										, cmd.GetParamPercent("height")
+										, cmd.GetParamAlign("halign", -1)
+										, cmd.GetParamAlign("valign", -1)
+										, barText
+									);
+								}
+							}
+							catch (Exception ex)
+							{
+								throw new Exception(ex.Message + "\nПараметры BAR: text, x, y, height, halign, valign");
+							}
                             break;
 
                         default:
