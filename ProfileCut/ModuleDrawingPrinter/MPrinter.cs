@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Drawing;
 using System.Drawing.Printing;
 using System.IO;
+using GenCode128;
 
 namespace ModuleDrawingPrinter
 {
@@ -41,7 +42,7 @@ namespace ModuleDrawingPrinter
         private void _printPage(object sender, PrintPageEventArgs ev)
 		{
 			ev.Graphics.PageUnit = GraphicsUnit.Millimeter;
-			int pageW = 95; //374;
+			/*int pageW = 95; //374;
 			int pageH = 47; //177;
 			//ev.PageSettings.PaperSize.Width = pageW;
 			//ev.PageSettings.PaperSize.Height = pageH;
@@ -50,7 +51,7 @@ namespace ModuleDrawingPrinter
 			/*ev.PageSettings.Margins.Left = 0;
 			ev.PageSettings.Margins.Right = 0;
 			ev.PageSettings.Margins.Top = 7;
-			ev.PageSettings.Margins.Bottom = 0;*/
+			ev.PageSettings.Margins.Bottom = 0;
             SizeF size = ev.Graphics.MeasureString("WC", new Font("Arial", 12));
 			float tw = size.Width;
 			float th = size.Height;
@@ -66,21 +67,36 @@ namespace ModuleDrawingPrinter
 			ev.Graphics.DrawEllipse(pen, 85, 35, 20, 20);
             ev.Graphics.DrawString("WA", new Font("Arial", 12), Brushes.Black, new RectangleF(0, 0, tw, th));
             ev.Graphics.DrawString("WB", new Font("Arial", 12), Brushes.Black, new RectangleF(ptsW / 2 - tw/2, ptsH / 2 - th/2, tw, th));
-            ev.Graphics.DrawString("WC", new Font("Arial", 12), Brushes.Black, new RectangleF(ptsW-tw, ptsH - th, tw, th));
-			
+            ev.Graphics.DrawString("WC", new Font("Arial", 12), Brushes.Black, new RectangleF(ptsW-tw, ptsH - th, tw, th));*/
 
-                //foreach(object obj in _page.Content)
-                //{
-                //    if (obj is MText)
-                //    {
-                //        MText str = (MText)obj;                    
-                //        ev.Graphics.DrawString(str.Text, str.Font, str.Brush, _calcGraphicsTextRectangle(ev.Graphics, str));
-                //    }
-                //}
+            foreach (object obj in _page.Content)
+            {
+                if (obj is MText)
+                {
+                    MText str = (MText)obj;                    
 
-                ev.HasMorePages = false;
+                    if (str.Angle != 0)
+                    {
+                        int xxx = 0;
+                    }
+
+                    SizeF strSize = ev.Graphics.MeasureString(str.Text, str.Font);
+                    ev.Graphics.TranslateTransform(str.Rectangle.Left, str.Rectangle.Top);                                        
+                    ev.Graphics.RotateTransform(str.Angle);
+                    ev.Graphics.DrawString(str.Text, str.Font, str.Brush, _calcGraphicsTextRectangle(ev.Graphics, str));
+                    ev.Graphics.ResetTransform();                    
+                }
+                else if (obj is MBarcode)
+                {
+                    MBarcode barcode = (MBarcode)obj;
+                    Image img = Code128Rendering.MakeBarcodeImage(barcode.Text, 1, true);
+                    ev.Graphics.DrawImage(img, barcode.Origin);
+                }
+            }
+
+            ev.HasMorePages = false;
         }
-
+              
         private RectangleF _calcGraphicsTextRectangle(Graphics context, MText str)
         {
             SizeF strSize = context.MeasureString(str.Text, str.Font);
@@ -88,33 +104,34 @@ namespace ModuleDrawingPrinter
             RectangleF ret = new RectangleF();                        
             if (str.HorAlign == -1) // L
             {
-                ret.X = str.Rectangle.Left;                
+                ret.X = 0;
             }
             else if (str.HorAlign == 0) // C
             {
-                ret.X = str.Rectangle.Left - strSize.Width / 2;
+                ret.X = 0 - strSize.Width / 2;
                 
             }
             else // R
             {
-                ret.X = str.Rectangle.Left - strSize.Width;                
+                ret.X = 0 - strSize.Width;                
             }
             ret.Width = strSize.Width;
 
             if (str.VerAlign == -1) // L
             {
-                ret.Y = str.Rectangle.Top;
+                ret.Y = 0;
 
             }
             else if (str.VerAlign == 0) // C
             {
-                ret.Y = str.Rectangle.Top - strSize.Height / 2;
+                ret.Y = 0 - strSize.Height / 2;
             }
             else // R
             {
-                ret.Y = str.Rectangle.Top - strSize.Height;
+                ret.Y = 0 - strSize.Height;
             }
             ret.Height = strSize.Height;
+            
 
             return ret;
         }

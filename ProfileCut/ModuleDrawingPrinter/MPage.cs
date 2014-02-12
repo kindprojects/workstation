@@ -8,7 +8,6 @@ namespace ModuleDrawingPrinter
 {
     public class MPage
     {
-        public float Dpm { set; get; }
         public float Width { set; get; }
         public float Height { set; get; }
         public int FieldLeft { set; get; } 
@@ -18,17 +17,15 @@ namespace ModuleDrawingPrinter
 
         public List<Object> Content { set; get; }
 
-        public MPage(float dpm, float width, float height, int fieldLeft, int fieldTop, int fieldRight, int fieldBottom)
+        public MPage(float width, float height, int fieldLeft, int fieldTop, int fieldRight, int fieldBottom, double yOrigin)
         {
-            Dpm = dpm;
+            Width = (width - fieldLeft - fieldRight);
+            Height = (height - fieldTop - fieldBottom - (float)(yOrigin / 2));
 
-            Width = (width - fieldLeft - fieldRight) * dpm * 0.351F;
-            Height = (height - fieldTop - fieldBottom) * dpm * 0.351F;
-
-            FieldLeft = Convert.ToInt32(Math.Floor(fieldLeft * dpm) * 0.351F);
-            FieldTop = Convert.ToInt32(Math.Floor(fieldTop * dpm) * 0.351F);
-            FieldRight = Convert.ToInt32(Math.Floor(fieldRight * dpm) * 0.351F);
-            FieldBottom = Convert.ToInt32(Math.Floor(fieldBottom * dpm) * 0.351F);
+            FieldLeft = fieldLeft;
+            FieldTop = fieldTop;
+            FieldRight = fieldRight;
+            FieldBottom = fieldBottom;
 
             Content = new List<object>();
         }

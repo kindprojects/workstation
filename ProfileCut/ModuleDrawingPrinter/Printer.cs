@@ -35,18 +35,23 @@ namespace ModuleDrawingPrinter
         {
             _assertPage();
 
-            MText txt = new MText(_currentPage, text, _currentFont, bounds, horAlign, verAlign);            
+            bounds.Y += (float)_conf.yOrigin;
+            MText txt = new MText(_currentPage, text, _currentFont, bounds, horAlign, verAlign, angle);            
             _currentPage.Content.Add(txt);
         }
         public void WriteBarcode(PointF origin, float height, int horAlign, int verAlign, string text)
         {
+            _assertPage();
+            origin.Y += (float)_conf.yOrigin;
+            MBarcode barcode = new MBarcode(_currentPage, origin, height, horAlign, verAlign, text);
+            _currentPage.Content.Add(barcode);
         }
 
         public void NewPage(float width, float height, int fieldLeft, int fieldTop, int fieldRight, int filedBottom)
         {
             _assertPriner();
 
-            MPage page = new MPage((float)_conf.Dpm, width, height, fieldLeft, fieldTop, fieldRight, filedBottom);
+            MPage page = new MPage(width, height, fieldLeft, fieldTop, fieldRight, filedBottom, _conf.yOrigin);
             _pages.Add(page);
             _currentPage = page;
         }

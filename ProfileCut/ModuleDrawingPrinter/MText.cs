@@ -18,8 +18,10 @@ namespace ModuleDrawingPrinter
         public int HorAlign { set; get; }
         public int VerAlign { set; get; }
 
+        public float Angle { set; get; }
 
-        public MText(MPage ownerPage, string text, Font font, RectangleF rectangle, int horAlign, int verAlign)
+
+        public MText(MPage ownerPage, string text, Font font, RectangleF rectangle, int horAlign, int verAlign, float angle)
         {
             OwnerPage = ownerPage;
 
@@ -27,6 +29,12 @@ namespace ModuleDrawingPrinter
             Font = font;
             HorAlign = horAlign;
             VerAlign = verAlign;
+            Angle = angle;
+
+            if (angle != 0)
+            {
+                int xxx = 0;
+            }
 
             if (ownerPage != null)
             {

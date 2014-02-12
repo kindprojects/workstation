@@ -10,14 +10,13 @@ namespace ModuleDrawingPrinter
 {
     class MConfig
     {
-        public double Dpm;
+        public double yOrigin;
 
         public MConfig()
         {
             Configuration config = ConfigurationManager.OpenExeConfiguration(this.GetType().Assembly.Location);
-            MConfigFontsSection section = (MConfigFontsSection)config.GetSection("printerSettings");
-          
-            Dpm = _getDouble(section.SettingsItems[0].Value);
+            MConfigFontsSection section = (MConfigFontsSection)config.GetSection("printerSettings");          
+            yOrigin = _getDouble(section.SettingsItems[0].Value);
         }
 
         private double _getDouble(string value)
