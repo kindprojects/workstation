@@ -42,10 +42,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="MAlignable.cs" />
     <Compile Include="MBarcode.cs" />
     <Compile Include="MConfig.cs" />
     <Compile Include="MConfigSection.cs" />
     <Compile Include="MPage.cs" />
+    <Compile Include="MPrintable.cs" />
     <Compile Include="MPrinter.cs" />
     <Compile Include="MText.cs" />
     <Compile Include="Printer.cs" />

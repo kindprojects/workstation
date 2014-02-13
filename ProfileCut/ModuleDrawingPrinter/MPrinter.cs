@@ -40,31 +40,31 @@ namespace ModuleDrawingPrinter
             }
         }
         private void _printPage(object sender, PrintPageEventArgs ev)
-		{
-			ev.Graphics.PageUnit = GraphicsUnit.Millimeter;
-			/*int pageW = 95; //374;
-			int pageH = 47; //177;
-			//ev.PageSettings.PaperSize.Width = pageW;
-			//ev.PageSettings.PaperSize.Height = pageH;
-			//ev.PageSettings.Landscape = false;//.Width = 0;
-			//ev.PageSettings.HardMarginX;
-			/*ev.PageSettings.Margins.Left = 0;
-			ev.PageSettings.Margins.Right = 0;
-			ev.PageSettings.Margins.Top = 7;
-			ev.PageSettings.Margins.Bottom = 0;
+        {
+            ev.Graphics.PageUnit = GraphicsUnit.Millimeter;
+            /*int pageW = 95; //374;
+            int pageH = 47; //177;
+            //ev.PageSettings.PaperSize.Width = pageW;
+            //ev.PageSettings.PaperSize.Height = pageH;
+            //ev.PageSettings.Landscape = false;//.Width = 0;
+            //ev.PageSettings.HardMarginX;
+            /*ev.PageSettings.Margins.Left = 0;
+            ev.PageSettings.Margins.Right = 0;
+            ev.PageSettings.Margins.Top = 7;
+            ev.PageSettings.Margins.Bottom = 0;
             SizeF size = ev.Graphics.MeasureString("WC", new Font("Arial", 12));
-			float tw = size.Width;
-			float th = size.Height;
-			float areaW = ev.PageSettings.PrintableArea.Width;
-			float areaH = ev.PageSettings.PrintableArea.Height;
-			float ptsW = pageW;// / 100.0f;
-			float ptsH = pageH;// / 100.0f;
-			//ev.Graphics.DrawRectangle(new Pen(Brushes.Black, 1), 0, 0, ptsW, ptsH);
-			//ev.Graphics.DrawRectangle(new Pen(Color.Black, 1), ptsW / 4, ptsH / 2, 0.05f, 0.05f);
-			Pen pen = new Pen(Color.Black, 0.1f);
-			ev.Graphics.DrawLine(pen, 0, 0, 95, 45);
-			ev.Graphics.DrawEllipse(pen, -10, -10, 20, 20);
-			ev.Graphics.DrawEllipse(pen, 85, 35, 20, 20);
+            float tw = size.Width;
+            float th = size.Height;
+            float areaW = ev.PageSettings.PrintableArea.Width;
+            float areaH = ev.PageSettings.PrintableArea.Height;
+            float ptsW = pageW;// / 100.0f;
+            float ptsH = pageH;// / 100.0f;
+            //ev.Graphics.DrawRectangle(new Pen(Brushes.Black, 1), 0, 0, ptsW, ptsH);
+            //ev.Graphics.DrawRectangle(new Pen(Color.Black, 1), ptsW / 4, ptsH / 2, 0.05f, 0.05f);
+            Pen pen = new Pen(Color.Black, 0.1f);
+            ev.Graphics.DrawLine(pen, 0, 0, 95, 45);
+            ev.Graphics.DrawEllipse(pen, -10, -10, 20, 20);
+            ev.Graphics.DrawEllipse(pen, 85, 35, 20, 20);
             ev.Graphics.DrawString("WA", new Font("Arial", 12), Brushes.Black, new RectangleF(0, 0, tw, th));
             ev.Graphics.DrawString("WB", new Font("Arial", 12), Brushes.Black, new RectangleF(ptsW / 2 - tw/2, ptsH / 2 - th/2, tw, th));
             ev.Graphics.DrawString("WC", new Font("Arial", 12), Brushes.Black, new RectangleF(ptsW-tw, ptsH - th, tw, th));*/
@@ -73,18 +73,15 @@ namespace ModuleDrawingPrinter
             {
                 if (obj is MText)
                 {
-                    MText str = (MText)obj;                    
+                    MText label = (MText)obj;
 
-                    if (str.Angle != 0)
-                    {
-                        int xxx = 0;
-                    }
+                    ev.Graphics.TranslateTransform(label.X, label.Y);
+                    ev.Graphics.RotateTransform(label.Angle);
+                    
+                    RectangleF selfPos = label.CalcPositionFromSelfOrigin(ev.Graphics);
 
-                    SizeF strSize = ev.Graphics.MeasureString(str.Text, str.Font);
-                    ev.Graphics.TranslateTransform(str.Rectangle.Left, str.Rectangle.Top);                                        
-                    ev.Graphics.RotateTransform(str.Angle);
-                    ev.Graphics.DrawString(str.Text, str.Font, str.Brush, _calcGraphicsTextRectangle(ev.Graphics, str));
-                    ev.Graphics.ResetTransform();                    
+                    ev.Graphics.DrawString(label.Text, label.Font, label.Brush, new RectangleF(new PointF(selfPos.X, selfPos.Y), label.MeasureObject(ev.Graphics)));
+                    ev.Graphics.ResetTransform();
                 }
                 else if (obj is MBarcode)
                 {
@@ -95,45 +92,6 @@ namespace ModuleDrawingPrinter
             }
 
             ev.HasMorePages = false;
-        }
-              
-        private RectangleF _calcGraphicsTextRectangle(Graphics context, MText str)
-        {
-            SizeF strSize = context.MeasureString(str.Text, str.Font);
-
-            RectangleF ret = new RectangleF();                        
-            if (str.HorAlign == -1) // L
-            {
-                ret.X = 0;
-            }
-            else if (str.HorAlign == 0) // C
-            {
-                ret.X = 0 - strSize.Width / 2;
-                
-            }
-            else // R
-            {
-                ret.X = 0 - strSize.Width;                
-            }
-            ret.Width = strSize.Width;
-
-            if (str.VerAlign == -1) // L
-            {
-                ret.Y = 0;
-
-            }
-            else if (str.VerAlign == 0) // C
-            {
-                ret.Y = 0 - strSize.Height / 2;
-            }
-            else // R
-            {
-                ret.Y = 0 - strSize.Height;
-            }
-            ret.Height = strSize.Height;
-            
-
-            return ret;
         }
     }
 }
