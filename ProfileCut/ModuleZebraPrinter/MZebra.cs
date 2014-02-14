@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Printing;
+using System.Drawing;
 using System.Drawing.Printing;
 using System.IO;
 using System.Text;
@@ -12,12 +13,6 @@ namespace ModuleZebraPrinter
 {
     public class MZebraPrinter
     {
-        public void Print2(string printerName, string content)
-        {            
-                            
-                    
-        }
-
         public void Print(string printerName, string content)
         {
             try
@@ -137,8 +132,9 @@ namespace ModuleZebraPrinter
             }
         }
 
-        public void SetFont(string name)
+        public void SetFont(string name, float size)    
         {
+            // size не используется, размер шривта в app.conf
             _assertPage();
 
             MFont font = _conf.GetFont(name);
@@ -148,23 +144,45 @@ namespace ModuleZebraPrinter
             }
         }
 
-        public void WriteText(string text, double x, double y, int angle, string align, double width)
+        public void WriteText(RectangleF bounds, int horAlign, int verAlign, string text, float angle)
         {
+            // verAligh не использутется - в коммандах нет выравнивания по высота (или полохо искал)                        
             _assertPage();
+
+            string align = _getTextAlign(horAlign);
 
             string fntZpl = string.Format("^A@,{0},{1},{2}", _font.Height, _font.Width, _font.Name);
             _currentPage.AddLine(fntZpl);
 
-            int widthInPixel = _getInPixel(width, _currentPage.Width);
-            string blockDefZpl = string.Format("^FB{0},,,{1},", widthInPixel, align.ToUpper().Trim());
+            int widthInPixel = _getInPixel(bounds.Width, _currentPage.Width);
+            string blockDefZpl = string.Format("^FB{0},,,{1},", widthInPixel, align);
             _currentPage.AddLine(blockDefZpl);
 
-            int xInPixel = _getAlignX(_getInPixel(x, _currentPage.Width), widthInPixel, align);
-            int yInPixel = _getInPixel(y, _currentPage.Height);
+            int xInPixel = _getAlignX(_getInPixel(bounds.X, _currentPage.Width), widthInPixel, align);
+            int yInPixel = _getInPixel(bounds.Y, _currentPage.Height);
 
             string textZpl = string.Format("^FW{0}^FO{1},{2}^FD{3}^FS", _getOreintation(angle), xInPixel, yInPixel, text, align);
             _currentPage.AddLine(textZpl);
 
+        }
+
+        private string _getTextAlign(int align)
+        {
+            string ret = "L";
+            switch (align)
+            {
+                case 0:
+                    ret = "C";
+                    break;
+                case 1:
+                    ret = "R";                    
+                    break;
+                default:
+                    ret = "L";
+                    break;
+            }
+
+            return ret;
         }
 
         private int _getAlignX(int x, int width, string align)
@@ -183,14 +201,16 @@ namespace ModuleZebraPrinter
             }
         }
 
-        public void WriteBarcode(string text, double x, double y, double width, double height)
+        public void WriteBarcode(PointF origin, float height, int horAlign, int verAlign, string text)
+        //public void WriteBarcode(string text, double x, double y, double width, double height)
         {
+            // horAlign, verAlign - не используются, нет выравнивания штрихкода
             _assertPage();
 
             string zpl = string.Format("^FO{0},{1}^BY{2}^BCN,{3},N,N,N^FD>;{4}^FS",
-                _floor(_getInPixel(x, _currentPage.Width)),
-                _floor(_getInPixel(y, _currentPage.Height)),
-                width,
+                _floor(_getInPixel(origin.X, _currentPage.Width)),
+                _floor(_getInPixel(origin.Y, _currentPage.Height)),
+                2,
                 _floor(_getInPixel(height, _currentPage.Height)),
                 text
             );
@@ -198,11 +218,12 @@ namespace ModuleZebraPrinter
             _currentPage.AddLine(zpl);
         }
 
-        public void NewPage(double width, double height, int fieldLeft, int fieldTop, int fieldRight, int fieldBottom)
+        public void NewPage(float width, float height, int fieldLeft, int fieldTop, int fieldRight, int filedBottom)
+        //public void NewPage(double width, double height, int fieldLeft, int fieldTop, int fieldRight, int fieldBottom)
         {
             _assertPriner();
 
-            _currentPage = new MPage(_conf.Dpm, width, height, fieldLeft, fieldTop, fieldRight, fieldBottom);
+            _currentPage = new MPage(_conf.Dpm, width, height, fieldLeft, fieldTop, fieldRight, filedBottom);
             _pages.Add(_currentPage);
         }
 
@@ -225,7 +246,7 @@ namespace ModuleZebraPrinter
             return _floor((width * value / 100));
         }
 
-        private string _getOreintation(int angle)
+        private string _getOreintation(float angle)
         {
             string oreintation;
             if (angle < 90)

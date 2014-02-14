@@ -16,7 +16,7 @@ namespace ProfileCut
         private HardwareModule _module;
         private IStickerPrinter _printer;
 
-        public RPrinter(string modulePath, string printerName)
+        public RPrinter(string modulePath, string moduleNameSpace, string moduleClass, string printerName)
         {
             if (!Path.IsPathRooted(modulePath))
             {
@@ -24,7 +24,7 @@ namespace ProfileCut
             }
             _module = new HardwareModule(modulePath);
 
-            _printer = _module.GetClassInstance<IStickerPrinter>("ModuleDrawingPrinter", "Printer");
+            _printer = _module.GetClassInstance<IStickerPrinter>(moduleNameSpace, moduleClass);
             if (printerName != "")
             {
                 _printer.Init(printerName);

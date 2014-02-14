@@ -338,7 +338,7 @@ namespace ProfileCut
                 {
                     ABaseObject o = _master.GetPointerAtLevel(_conf.PrintLevel);
                     string commands = _viewModel.Transform(_conf.PrintTemplate, o);
-                    RPrinter printer = new RPrinter(_conf.PrinterModule, _conf.PrinterName);
+                    RPrinter printer = new RPrinter(_conf.PrinterModule, _conf.PrinterModuleNameSpace, _conf.PrinterModuleClass, _conf.PrinterName);
                     printer.Print(commands);
                 }
             }
