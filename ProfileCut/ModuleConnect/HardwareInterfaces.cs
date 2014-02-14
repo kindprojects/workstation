@@ -16,7 +16,7 @@ namespace HardwareInterfaces
         void SetFont(string name, float size);
         void WriteText(RectangleF bounds, int horAlign, int verAlign, string text, float angle);
         void WriteBarcode(PointF origin, float height, int horAlign, int verAlign, string text);
-        void NewPage(float width, float height, int fieldLeft, int fieldTop, int fieldRight, int filedBottom);
+        void NewPage(float width, float height, int fieldLeft, int fieldTop, int fieldRight, int filedBottom, float originY);
         void Init(string printerName);
     }
 }

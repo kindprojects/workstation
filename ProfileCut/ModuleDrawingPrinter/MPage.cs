@@ -14,10 +14,10 @@ namespace ModuleDrawingPrinter
         public int FieldTop { set; get; } 
         public int FieldRight { set; get; }
         public int FieldBottom { set; get; }
-
+        public float OriginY { set; get; }
         public List<Object> Content { set; get; }
 
-        public MPage(float width, float height, int fieldLeft, int fieldTop, int fieldRight, int fieldBottom, double yOrigin)
+        public MPage(float width, float height, int fieldLeft, int fieldTop, int fieldRight, int fieldBottom, float originY)
         {
             Width = (width - fieldLeft - fieldRight);
             Height = (height - fieldTop - fieldBottom);
@@ -26,6 +26,7 @@ namespace ModuleDrawingPrinter
             FieldTop = fieldTop;
             FieldRight = fieldRight;
             FieldBottom = fieldBottom;
+            OriginY = originY;
 
             Content = new List<object>();
         }

@@ -218,7 +218,7 @@ namespace ModuleZebraPrinter
             _currentPage.AddLine(zpl);
         }
 
-        public void NewPage(float width, float height, int fieldLeft, int fieldTop, int fieldRight, int filedBottom)
+        public void NewPage(float width, float height, int fieldLeft, int fieldTop, int fieldRight, int filedBottom, float originY)
         //public void NewPage(double width, double height, int fieldLeft, int fieldTop, int fieldRight, int fieldBottom)
         {
             _assertPriner();

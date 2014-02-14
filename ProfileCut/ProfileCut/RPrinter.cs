@@ -88,7 +88,8 @@ namespace ProfileCut
             }
             public float GetParamFloat(string name, double? def = null)
             {
-                string s = GetParamStr(name, (def == null) ? null : def.ToString());
+                string s = GetParamStr(name, (def == null) ? null : def.ToString());                
+                s = s.Replace(".", ",");
                 try
                 {
                     return (float)Convert.ToDouble(s);
@@ -277,7 +278,13 @@ namespace ProfileCut
 							try
 							{
 								Fields fields = cmd.GetParamFields("fields", "0");
-								_printer.NewPage(cmd.GetParamIntPositive("width"), cmd.GetParamIntPositive("height"), fields.left, fields.top, fields.right, fields.bottom);
+                                _printer.NewPage(cmd.GetParamIntPositive("width"),
+                                    cmd.GetParamIntPositive("height"),
+                                    fields.left,
+                                    fields.top,
+                                    fields.right,
+                                    fields.bottom,
+                                    cmd.GetParamFloat("originy", 0.0F));
 							}
 							catch (Exception ex)
 							{

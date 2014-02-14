@@ -45,8 +45,6 @@
   <ItemGroup>
     <Compile Include="MAlignable.cs" />
     <Compile Include="MBarcode.cs" />
-    <Compile Include="MConfig.cs" />
-    <Compile Include="MConfigSection.cs" />
     <Compile Include="MPage.cs" />
     <Compile Include="MPrintable.cs" />
     <Compile Include="MPrinter.cs" />
@@ -63,9 +61,6 @@
       <Project>{1e742822-3118-4630-a19e-803791ba7bc2}</Project>
       <Name>ModuleConnect</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="App.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

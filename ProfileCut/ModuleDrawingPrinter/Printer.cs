@@ -15,11 +15,11 @@ namespace ModuleDrawingPrinter
         private List<MPage> _pages;
         private MPage _currentPage;
         private Font _currentFont;
-        private MConfig _conf;
+        //private MConfig _conf;
 
         public Printer()
         {
-            _conf = new MConfig();
+            //_conf = new MConfig();
             _pages = new List<MPage>();
             _currentFont = new Font("Arial", 12);
         }
@@ -35,23 +35,23 @@ namespace ModuleDrawingPrinter
         {
             _assertPage();
 
-            bounds.Y += (float)_conf.yOrigin;
+            bounds.Y += _currentPage.OriginY;
             MText txt = new MText(_currentPage, text, _currentFont, bounds, horAlign, verAlign, angle);            
             _currentPage.Content.Add(txt);
         }
         public void WriteBarcode(PointF origin, float height, int horAlign, int verAlign, string text)
         {
             _assertPage();
-            origin.Y += (float)_conf.yOrigin;
+            origin.Y += _currentPage.OriginY;
             MBarcode barcode = new MBarcode(_currentPage, origin, height, horAlign, verAlign, text);
             _currentPage.Content.Add(barcode);
         }
 
-        public void NewPage(float width, float height, int fieldLeft, int fieldTop, int fieldRight, int filedBottom)
+        public void NewPage(float width, float height, int fieldLeft, int fieldTop, int fieldRight, int filedBottom, float originY)
         {
             _assertPriner();
 
-            MPage page = new MPage(width, height, fieldLeft, fieldTop, fieldRight, filedBottom, _conf.yOrigin);
+            MPage page = new MPage(width, height, fieldLeft, fieldTop, fieldRight, filedBottom, originY);
             _pages.Add(page);
             _currentPage = page;
         }
