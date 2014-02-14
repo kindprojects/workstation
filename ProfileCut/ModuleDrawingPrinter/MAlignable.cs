@@ -19,24 +19,24 @@ namespace ModuleDrawingPrinter
         /// <param name="context"></param>
         /// <returns></returns>
         public RectangleF CalcPositionFromSelfOrigin(Graphics context)
-        {
-            SizeF strSize = this.MeasureObject(context);
-
+        {            
             RectangleF ret = new RectangleF();
+            
             if (HorAlign == -1) // L
             {
                 ret.X = 0;
             }
             else if (HorAlign == 0) // C
             {
-                ret.X = -strSize.Width / 2.0f;
+                ret.X = -this.Width / 2.0F;
             }
             else // R
             {
-                ret.X = -strSize.Width;
+                ret.X = -this.Width;
             }
-            ret.Width = strSize.Width;
-
+            ret.Width = this.Width;
+                        
+            SizeF strSize = this.MeasureObject(context);
             if (VerAlign == -1) // L
             {
                 ret.Y = 0;
@@ -44,7 +44,7 @@ namespace ModuleDrawingPrinter
             }
             else if (VerAlign == 0) // C
             {
-                ret.Y = -strSize.Height / 2.0f;
+                ret.Y = -strSize.Height / 2.0F;
             }
             else // R
             {

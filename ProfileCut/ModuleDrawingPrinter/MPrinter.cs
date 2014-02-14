@@ -47,12 +47,17 @@ namespace ModuleDrawingPrinter
             foreach (object obj in _page.Content)
             {
                 if (obj is MText)
-                {
+                {                    
                     MText label = (MText)obj;
+
+                    if (label.Text == "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
+                    {
+                        int xxx = 0;
+                    }
 
                     ev.Graphics.TranslateTransform(label.X, label.Y);
                     ev.Graphics.RotateTransform(label.Angle);
-                    ev.Graphics.DrawString(label.Text, label.Font, label.Brush, label.CalcPositionFromSelfOrigin(ev.Graphics));
+                    ev.Graphics.DrawString(label.Text, label.Font, label.Brush, label.CalcPositionFromSelfOrigin(ev.Graphics), label.GetStringFormat());
                     ev.Graphics.ResetTransform();
 
                     //ev.PageSettings.PrinterResolution.Kind

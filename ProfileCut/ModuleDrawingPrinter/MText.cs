@@ -10,7 +10,6 @@ namespace ModuleDrawingPrinter
 {
     public class MText : MAlignable
     {
-        public MPage OwnerPage { set; get; }
         public string Text { set; get; }
         public Font Font { set; get; }
         public Brush Brush { set; get; }
@@ -69,6 +68,25 @@ namespace ModuleDrawingPrinter
             }
                         
             Brush = Brushes.Black;
+        }
+
+        public StringFormat GetStringFormat()
+        {
+            StringFormat format = new StringFormat();
+            if (this.HorAlign == -1)
+            {
+                format.Alignment = StringAlignment.Near;
+            }
+            else if (this.HorAlign == 1)
+            {
+                format.Alignment = StringAlignment.Far;
+            }
+            else
+            {
+                format.Alignment = StringAlignment.Center;
+            }
+
+            return format;
         }
     }
 }

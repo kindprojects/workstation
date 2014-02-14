@@ -10,7 +10,6 @@ namespace ModuleDrawingPrinter
 {
     public class MBarcode : MPrintable
     {
-        public MPage OwnerPage { set; get; }
         public float Height { set; get; }
         public int HorAlign { set; get; }
         public int VerAlign { set; get; }

@@ -9,6 +9,7 @@ namespace ModuleDrawingPrinter
 {
     public abstract class MPrintable
     {
+        public MPage OwnerPage { set; get; }
         public float X;
         public float Y;
         public abstract SizeF MeasureObject(Graphics context);
