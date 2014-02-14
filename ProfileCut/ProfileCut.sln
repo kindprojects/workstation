@@ -15,8 +15,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Api", "Api\Api.csproj", "{F
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JsonPrinter", "JsonPrinter\JsonPrinter.csproj", "{DB07FC4D-E4D4-45F3-8B74-A35934C47F33}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Com.SharpZebra", "..\Com.SharpZebra\Com.SharpZebra.csproj", "{31D7D48D-D093-4B68-B540-0CD4F2220C30}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ModuleDrawingPrinter", "ModuleDrawingPrinter\ModuleDrawingPrinter.csproj", "{F6A47346-455C-4E31-8348-431EAB4B8B0D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GenCode128", "..\GenCode128\GenCode128\GenCode128.csproj", "{32817BF9-E380-4467-9C7F-936F4B122BC7}"
@@ -64,12 +62,6 @@ Global
 		{DB07FC4D-E4D4-45F3-8B74-A35934C47F33}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DB07FC4D-E4D4-45F3-8B74-A35934C47F33}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DB07FC4D-E4D4-45F3-8B74-A35934C47F33}.Release|Any CPU.Build.0 = Release|Any CPU
-		{31D7D48D-D093-4B68-B540-0CD4F2220C30}.Debug Webpage|Any CPU.ActiveCfg = Debug Webpage|Any CPU
-		{31D7D48D-D093-4B68-B540-0CD4F2220C30}.Debug Webpage|Any CPU.Build.0 = Debug Webpage|Any CPU
-		{31D7D48D-D093-4B68-B540-0CD4F2220C30}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{31D7D48D-D093-4B68-B540-0CD4F2220C30}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{31D7D48D-D093-4B68-B540-0CD4F2220C30}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{31D7D48D-D093-4B68-B540-0CD4F2220C30}.Release|Any CPU.Build.0 = Release|Any CPU
 		{F6A47346-455C-4E31-8348-431EAB4B8B0D}.Debug Webpage|Any CPU.ActiveCfg = Debug|Any CPU
 		{F6A47346-455C-4E31-8348-431EAB4B8B0D}.Debug Webpage|Any CPU.Build.0 = Debug|Any CPU
 		{F6A47346-455C-4E31-8348-431EAB4B8B0D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU

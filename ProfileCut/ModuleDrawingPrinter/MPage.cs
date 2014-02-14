@@ -20,7 +20,7 @@ namespace ModuleDrawingPrinter
         public MPage(float width, float height, int fieldLeft, int fieldTop, int fieldRight, int fieldBottom, double yOrigin)
         {
             Width = (width - fieldLeft - fieldRight);
-            Height = (height - fieldTop - fieldBottom - (float)(yOrigin / 2));
+            Height = (height - fieldTop - fieldBottom);
 
             FieldLeft = fieldLeft;
             FieldTop = fieldTop;

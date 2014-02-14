@@ -138,7 +138,7 @@ namespace GenCode128
       /// <param name="BarWeight">Base thickness for bar width (1 or 2 works well)</param>
       /// <param name="AddQuietZone">Add required horiz margins (use if output is tight)</param>
       /// <returns>An Image of the Code128 barcode representing the message</returns>
-      public static Image MakeBarcodeImage( string InputData, int BarWeight, bool AddQuietZone )
+      public static Image MakeBarcodeImage(string InputData, int BarWeight, int BarHeight, bool AddQuietZone )
       {
          // get the Code128 codes to represent the message
          Code128Content content = new Code128Content( InputData );
@@ -146,7 +146,8 @@ namespace GenCode128
 
          int width, height;
          width = ( (codes.Length-3) * 11 + 35) * BarWeight;
-         height = Convert.ToInt32( System.Math.Ceiling( Convert.ToSingle(width) * .15F + 30) );
+         //height = Convert.ToInt32( System.Math.Ceiling( Convert.ToSingle(width) * .15F) );
+         height = BarHeight;
 
          if (AddQuietZone)
          {
@@ -190,8 +191,6 @@ namespace GenCode128
          }
 
          return myimg;
-
       }
-
    }
 }

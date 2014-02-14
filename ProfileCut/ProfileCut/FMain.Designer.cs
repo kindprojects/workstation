@@ -29,15 +29,16 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FMain));
             this.listBoxOptimizations = new System.Windows.Forms.ListBox();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.panelNavigator = new System.Windows.Forms.Panel();
             this.labeOpt = new System.Windows.Forms.Label();
-            this.buttonRefresh = new System.Windows.Forms.Button();
             this.panelAwesomiumWebControl = new System.Windows.Forms.Panel();
             this.webControlDetails = new Awesomium.Windows.Forms.WebControl(this.components);
             this.printDocument1 = new System.Drawing.Printing.PrintDocument();
             this.buttonPrint = new System.Windows.Forms.Button();
+            this.buttonRefresh = new System.Windows.Forms.Button();
             this.panelAwesomiumWebControl.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -74,18 +75,6 @@
             this.labeOpt.TabIndex = 6;
             this.labeOpt.Text = "Оптимизации";
             // 
-            // buttonRefresh
-            // 
-            this.buttonRefresh.BackgroundImage = global::ProfileCut.Resource.refresh2;
-            this.buttonRefresh.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.buttonRefresh.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.buttonRefresh.Location = new System.Drawing.Point(175, 5);
-            this.buttonRefresh.Name = "buttonRefresh";
-            this.buttonRefresh.Size = new System.Drawing.Size(40, 38);
-            this.buttonRefresh.TabIndex = 7;
-            this.buttonRefresh.UseVisualStyleBackColor = true;
-            this.buttonRefresh.Click += new System.EventHandler(this.buttonRefresh_Click);
-            // 
             // panelAwesomiumWebControl
             // 
             this.panelAwesomiumWebControl.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
@@ -118,6 +107,18 @@
             this.buttonPrint.UseVisualStyleBackColor = true;
             this.buttonPrint.Click += new System.EventHandler(this.print_Click);
             // 
+            // buttonRefresh
+            // 
+            this.buttonRefresh.BackgroundImage = global::ProfileCut.Resource.refresh2;
+            this.buttonRefresh.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.buttonRefresh.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.buttonRefresh.Location = new System.Drawing.Point(175, 5);
+            this.buttonRefresh.Name = "buttonRefresh";
+            this.buttonRefresh.Size = new System.Drawing.Size(40, 38);
+            this.buttonRefresh.TabIndex = 7;
+            this.buttonRefresh.UseVisualStyleBackColor = true;
+            this.buttonRefresh.Click += new System.EventHandler(this.buttonRefresh_Click);
+            // 
             // FMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -129,6 +130,7 @@
             this.Controls.Add(this.labeOpt);
             this.Controls.Add(this.panelNavigator);
             this.Controls.Add(this.listBoxOptimizations);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.KeyPreview = true;
             this.Name = "FMain";
             this.Text = "Распил профиля";

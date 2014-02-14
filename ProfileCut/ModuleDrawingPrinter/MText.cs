@@ -17,17 +17,13 @@ namespace ModuleDrawingPrinter
         public float Angle { set; get; }
 
         public override SizeF MeasureObject(Graphics context)
-        {
-            return context.MeasureString(this.Text, this.Font);
+        {            
+             return context.MeasureString(this.Text, this.Font);
+
             // Set character ranges to "First" and "Second".
-            CharacterRange[] characterRanges = { new CharacterRange(0, this.Text.Length) };
+            /*CharacterRange[] characterRanges = { new CharacterRange(0, this.Text.Length) };
 
             // Create rectangle for layout. 
-            /*float x = 50.0F;
-            float y = 50.0F;
-            float width = 35.0F;
-            float height = 200.0F;
-            RectangleF layoutRect = new RectangleF(x, y, width, height);*/
 
             // Set string format.
             StringFormat stringFormat = new StringFormat();
@@ -42,7 +38,7 @@ namespace ModuleDrawingPrinter
 
             // Draw rectangle for first measured range.
             RectangleF measureRect = stringRegions[0].GetBounds(context);
-            return new SizeF(measureRect.Width, measureRect.Height);
+            return new SizeF(measureRect.Width, measureRect.Height);*/
         }
 
         public MText(MPage ownerPage, string text, Font font, RectangleF rectangle, int horAlign, int verAlign, float angle)

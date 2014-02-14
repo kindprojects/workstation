@@ -192,13 +192,20 @@ namespace ProfileCut
 				return this.GetParamLimited(paramName, 0, 100, def);
 			}
 
-			public int GetParamIntPositive(string paramName, int? def = null)
-			{
-				int val = this.GetParamInt(paramName, def);
-				if (val <= 0)
-					throw new Exception("Значение параметра " + paramName + " должно быть строго положительным (больше нуля)");
-				return val;
-			}
+            public float GetParamFloatPositive(string paramName, float? def = null)
+            {
+                float val = this.GetParamFloat(paramName, def);
+                if (val <= 0)
+                    throw new Exception("Значение параметра " + paramName + " должно быть строго положительным (больше нуля)");
+                return val;
+            }
+            public int GetParamIntPositive(string paramName, int? def = null)
+            {
+                int val = this.GetParamInt(paramName, def);
+                if (val <= 0)
+                    throw new Exception("Значение параметра " + paramName + " должно быть строго положительным (больше нуля)");
+                return val;
+            }
 		}
 
         public void Print(string Commands)
@@ -250,7 +257,7 @@ namespace ProfileCut
 								}
 								catch (Exception ex)
 								{
-									throw new Exception(ex.Message + "\nПараметры LBL: x, y, width, height, halign, valign, text, angle", ex);
+									throw new Exception(ex.Message + "\nПараметры LBL: x(%), y(%), width(%), height(%), halign(int<-1..1>), valign(int<-1..1>), text(string), angle(float<-360.0..360.0>)", ex);
 								}
                             }
                             break;
@@ -258,11 +265,11 @@ namespace ProfileCut
                         case "FNT":
 							try
 							{
-								_printer.SetFont(cmd.GetParamStr("name"), cmd.GetParamIntPositive("size"));
+								_printer.SetFont(cmd.GetParamStr("name"), cmd.GetParamFloatPositive("size"));
 							}
 							catch (Exception ex)
 							{
-								throw new Exception(ex.Message + "\nПараметры FNT: name, size", ex);
+								throw new Exception(ex.Message + "\nПараметры FNT: name(string), size(float)", ex);
 							}
                             break;
 
@@ -274,7 +281,7 @@ namespace ProfileCut
 							}
 							catch (Exception ex)
 							{
-								throw new Exception(ex.Message+"\nПараметры PAGE: width, height, fields");
+								throw new Exception(ex.Message+"\nПараметры PAGE: width(int, мм), height(int, мм), fields(intList, мм)");
 							}
 
 							break;

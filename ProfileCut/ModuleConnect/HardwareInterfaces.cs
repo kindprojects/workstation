@@ -13,7 +13,7 @@ namespace HardwareInterfaces
     }
     public interface IStickerPrinter : IBaseFunction
     {
-        void SetFont(string name, int size);
+        void SetFont(string name, float size);
 
         void WriteText(RectangleF bounds, int horAlign, int verAlign, string text, float angle);
 

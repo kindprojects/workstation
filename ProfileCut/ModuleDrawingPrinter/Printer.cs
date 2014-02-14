@@ -24,7 +24,7 @@ namespace ModuleDrawingPrinter
             _currentFont = new Font("Arial", 12);
         }
 
-        public void SetFont(string name, int size)
+        public void SetFont(string name, float size)
         {
             _assertPage();
 
