@@ -60,12 +60,15 @@ namespace ProfileCut
            
         private void FMain_Load(object sender, EventArgs e)
         {
+            WindowState = FormWindowState.Maximized;
+
             listBoxOptimizations.DisplayMember = "DispTitle";
             listBoxOptimizations.ValueMember = "Object";
 
             _refreshOptimizationList();
+            _printButtonVisible();            
         }
-  
+ 
         private void listBoxOptimizations_SelectedIndexChanged(object sender, EventArgs e)
         {
             ListBox list_box = (sender as ListBox);
@@ -212,8 +215,10 @@ namespace ProfileCut
                 _master.SetNavigatorPointer(obj);
                 _updateActiveHtmlElement(_previousId, obj.Id, false);                
                 _previousId = obj.Id;
+
+                _printButtonEnable(obj);
             }
-        }
+        }      
 
         private void Awesomium_Windows_Forms_WebControl_DocumentReady(object sender, Awesomium.Core.UrlEventArgs e)
         {
@@ -231,6 +236,8 @@ namespace ProfileCut
             // загрузим новую оптимизацию, если выбранная оптимизация отлична от текущей
             // такая ситуация возможна при быстром перемещении по списку оптимизаций          
             _reloadHtml();
+
+            _printButtonEnable(obj);
         }
 
         private void _parseNavigation(string path)
@@ -320,6 +327,29 @@ namespace ProfileCut
             }
         }
 
+        private void _printButtonEnable(ABaseObject obj)
+        {
+            string temp = obj.GetTemplateName(_conf.AttrPrintTemplate);
+            if (temp != "")
+            {
+                buttonPrint.Enabled = true;
+            }
+            else
+            {
+                buttonPrint.Enabled = false;
+            }
+        }
+        private void _printButtonVisible()
+        {
+            if (_conf.PrinterName != "")
+            {
+                buttonPrint.Visible = true;
+            }
+            else
+            {
+                buttonPrint.Visible = false;
+            }
+        }
         private void _navButtonClick(object sender, EventArgs e)
         {
             RNavigatorButton b = (RNavigatorButton)sender;            
@@ -327,21 +357,49 @@ namespace ProfileCut
             
             _updateActiveHtmlElement(_previousId, obj.Id, false);
             _previousId = obj.Id;
+
+            _printButtonEnable(obj);
         }
+
+        //private void print_Click(object sender, EventArgs e)
+        //{
+        //    if (_master != null)
+        //    {
+        //        ABaseObject pointer = _master.GetNavigatorPointer();
+        //        if (pointer != null && _conf.PrintTemplate != "" && _conf.PrinterModule != "")
+        //        {
+        //            ABaseObject o = _master.GetPointerAtLevel(_conf.PrintLevel);
+        //            string commands = _viewModel.Transform(_conf.PrintTemplate, o);
+        //            //string commands = _viewModel.Transform(_getPrintTemplateName(o, _conf.AttrTemplate), o);
+        //            RPrinter printer = new RPrinter(_conf.PrinterModule, _conf.PrinterModuleNameSpace, _conf.PrinterModuleClass, _conf.PrinterName);
+        //            printer.Print(commands);
+        //        }
+        //    }
+        //}
 
         private void print_Click(object sender, EventArgs e)
         {
             if (_master != null)
             {
                 ABaseObject pointer = _master.GetNavigatorPointer();
-                if (pointer != null && _conf.PrintTemplate != "" && _conf.PrinterModule != "")
+                if (pointer != null && _conf.AttrPrintTemplate != "" && _conf.PrinterModule != "")
                 {
-                    ABaseObject o = _master.GetPointerAtLevel(_conf.PrintLevel);
-                    string commands = _viewModel.Transform(_conf.PrintTemplate, o);
-                    RPrinter printer = new RPrinter(_conf.PrinterModule, _conf.PrinterModuleNameSpace, _conf.PrinterModuleClass, _conf.PrinterName);
-                    printer.Print(commands);
+                    ABaseObject o = _master.GetPointerAtLevel(_conf.PrintLevel);                    
+                    
+                    string temp = _getPrintTemplateName(pointer, _conf.AttrPrintTemplate);
+                    if (temp != "")
+                    {
+                        string commands = _viewModel.Transform(temp, o);
+                        RPrinter printer = new RPrinter(_conf.PrinterModule, _conf.PrinterModuleNameSpace, _conf.PrinterModuleClass, _conf.PrinterName);
+                        printer.Print(commands);
+                    }
                 }
             }
+        }
+
+        private string _getPrintTemplateName(ABaseObject obj, string attrTemplateName)
+        {
+            return obj.GetTemplateName(attrTemplateName);
         }
 
         private void buttonRefresh_Click(object sender, EventArgs e)

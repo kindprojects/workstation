@@ -91,6 +91,30 @@ namespace Platform
             return lst;
         }
 
+        public string GetTemplateName(IPBaseObject obj, string attrTemplate)
+        {
+            string ret = "";
+            PCollection c = this._ownerCollection;
+            string attrVal = "";
+            if (obj.GetAttr(attrTemplate, out attrVal) && attrVal != "")
+            {
+                ret = attrVal;
+            }
+            else
+            {
+                while (c != null)
+                {
+                    if (c.Owner.GetAttr(attrTemplate, out attrVal) && attrVal != "")
+                    {
+                        ret = attrVal;
+                        break;
+                    }
+                    c = c.Owner._ownerCollection;
+                }
+            }
+            return ret;
+        }
+        
         public bool GetAttr(string name, out string val)
         {
             if (_attrs.TryGetValue(name.ToLower(), out val))

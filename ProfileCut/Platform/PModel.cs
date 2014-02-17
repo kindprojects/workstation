@@ -33,7 +33,8 @@ namespace Platform
             PBaseObject ret = null;
             if (_listObjects.TryGetValue(id, out ret))
             {
-                return ret.IsChildOf(where) ? ret : null;
+                //return ret.IsChildOf(where) ? ret : null;
+                return ret;
             }
             else
                 return null;

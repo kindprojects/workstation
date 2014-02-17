@@ -142,6 +142,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Resources\circular.ico" />
+    <Content Include="Resources\circular_black.ico" />
     <Content Include="Resources\printer.png" />
     <Content Include="Screenshot.jpg" />
     <None Include="Resources\thin9.png" />

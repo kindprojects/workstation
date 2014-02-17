@@ -65,8 +65,13 @@ namespace Api
             IPBaseObject obj = platformObject.FindObjectById(id);
             return _createApiObject(obj);
         }
-        
 
+        public string GetTemplateName(string attrTemplateName)
+        {
+            IPBaseObject obj = platformObject.FindObjectById(this.Id);
+            return obj.GetTemplateName(obj, attrTemplateName);
+        }
+        
         ABaseObject _createApiObject(IPBaseObject obj)
         {
             return new ABaseObject()

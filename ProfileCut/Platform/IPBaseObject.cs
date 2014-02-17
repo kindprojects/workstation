@@ -19,5 +19,6 @@ namespace Platform
         bool GetAttr(string name, out string val);
         PCollection GetCollection(string name, bool createIfNotFound);
         PBaseObject FindObjectById(int id);
+        string GetTemplateName(IPBaseObject obj, string attrTemplate);
     }
 }

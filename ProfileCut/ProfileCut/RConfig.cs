@@ -14,19 +14,19 @@ namespace ProfileCut
         public string ModelCode { private set; get; }
         public string MasterCollection { private set; get; }
         public string MasterItemTemplate { private set; get; }
-        public string DetailTemplate { private set; get; }
-        //public string DetailCollection { private set; get; }
+        public string DetailTemplate { private set; get; }        
         public string Navigation { private set; get; }
         public string SelectedHtmlElementClass { private set; get; }
         public int MasterItemsUpdateIntervalMs { private set; get; }
         public int PrintLevel { private set; get; }
-        public string PrintTemplate { private set; get; }
+        //public string PrintTemplate { private set; get; }
         public string PrinterModule { private set; get; }
         public string PrinterModuleNameSpace { private set; get; }
         public string PrinterModuleClass { private set; get; }
         public string PrinterName { private set; get; }
+        //public string AttrTemplate { private set; get; }
 
-        //public RConfigHardwareCommands HardwareCommands { private set; get; }
+        public string AttrPrintTemplate { private set; get; }
 
         public RConfig()
         {
@@ -36,24 +36,30 @@ namespace ProfileCut
 
             MasterItemTemplate = ConfigurationManager.AppSettings["MasterItemTemplate"];
             DetailTemplate = ConfigurationManager.AppSettings["DetailTemplate"];
-            //DetailCollection = ConfigurationManager.AppSettings["DetailCollection"];
+            
             Navigation = ConfigurationManager.AppSettings["Navigation"];
             SelectedHtmlElementClass = ConfigurationManager.AppSettings["SelectedHtmlElementClass"];
 
             MasterItemsUpdateIntervalMs = _getInt("MasterItemsUpdateIntervalMs", null);
 
             PrintLevel = _getInt("PrintLevel", -1);
-            PrintTemplate = _getString("PrintTemplate", "");
+            
+            
+            //PrintTemplate = _getString("PrintTemplate", "");
+
             PrinterModule = _getString("PrinterModule", "");
             PrinterModuleNameSpace = _getString("PrinterModuleNameSpace", "");
             PrinterModuleClass = _getString("PrinterModuleClass", "");
-
             PrinterName = _getString("PrinterName", "");
 
+            AttrPrintTemplate = _getString("AttrPrintTemplate", "");
+
+            //AttrTemplate = ConfigurationManager.AppSettings["AttrTemplate"];
+
             //HardwareCommands = new RConfigHardwareCommands();
-            RConfigHardwareCommandsSection section = (RConfigHardwareCommandsSection)ConfigurationManager.GetSection("startupHardwareCommands");
-            foreach (RHardwareCommandElement item in section.HardwareCommandItems)
-            {
+            //RConfigHardwareCommandsSection section = (RConfigHardwareCommandsSection)ConfigurationManager.GetSection("startupHardwareCommands");
+            //foreach (RHardwareCommandElement item in section.HardwareCommandItems)
+            //{
                 //HardwareCommands.items.Add(new RConfigHardwareCommand()
                 //{
                 //    Name = item.Key,
@@ -65,7 +71,7 @@ namespace ProfileCut
                 //    Func = item.Func,
                 //    Text = item.Text
                 //});
-            }
+            //}
         }
 
         private string _getString(string key, string defaultValue)

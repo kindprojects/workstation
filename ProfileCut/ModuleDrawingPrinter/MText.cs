@@ -50,11 +50,6 @@ namespace ModuleDrawingPrinter
             VerAlign = verAlign;
             Angle = angle;
 
-            if (angle != 0)
-            {
-                int xxx = 0;
-            }
-
             if (ownerPage != null)
             {
                 this.X = rectangle.Left * ownerPage.Width / 100;
