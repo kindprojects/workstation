@@ -102,10 +102,14 @@
       <AutoGen>True</AutoGen>
     </Compile>
     <Compile Include="RMasterItem.cs" />
+    <Compile Include="RNavigatorPath.cs" />
     <Compile Include="RNavigatorButton.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="RPrinter.cs" />
+    <Compile Include="RPrinterButton.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <EmbeddedResource Include="FMain.resx">
       <DependentUpon>FMain.cs</DependentUpon>
     </EmbeddedResource>

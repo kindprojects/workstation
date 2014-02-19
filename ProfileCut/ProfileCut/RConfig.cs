@@ -12,27 +12,29 @@ namespace ProfileCut
     {
         public string ConnectionString { private set; get; }
         public string ModelCode { private set; get; }
-        public string MasterCollection { private set; get; }
+        public string MasterCollectionPath { private set; get; }
         public string MasterItemTemplate { private set; get; }
         public string DetailTemplate { private set; get; }        
         public string Navigation { private set; get; }
         public string SelectedHtmlElementClass { private set; get; }
         public int MasterItemsUpdateIntervalMs { private set; get; }
-        public int PrintLevel { private set; get; }
+        //public int PrintLevel { private set; get; }
         //public string PrintTemplate { private set; get; }
-        public string PrinterModule { private set; get; }
-        public string PrinterModuleNameSpace { private set; get; }
-        public string PrinterModuleClass { private set; get; }
-        public string PrinterName { private set; get; }
-        //public string AttrTemplate { private set; get; }
+        //public string PrinterModule { private set; get; }
+        //public string PrinterModuleNameSpace { private set; get; }
+        //public string PrinterModuleClass { private set; get; }
+        //public string PrinterName { private set; get; }
+        ////public string AttrTemplate { private set; get; }
 
-        public string AttrPrintTemplate { private set; get; }
+        //public string AttrPrintTemplate { private set; get; }
+
+        public List<RConfigPrintButton> PrinterButtons { private set; get; }
 
         public RConfig()
         {
             ConnectionString = ConfigurationManager.ConnectionStrings["FireBirdConnection"].ConnectionString;
             ModelCode = ConfigurationManager.AppSettings["ModelCode"];
-            MasterCollection = ConfigurationManager.AppSettings["MasterCollection"];
+            MasterCollectionPath = ConfigurationManager.AppSettings["MasterCollectionPath"];
 
             MasterItemTemplate = ConfigurationManager.AppSettings["MasterItemTemplate"];
             DetailTemplate = ConfigurationManager.AppSettings["DetailTemplate"];
@@ -42,36 +44,18 @@ namespace ProfileCut
 
             MasterItemsUpdateIntervalMs = _getInt("MasterItemsUpdateIntervalMs", null);
 
-            PrintLevel = _getInt("PrintLevel", -1);
-            
-            
-            //PrintTemplate = _getString("PrintTemplate", "");
+            //PrinterModule = _getString("PrinterModule", "");
+            //PrinterModuleNameSpace = _getString("PrinterModuleNameSpace", "");
+            //PrinterModuleClass = _getString("PrinterModuleClass", "");
+            //PrinterName = _getString("PrinterName", "");
+            //AttrPrintTemplate = _getString("AttrPrintTemplate", "");
 
-            PrinterModule = _getString("PrinterModule", "");
-            PrinterModuleNameSpace = _getString("PrinterModuleNameSpace", "");
-            PrinterModuleClass = _getString("PrinterModuleClass", "");
-            PrinterName = _getString("PrinterName", "");
-
-            AttrPrintTemplate = _getString("AttrPrintTemplate", "");
-
-            //AttrTemplate = ConfigurationManager.AppSettings["AttrTemplate"];
-
-            //HardwareCommands = new RConfigHardwareCommands();
-            //RConfigHardwareCommandsSection section = (RConfigHardwareCommandsSection)ConfigurationManager.GetSection("startupHardwareCommands");
-            //foreach (RHardwareCommandElement item in section.HardwareCommandItems)
-            //{
-                //HardwareCommands.items.Add(new RConfigHardwareCommand()
-                //{
-                //    Name = item.Key,
-                //    ApplyTo = item.ApplyTo,
-                //    List = item.List,
-                //    Step = item.Step,
-                //    Send = item.Send,
-                //    Module = item.Module,
-                //    Func = item.Func,
-                //    Text = item.Text
-                //});
-            //}
+            PrinterButtons = new List<RConfigPrintButton>();
+            RConfigRegisterButtons config = RConfigRegisterButtons.GetConfig();
+            foreach (RConfigPrintButton item in config.Buttons)
+            {
+                PrinterButtons.Add(item);
+            }
         }
 
         private string _getString(string key, string defaultValue)

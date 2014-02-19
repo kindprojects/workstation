@@ -27,19 +27,18 @@ namespace Platform
 
         public IPBaseObject GetNavigatorPointer()
         {
-            return _navigator.Pointer;
+            if (_navigator == null)
+                return null;
+            else
+                return _navigator.Pointer;
         }
 
         public void SetNavigatorPointer(int id)
         {
             PBaseObject obj = FindObjectById(id);
-            _navigator.Pointer = obj;           
-        }
-
-        public IPBaseObject NavigatorInitialize(string path)
-        {
-            _navigator = new PModelObjectNavigator(this);
-            return _navigator.Setup(path);            
+            if (_navigator == null)
+                throw new Exception("Навигатор не создан");
+            _navigator.Pointer = obj;
         }
 
         //public void NavigatorSetPointer(PBaseObject obj)
@@ -55,16 +54,22 @@ namespace Platform
 
         public IPBaseObject Navigate(int depth, NAV_DIRECTION direction)
         {
+            if (_navigator == null)
+                throw new Exception("Попытка выполнить относительную навигацию без полной (Navigate(string))");
             return _navigator.Navigate(depth, direction);
         }
 
         public IPBaseObject Navigate(string path)
         {
+            if (_navigator == null)
+            {
+                _navigator = new PModelObjectNavigator(this);
+            }
             return _navigator.Navigate(path);
         }
-        public IPBaseObject GetPointerAtLevel(int level)
+        public IPBaseObject GetObjectByDepth(int level)
         {
-            return this._navigator.GetPointerAtLevel(level);
+            return this._navigator.GetObjectByDepth(level);
         }
 
         //public List<PModelObjectNavigatorPathLevel> GetLevels()
@@ -121,15 +126,16 @@ namespace Platform
             {
                 return true;
             }
-            else if (this._ownerCollection != null)
-            {
-                return this._ownerCollection.Owner.GetAttr(name, out val);
-            }
+            //else if (this._ownerCollection != null)
+            //{
+            //    return this._ownerCollection.Owner.GetAttr(name, out val);
+            //}
             else
             {
                 return false;
             }
         }
+
 
         public PBaseObject FindObjectById(int id)
         {
@@ -180,9 +186,30 @@ namespace Platform
             return this._collects;
         }
 
-        public List<int> GetPathTo(PBaseObject toObject)
+        //public List<int> GetPathTo(PBaseObject toObject)
+        //{
+        //    List<int> path = new List<int>();
+
+        //    if (toObject._ownerCollection == null)
+        //        return null;
+
+        //    PBaseObject obj = toObject;
+        //    while (obj._ownerCollection.Owner != null)
+        //    {
+        //        path.Insert(0, obj._ownerCollection.IndexOf(obj));
+
+        //        if (obj._ownerCollection.Owner == this)
+        //        {
+        //            return path;
+        //        }
+
+        //        obj = obj._ownerCollection.Owner;
+        //    }
+        //    return null;
+        //}
+        public PNavigatorPath GetPathTo(PBaseObject toObject)
         {
-            List<int> path = new List<int>();
+            PNavigatorPath path = new PNavigatorPath();
 
             if (toObject._ownerCollection == null)
                 return null;
@@ -190,8 +217,7 @@ namespace Platform
             PBaseObject obj = toObject;
             while (obj._ownerCollection.Owner != null)
             {
-                path.Insert(0, obj._ownerCollection.IndexOf(obj));
-
+                path.Parts.Insert(0, new PNavigatorPartPath(obj._ownerCollection.Name, obj._ownerCollection.IndexOf(obj)));
                 if (obj._ownerCollection.Owner == this)
                 {
                     return path;
@@ -201,6 +227,7 @@ namespace Platform
             }
             return null;
         }
+
 
         public PCollection GetCollection(string name, bool createIfNotFound)
         {

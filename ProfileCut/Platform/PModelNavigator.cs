@@ -13,8 +13,10 @@ namespace Platform
     public enum NAV_DIRECTION { UP, DOWN };
     public class PModelObjectNavigator
     {
-        private List<string> _levels;
-        private List<int> _positionInLevel;
+        //private List<string> _levels;
+        //private List<int> _positionInLevel;
+
+        private PNavigatorPath _path;
 
         private PBaseObject _owner;
 
@@ -32,11 +34,26 @@ namespace Platform
                 }
                 else if (value.IsChildOf(_owner))
                 {
-                    List<int> path = this._owner.GetPathTo(value);
-                    for (int ii = 0; ii < path.Count(); ii++)
+                    PNavigatorPath path = this._owner.GetPathTo(value); 
+
+                    if (path.Parts.Count() > _path.Parts.Count())
+                        throw new Exception("Попытка установить указатель навигатора за пределы описанного в нём пути");
+
+                    int[] positions = new int[path.Parts.Count()];
+                    for (int ii = 0; ii < path.Parts.Count(); ii++)
                     {
-                        _positionInLevel[ii] = path[ii];
+                        if (path.Parts[ii].Level.ToLower() != _path.Parts[ii].Level.ToLower())
+                            throw new Exception("Попытка установить указатель навигатора по неверному пути");
+
+                        positions[ii] = path.Parts[ii].PositionInLevel;                        
                     }
+                    // все ок, можно заполнить индексы
+                    for (int ii = 0; ii < path.Parts.Count(); ii++)
+                    {
+                        _path.Parts[ii].PositionInLevel = positions[ii];
+                    }
+                    
+
                     _pointer = value;
                 }
                 else
@@ -56,37 +73,95 @@ namespace Platform
         public PModelObjectNavigator(PBaseObject owner)
         {
             _owner = owner;
+            //levels = new List<string>();
+            // _positionInLevel = new List<int>();
+            _path = new PNavigatorPath();                
         }
 
-        public PBaseObject GetPointerAtLevel(int level)
+        //public PBaseObject GetPointerAtLevel(int level)
+        //{
+        //    PBaseObject p = this._owner;
+        //    if (level > _path. _levels.Count())
+        //        throw new Exception ("level > _level.Count()");
+        //    for (int ii = 0; ii < level; ii++){
+        //        PCollection coll = p.GetCollection(_levels[ii], false);
+        //        if (coll != null){
+        //            p = coll.GetObject(_positionInLevel[ii]);
+        //        }
+        //    }
+        //    return p;
+        //}
+        //public PBaseObject GetObjectByDepth(int level)
+        //{
+        //    PBaseObject p = this._owner;
+        //    if (level > _path.Parts.Count())
+        //        throw new Exception("level > _level.Count()");
+        //    for (int ii = 0; ii < level; ii++)
+        //    {
+        //        PCollection coll = p.GetCollection(_path.Parts[ii].Level, false);
+        //        if (coll != null)
+        //        {
+        //            p = coll.GetObject(_path.Parts[ii].PositionInLevel);
+        //        }
+        //    }
+        //    return p;
+        //}
+        public PBaseObject GetObjectByDepth(int depth)
         {
-            PBaseObject p = this._owner;
-            if (level > _levels.Count())
-                throw new Exception ("level > _level.Count()");
-            for (int ii = 0; ii < level; ii++){
-                PCollection coll = p.GetCollection(_levels[ii], false);
-                if (coll != null){
-                    p = coll.GetObject(_positionInLevel[ii]);
+            if (depth >= _path.Parts.Count())
+                throw new Exception(String.Format("Уровень {0} не существует", depth));
+
+            // объект которому пренадлежит навигатор
+            PBaseObject o = this._owner;
+            for (int ii = 0; ii <= depth; ii++)
+            {
+                PCollection collection = o.GetCollection(_path.Parts[ii].Level, false);
+                if (collection != null)
+                {
+                    o = collection.GetObject(_path.Parts[ii].PositionInLevel);
                 }
             }
-            return p;
+            
+            return o;
         }
 
+        // collection:index/collection:index/...
+        //private void _parseToLevels(string path)
+        //{
+        //    try
+        //    {
+        //        _levels.Clear();
+        //        _positionInLevel.Clear();
+        //        foreach (Match match in Regex.Matches(path, @"([^:/\\]+(?::\d+)?)"))
+        //        {
+        //            MatchCollection partMatches = _parsePart(match.Groups[1].ToString());
+
+        //            foreach (Match partMatch in partMatches)
+        //            {
+        //                _levels.Add(partMatch.Groups[1].Value.ToString());
+        //                _positionInLevel.Add(Convert.ToInt32(partMatch.Groups[2].Value.ToString()));
+        //            }
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        throw new Exception("Не верный формат пути. " + ex.Message);
+        //    }
+        //}
         // collection:index/collection:index/...
         private void _parseToLevels(string path)
         {
             try
             {
-                _levels.Clear();
-                _positionInLevel.Clear();
+                _path.Parts.Clear();
+
                 foreach (Match match in Regex.Matches(path, @"([^:/\\]+(?::\d+)?)"))
                 {
                     MatchCollection partMatches = _parsePart(match.Groups[1].ToString());
 
                     foreach (Match partMatch in partMatches)
                     {
-                        _levels.Add(partMatch.Groups[1].Value.ToString());
-                        _positionInLevel.Add(Convert.ToInt32(partMatch.Groups[2].Value.ToString()));
+                        _path.Parts.Add(new PNavigatorPartPath(partMatch.Groups[1].Value.ToString(), Convert.ToInt32(partMatch.Groups[2].Value.ToString())));
                     }
                 }
             }
@@ -100,16 +175,6 @@ namespace Platform
         private MatchCollection _parsePart(string partPath)
         {
             return Regex.Matches(partPath, @"([^:]+)(?::([^:]+))?", RegexOptions.IgnoreCase);
-        }
-
-        public PBaseObject Setup(string path)
-        {
-            _levels = new List<string>();
-            _positionInLevel = new List<int>();
-            _parseToLevels(path);
-            _updatePointer();
-
-            return Pointer;
         }
 
         //public void SetObject(PBaseObject obj)
@@ -187,6 +252,44 @@ namespace Platform
         //    OnNavigated(this, this.Pointer);
         //}
 
+        //private void _updatePointer()
+        //{
+        //    if (_owner == null)
+        //    {
+        //        throw new Exception("Текущий объект не задан");
+        //    }
+
+        //    PBaseObject owner = _owner;
+        //    for (int ii = 0; ii < _levels.Count(); ii++)
+        //    {
+        //        string level = _levels[ii];
+        //        int position = _positionInLevel[ii];
+
+        //        PCollection collection = owner.GetCollection(level, false);
+        //        if (collection == null)
+        //        {
+        //            throw new Exception("Указанная в конфигурации коллекция '" + level + "' не описана в переданном объекте");
+        //        }
+        //        else
+        //        {
+        //            if (position < 0)
+        //            {
+        //                position = collection.Count() - 1;
+        //                _positionInLevel[ii] = position;
+        //            }
+        //            PBaseObject obj = collection.GetObject(position);
+        //            if (obj != null)
+        //            {
+        //                this.Pointer = obj;
+        //                owner = obj;
+        //            }
+        //            else
+        //            {
+        //                break;
+        //            }
+        //        }
+        //    }
+        //}
         private void _updatePointer()
         {
             if (_owner == null)
@@ -195,10 +298,10 @@ namespace Platform
             }
 
             PBaseObject owner = _owner;
-            for (int ii = 0; ii < _levels.Count(); ii++)
+            for (int ii = 0; ii < _path.Parts.Count(); ii++)
             {
-                string level = _levels[ii];
-                int position = _positionInLevel[ii];
+                string level = _path.Parts[ii].Level;
+                int position = _path.Parts[ii].PositionInLevel;
 
                 PCollection collection = owner.GetCollection(level, false);
                 if (collection == null)
@@ -210,7 +313,7 @@ namespace Platform
                     if (position < 0)
                     {
                         position = collection.Count() - 1;
-                        _positionInLevel[ii] = position;
+                        _path.Parts[ii].PositionInLevel = position;
                     }
                     PBaseObject obj = collection.GetObject(position);
                     if (obj != null)
@@ -225,7 +328,45 @@ namespace Platform
                 }
             }
         }
+        //public PBaseObject Navigate(int depth, NAV_DIRECTION dir)
+        //{
+        //    if (_owner == null)
+        //        throw new Exception("Текущий объект не задан");
 
+        //    int cnt = depth + 1;
+
+        //    if (cnt > _levels.Count)
+        //        throw new Exception("Задана глубина больше чем уровней в навигаторе");
+
+        //    List<int> newPath = new List<int>();
+        //    for (int ii = 0; ii < cnt; ii++ )
+        //    {
+        //        newPath.Add(_positionInLevel[ii]);
+        //    }
+
+        //    //_positionInLevel.ToList();
+
+        //    if (_tryGetNewPath(ref newPath, dir))
+        //    {
+        //        for (int ii = 0; ii < _levels.Count(); ii++)
+        //        {
+        //            _positionInLevel[ii] = (ii < cnt) ? newPath[ii] : 0;
+        //        }
+
+        //        //_positionInLevel = newPath;
+        //        //for (int ii = 0; ii < _levels.Count(); ii++)
+        //        //{
+        //        //    _positionInLevel[ii] = (ii < cnt) ? newPath[ii] : 0;
+        //        //}
+        //        _updatePointer();
+
+        //        return Pointer;
+        //    }
+        //    else
+        //    {
+        //        return Pointer;
+        //    }
+        //}
         public PBaseObject Navigate(int depth, NAV_DIRECTION dir)
         {
             if (_owner == null)
@@ -233,27 +374,21 @@ namespace Platform
 
             int cnt = depth + 1;
 
+            if (cnt > _path.Parts.Count())
+                throw new Exception("Задана глубина больше чем уровней в навигаторе");
+
             List<int> newPath = new List<int>();
-            for (int ii = 0; ii < cnt; ii++ )
+            for (int ii = 0; ii < cnt; ii++)
             {
-                newPath.Add(_positionInLevel[ii]);
+                newPath.Add(_path.Parts[ii].PositionInLevel);
             }
-
-
-                //_positionInLevel.ToList();
 
             if (_tryGetNewPath(ref newPath, dir))
             {
-                for (int ii = 0; ii < _levels.Count(); ii++)
+                for (int ii = 0; ii < _path.Parts.Count(); ii++)
                 {
-                    _positionInLevel[ii] = (ii < cnt) ? newPath[ii] : 0;
+                    _path.Parts[ii].PositionInLevel = (ii < cnt) ? newPath[ii] : 0;
                 }
-
-                //_positionInLevel = newPath;
-                //for (int ii = 0; ii < _levels.Count(); ii++)
-                //{
-                //    _positionInLevel[ii] = (ii < cnt) ? newPath[ii] : 0;
-                //}
                 _updatePointer();
 
                 return Pointer;
@@ -292,37 +427,37 @@ namespace Platform
         //    }
         //}
 
-        public PBaseObject Navigate(int[] path)
-        {
-            if (_owner == null)
-                throw new Exception("Текущий объект не задан");
+        //public PBaseObject Navigate(int[] path)
+        //{
+        //    if (_owner == null)
+        //        throw new Exception("Текущий объект не задан");
 
-            PBaseObject obj = _owner;
-            for (int ii = 0; ii < path.Length; ii++)
-            {
-                PCollection collection = obj.GetCollection(_levels[ii], true);
-                if (collection != null)
-                {
-                    // есть объект?
-                    obj = collection.GetObject(ii);
-                    if (obj != null)
-                    {
-                        _positionInLevel[ii] = path[ii];
-                    }
-                    else
-                    {
-                        for (int jj = ii; jj < _positionInLevel.Count(); jj++)
-                            _positionInLevel[jj] = 0;
+        //    PBaseObject obj = _owner;
+        //    for (int ii = 0; ii < path.Length; ii++)
+        //    {
+        //        PCollection collection = obj.GetCollection(_levels[ii], true);
+        //        if (collection != null)
+        //        {
+        //            // есть объект?
+        //            obj = collection.GetObject(ii);
+        //            if (obj != null)
+        //            {
+        //                _positionInLevel[ii] = path[ii];
+        //            }
+        //            else
+        //            {
+        //                for (int jj = ii; jj < _positionInLevel.Count(); jj++)
+        //                    _positionInLevel[jj] = 0;
 
-                        break;
-                    }
-                }
-            }
+        //                break;
+        //            }
+        //        }
+        //    }
 
-            _updatePointer();
+        //    _updatePointer();
 
-            return Pointer;
-        }
+        //    return Pointer;
+        //}
 
         public PBaseObject Navigate(string path)
         {
@@ -445,9 +580,18 @@ namespace Platform
         //    return false;
         //}
 
+        //private int _indexOf(string level)
+        //{
+        //    int levelIndex = _levels.IndexOf(level);
+        //    if (levelIndex < 0)
+        //    {
+        //        throw new Exception("Указанный уровень не принадлежит навигатору");
+        //    }
+        //    return levelIndex;
+        //}
         private int _indexOf(string level)
         {
-            int levelIndex = _levels.IndexOf(level);
+            int levelIndex = _path.IndexOf(level);
             if (levelIndex < 0)
             {
                 throw new Exception("Указанный уровень не принадлежит навигатору");
@@ -455,19 +599,46 @@ namespace Platform
             return levelIndex;
         }
 
+        //private bool _validatePath(List<int> path, int toIndex)
+        //{
+        //    PBaseObject o = _owner;
+        //    if (o == null)
+        //        throw new Exception("Текущий объект не задан");
+
+        //    if (_levels.Count() < path.Count())
+        //        throw new Exception("Неправильный путь (path:" + _levels.Count().ToString() + " > levels:" + _levels.Count().ToString() + ")");
+
+        //    int index = path[toIndex];
+        //    for (int ii = 0; ii <= toIndex; ii++)
+        //    {
+        //        string collName = _levels[ii];
+        //        PCollection coll = o.GetCollection(collName, false);
+        //        if (coll == null)
+        //            throw new Exception("Указанный в конфигурации путь не соответствует модели (коллекция " + collName + " не найдена)");
+
+        //        index = path[ii];
+        //        if (index < 0 || index >= coll.Count())
+        //            return false;
+
+        //        o = coll.GetObject(path[ii]);
+        //        if (o == null)
+        //            return false;
+        //    }
+        //    return true;
+        //}
         private bool _validatePath(List<int> path, int toIndex)
         {
             PBaseObject o = _owner;
             if (o == null)
                 throw new Exception("Текущий объект не задан");
 
-            if (_levels.Count() < path.Count())
-                throw new Exception("Неправильный путь (path:" + _levels.Count().ToString() + " > levels:" + _levels.Count().ToString() + ")");
+            if (_path.Parts.Count() < path.Count())
+                throw new Exception(String.Format("Неправильный путь (path: {0} > levels: {1})", path.Count().ToString(), _path.Parts.Count().ToString()));
 
             int index = path[toIndex];
             for (int ii = 0; ii <= toIndex; ii++)
             {
-                string collName = _levels[ii];
+                string collName = _path.Parts[ii].Level;
                 PCollection coll = o.GetCollection(collName, false);
                 if (coll == null)
                     throw new Exception("Указанный в конфигурации путь не соответствует модели (коллекция " + collName + " не найдена)");

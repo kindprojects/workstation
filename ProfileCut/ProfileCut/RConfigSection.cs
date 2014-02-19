@@ -8,92 +8,122 @@ using System.Configuration;
 
 namespace ProfileCut
 {
-    
-    class RConfigHardwareCommandsSection : ConfigurationSection
+    public class RConfigPrintButton : ConfigurationElement
     {
-        [ConfigurationProperty("hardwareCommands")]
-        public RHardwareCommandsCollection HardwareCommandItems
+        [ConfigurationProperty("name", IsRequired = true)]
+        public string Name
         {
-            get { return ((RHardwareCommandsCollection)(base["hardwareCommands"])); }
+            get
+            {
+                return this["name"] as string;
+            }
         }
-    }
-
-    [ConfigurationCollection(typeof(RHardwareCommandElement))]
-    public class RHardwareCommandsCollection : ConfigurationElementCollection
-    {
-        protected override ConfigurationElement CreateNewElement()
-        {
-            return new RHardwareCommandElement();
-        }
-
-        protected override object GetElementKey(ConfigurationElement element)
-        {
-            return ((RHardwareCommandElement)(element)).Key;
-        }
-
-        public RHardwareCommandElement this[int idx]
-        {
-            get { return (RHardwareCommandElement)BaseGet(idx); }
-        }
-    }
-
-    public class RHardwareCommandElement : ConfigurationElement
-    {
-
-        [ConfigurationProperty("key", DefaultValue = "", IsKey = true, IsRequired = true)]
-        public string Key
-        {
-            get { return ((string)(base["key"])); }
-            set { base["key"] = value; }
-        }
-
-        [ConfigurationProperty("applyTo", DefaultValue = "", IsKey = false, IsRequired = false)]
-        public string ApplyTo
-        {
-            get { return ((string)(base["applyTo"])); }
-            set { base["applyTo"] = value; }
-        }
-
-        [ConfigurationProperty("list", DefaultValue = "", IsKey = false, IsRequired = false)]
-        public string List
-        {
-            get { return ((string)(base["list"])); }
-            set { base["list"] = value; }
-        }
-
-        [ConfigurationProperty("step", DefaultValue = "", IsKey = false, IsRequired = false)]
-        public string Step
-        {
-            get { return ((string)(base["step"])); }
-            set { base["step"] = value; }
-        }
-
-        [ConfigurationProperty("send", DefaultValue = "", IsKey = false, IsRequired = false)]
-        public string Send
-        {
-            get { return ((string)(base["send"])); }
-            set { base["send"] = value; }
-        }
-
-        [ConfigurationProperty("module", DefaultValue = "", IsKey = false, IsRequired = false)]
-        public string Module
-        {
-            get { return ((string)(base["module"])); }
-            set { base["module"] = value; }
-        }
-
-        [ConfigurationProperty("func", DefaultValue = "", IsKey = false, IsRequired = false)]
-        public string Func
-        {
-            get { return ((string)(base["func"])); }
-            set { base["func"] = value; }
-        }
-
-        [ConfigurationProperty("text", DefaultValue = "", IsKey = false, IsRequired = false)]
+        [ConfigurationProperty("text", IsRequired = true)]
         public string Text
         {
-            get { return ((string)(base["text"])); }
-            set { base["text"] = value; }
+            get
+            {
+                return this["text"] as string;
+            }
+        }
+        [ConfigurationProperty("module", IsRequired = true)]
+        public string Module
+        {
+            get
+            {
+                return this["module"] as string;
+            }
+        }
+        [ConfigurationProperty("nameSpace", IsRequired = true)]
+        public string NameSpace
+        {
+            get
+            {
+                return this["nameSpace"] as string;
+            }
+        }
+        [ConfigurationProperty("class", IsRequired = true)]
+        public string Class
+        {
+            get
+            {
+                return this["class"] as string;
+            }
+        }
+        [ConfigurationProperty("printer", IsRequired = true)]
+        public string Printer
+        {
+            get
+            {
+                return this["printer"] as string;
+            }
+        }
+        [ConfigurationProperty("attrTemplate", IsRequired = true)]
+        public string AttrTemplate
+        {
+            get
+            {
+                return this["attrTemplate"] as string;
+            }
         }
     }
+    public class RConfigButtons : ConfigurationElementCollection
+    {
+        public RConfigPrintButton this[int index]
+        {
+            get
+            {
+                return base.BaseGet(index) as RConfigPrintButton;
+            }
+            set
+            {
+                if (base.BaseGet(index) != null)
+                {
+                    base.BaseRemoveAt(index);
+                }
+                this.BaseAdd(index, value);
+            }
+        }
+        public new RConfigPrintButton this[string responseString]
+        {
+            get { return (RConfigPrintButton)BaseGet(responseString); }
+            set
+            {
+                if (BaseGet(responseString) != null)
+                {
+                    BaseRemoveAt(BaseIndexOf(BaseGet(responseString)));
+                }
+                BaseAdd(value);
+            }
+        }
+        protected override System.Configuration.ConfigurationElement CreateNewElement()
+        {
+            return new RConfigPrintButton();
+        }
+
+        protected override object GetElementKey(System.Configuration.ConfigurationElement element)
+        {
+            return ((RConfigPrintButton)element).Name;
+        }
+    }
+    public class RConfigRegisterButtons : ConfigurationSection
+    {
+        public static RConfigRegisterButtons GetConfig()
+        {
+            return (RConfigRegisterButtons)System.Configuration.ConfigurationManager.GetSection("printButtons") ?? new RConfigRegisterButtons();
+        }
+
+        [System.Configuration.ConfigurationProperty("buttons")]
+        [ConfigurationCollection(typeof(RConfigButtons), AddItemName = "button")]
+        public RConfigButtons Buttons
+        {
+            get
+            {
+                object o = this["buttons"];
+                return o as RConfigButtons;
+            }
+        }
+
+    }
+
 }

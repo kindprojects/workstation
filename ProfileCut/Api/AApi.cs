@@ -14,21 +14,14 @@ namespace Api
 
         internal IPBaseObject platformObject;
 
-        public ABaseObject NavigatorInitialize(string path)
-        {
-            IPBaseObject obj =  platformObject.NavigatorInitialize(path);
-            return _createApiObject(obj);
-        }
-
         public ABaseObject Navigate(string path)
         {
             IPBaseObject obj = platformObject.Navigate(path);
             return _createApiObject(obj);
         }
-
-        public ABaseObject GetPointerAtLevel(int level)
+        public ABaseObject GetObjectByDepth(int level)
         {
-            return _createApiObject(this.platformObject.GetPointerAtLevel(level));
+            return _createApiObject(this.platformObject.GetObjectByDepth(level));
         }
 
         public ABaseObject Navigate(int depth, int direction)
@@ -41,7 +34,10 @@ namespace Api
         public ABaseObject GetNavigatorPointer()
         {
             IPBaseObject obj = platformObject.GetNavigatorPointer();
-            return _createApiObject(obj);
+            if (obj == null)
+                return null;
+            else
+                return _createApiObject(obj);
         }
 
         public void SetNavigatorPointer(ABaseObject obj)
@@ -70,6 +66,14 @@ namespace Api
         {
             IPBaseObject obj = platformObject.FindObjectById(this.Id);
             return obj.GetTemplateName(obj, attrTemplateName);
+        }
+
+        public string GetAttr(string attrName)
+        {
+            string val = "";
+            this.platformObject.GetAttr(attrName, out val);
+
+            return val;
         }
         
         ABaseObject _createApiObject(IPBaseObject obj)

@@ -33,7 +33,8 @@ namespace ProfileCut
         private ABaseObject _master;
         private int _previousId;
 
-        private string _detailPath;
+        private RNavigatorPath _startNavigatorPath;
+
         private List<string> _buttonNames;
 
         private bool _domIsReady;       
@@ -41,21 +42,22 @@ namespace ProfileCut
         public FMain()
         {
             InitializeComponent();
-            
+
+            _startNavigatorPath = new RNavigatorPath();
+
             _buttonNames = new List<string>();            
             
             _conf = new RConfig();
             _parseNavigation(_conf.Navigation);
             _createButtons(_buttonNames);
 
-            _viewModel = new AModel(_conf.ConnectionString, _conf.ModelCode, true);
-            _master = _viewModel.GetRoot().NavigatorInitialize(_conf.MasterCollection);
+            _viewModel = new AModel(_conf.ConnectionString, _conf.ModelCode, false);
+            _master = _viewModel.GetRoot().Navigate(_conf.MasterCollectionPath + ":0");
 
-            buttonPrint.Enabled = false;
-
-            _navButtonsEnable(panelNavigator, false);
+            _navButtonsDisable(panelNavigator);
+            _printButtonsDisable(panelPrinterButtons);
             
-            _domIsReady = true;            
+            _domIsReady = true;
         }
            
         private void FMain_Load(object sender, EventArgs e)
@@ -66,7 +68,6 @@ namespace ProfileCut
             listBoxOptimizations.ValueMember = "Object";
 
             _refreshOptimizationList();
-            _printButtonVisible();            
         }
  
         private void listBoxOptimizations_SelectedIndexChanged(object sender, EventArgs e)
@@ -216,20 +217,19 @@ namespace ProfileCut
                 _updateActiveHtmlElement(_previousId, obj.Id, false);                
                 _previousId = obj.Id;
 
-                _printButtonEnable(obj);
+                _printButtonsEnable(panelPrinterButtons);
             }
-        }      
+        }           
 
         private void Awesomium_Windows_Forms_WebControl_DocumentReady(object sender, Awesomium.Core.UrlEventArgs e)
         {
             _jsObject = webControlDetails.CreateGlobalJavascriptObject("app");
             _jsBind();
 
-            var obj = _master.NavigatorInitialize(_detailPath);
+            var obj = _master.Navigate(_startNavigatorPath.GetStringPath());
             _updateActiveHtmlElement(0, obj.Id, true);
             _previousId = obj.Id;
-            _navButtonsEnable(panelNavigator, true);
-            buttonPrint.Enabled = true;
+            _navButtonsEnable(panelNavigator);
 
             _domIsReady = true;
 
@@ -237,7 +237,7 @@ namespace ProfileCut
             // такая ситуация возможна при быстром перемещении по списку оптимизаций          
             _reloadHtml();
 
-            _printButtonEnable(obj);
+            _printButtonsEnable(panelPrinterButtons);
         }
 
         private void _parseNavigation(string path)
@@ -249,7 +249,7 @@ namespace ProfileCut
                     MatchCollection partMatches =  Regex.Matches(match.Groups[1].ToString(), @"([^:]+)(?::([^:]+))?", RegexOptions.IgnoreCase);                    
                     foreach(Match partMatch in partMatches)
                     {
-                        _detailPath += partMatch.Groups[1].Value.ToString() + ":0/";
+                        _startNavigatorPath.Parts.Add(new RNavigatorPartPath(partMatch.Groups[1].Value.ToString(), 0));                      
                         _buttonNames.Add(partMatch.Groups[2].Value.ToString());
                     }                    
                 }
@@ -268,6 +268,45 @@ namespace ProfileCut
             {
                 x = _createDepthButtons(panelNavigator, depth, name, x);
                 depth++;
+            }
+
+            x = 0;
+            foreach (RConfigPrintButton item in _conf.PrinterButtons)
+            {
+                x = _createPrintButton(panelPrinterButtons, item, x);
+            }
+        }
+        private int _createPrintButton(Control owner, RConfigPrintButton config, int x)
+        {
+            RPrinterButton b = new RPrinterButton(config.Text, config.Module, config.NameSpace, config.Class, config.Printer, config.AttrTemplate);
+            b.AutoSize = true;
+            b.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            b.Height = owner.Height;
+            b.Left = owner.Width - b.Width - x;
+            b.Click += new System.EventHandler(this._printButtonClick);                    
+                    
+            owner.Controls.Add(b);
+
+            return b.Width + 2;
+        }
+        private void _printButtonClick(object sender, EventArgs e)
+        {            
+            RPrinterButton b = (RPrinterButton)sender;
+            if (_master != null)
+            {                
+                ABaseObject pointer = _master.GetNavigatorPointer();
+                if (pointer != null && b.AttrTemplate != "" && b.ModuleFileName != "")
+                {
+                    ABaseObject o = _getObjectWihtAttrTempate(b.AttrTemplate);
+                    
+                    // string temp = _getPrintTemplateName(pointer, b.AttrTemplate);
+                    if (o != null)
+                    {
+                        string commands = _viewModel.Transform(o.GetAttr(b.AttrTemplate), o);
+                        RPrinter printer = new RPrinter(b.ModuleFileName, b.ModuleNameSpace, b.ModuleClass, b.PrinterName);
+                        printer.Print(commands);
+                    }
+                }
             }
         }
 
@@ -318,38 +357,47 @@ namespace ProfileCut
             return p.Width;
         }
 
-        private void _navButtonsEnable(Control owner, bool enable)
+        private void _navButtonsEnable(Control owner)
         {
-            owner.Enabled = enable;
+            owner.Enabled = true;
             foreach(Control button in owner.Controls)
             {
-                button.Enabled = enable;
+                button.Enabled = true;
             }
+        }
+        private void _navButtonsDisable(Control owner)
+        {
+            owner.Enabled = false;
+            foreach (Control button in owner.Controls)
+            {
+                button.Enabled = false;
+            }
+        }     
+
+        private void _printButtonsEnable(Control owner)
+        {
+            foreach (RPrinterButton button in owner.Controls)
+            {
+                ABaseObject o = _getObjectWihtAttrTempate(button.AttrTemplate);
+                if (o != null)
+                {
+                    button.Enabled = true;
+                }
+                else
+                {
+                    button.Enabled = false;
+                }
+            }                
         }
 
-        private void _printButtonEnable(ABaseObject obj)
+        private void _printButtonsDisable(Control owner)
         {
-            string temp = obj.GetTemplateName(_conf.AttrPrintTemplate);
-            if (temp != "")
+            foreach (RPrinterButton button in owner.Controls)
             {
-                buttonPrint.Enabled = true;
-            }
-            else
-            {
-                buttonPrint.Enabled = false;
+                button.Enabled = false;
             }
         }
-        private void _printButtonVisible()
-        {
-            if (_conf.PrinterName != "")
-            {
-                buttonPrint.Visible = true;
-            }
-            else
-            {
-                buttonPrint.Visible = false;
-            }
-        }
+       
         private void _navButtonClick(object sender, EventArgs e)
         {
             RNavigatorButton b = (RNavigatorButton)sender;            
@@ -358,56 +406,15 @@ namespace ProfileCut
             _updateActiveHtmlElement(_previousId, obj.Id, false);
             _previousId = obj.Id;
 
-            _printButtonEnable(obj);
+            _printButtonsEnable(panelPrinterButtons);
         }
-
-        //private void print_Click(object sender, EventArgs e)
-        //{
-        //    if (_master != null)
-        //    {
-        //        ABaseObject pointer = _master.GetNavigatorPointer();
-        //        if (pointer != null && _conf.PrintTemplate != "" && _conf.PrinterModule != "")
-        //        {
-        //            ABaseObject o = _master.GetPointerAtLevel(_conf.PrintLevel);
-        //            string commands = _viewModel.Transform(_conf.PrintTemplate, o);
-        //            //string commands = _viewModel.Transform(_getPrintTemplateName(o, _conf.AttrTemplate), o);
-        //            RPrinter printer = new RPrinter(_conf.PrinterModule, _conf.PrinterModuleNameSpace, _conf.PrinterModuleClass, _conf.PrinterName);
-        //            printer.Print(commands);
-        //        }
-        //    }
-        //}
-
-        private void print_Click(object sender, EventArgs e)
-        {
-            if (_master != null)
-            {
-                ABaseObject pointer = _master.GetNavigatorPointer();
-                if (pointer != null && _conf.AttrPrintTemplate != "" && _conf.PrinterModule != "")
-                {
-                    ABaseObject o = _master.GetPointerAtLevel(_conf.PrintLevel);                    
-                    
-                    string temp = _getPrintTemplateName(pointer, _conf.AttrPrintTemplate);
-                    if (temp != "")
-                    {
-                        string commands = _viewModel.Transform(temp, o);
-                        RPrinter printer = new RPrinter(_conf.PrinterModule, _conf.PrinterModuleNameSpace, _conf.PrinterModuleClass, _conf.PrinterName);
-                        printer.Print(commands);
-                    }
-                }
-            }
-        }
-
-        private string _getPrintTemplateName(ABaseObject obj, string attrTemplateName)
-        {
-            return obj.GetTemplateName(attrTemplateName);
-        }
-
+     
         private void buttonRefresh_Click(object sender, EventArgs e)
         {
             object selectedItem = this.listBoxOptimizations.SelectedItem;
 
             _viewModel = new AModel(_conf.ConnectionString, _conf.ModelCode, true);
-            _viewModel.GetRoot().NavigatorInitialize(_conf.MasterCollection);           
+            _viewModel.GetRoot().Navigate(_conf.MasterCollectionPath+":0");           
             _refreshOptimizationList();
 
             if (selectedItem != null)
@@ -450,6 +457,36 @@ namespace ProfileCut
             {
                listBoxOptimizations.SelectedIndexChanged += new System.EventHandler(this.listBoxOptimizations_SelectedIndexChanged);
             }
+        }
+
+        private ABaseObject _getObjectWihtAttrTempate(string attrTemplate)
+        {
+            ABaseObject ret = null;
+
+            for (int ii = _startNavigatorPath.Parts.Count() - 1; ii >= 0; ii--)
+            {
+                ABaseObject obj = _master.GetObjectByDepth(ii);
+                string attrVal = obj.GetAttr(attrTemplate);
+
+                if (attrVal != null && attrVal != "")
+                {
+                    ret = obj;
+
+                    break;
+                }
+            }
+
+            // поищем в мастере
+            if (ret == null)
+            {
+                string masterAttrVal = _master.GetAttr(attrTemplate);
+                if (masterAttrVal != null && masterAttrVal != "")
+                {
+                    ret = _master;
+                }
+            }
+
+            return ret;
         }
     }
 }

@@ -51,10 +51,10 @@
     <Compile Include="PCollection.cs" />
     <Compile Include="PModel.cs" />
     <Compile Include="PModelNavigator.cs" />
+    <Compile Include="PNavigatorPath.cs" />
     <Compile Include="PPlatform.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PTemplates.cs" />
-    <Compile Include="PObjectPathLevel.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
