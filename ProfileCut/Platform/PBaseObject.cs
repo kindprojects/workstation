@@ -101,7 +101,7 @@ namespace Platform
             string ret = "";
             PCollection c = this._ownerCollection;
             string attrVal = "";
-            if (obj.GetAttr(attrTemplate, out attrVal) && attrVal != "")
+            if (obj.GetAttr(attrTemplate, true, out attrVal) && attrVal != "")
             {
                 ret = attrVal;
             }
@@ -109,7 +109,7 @@ namespace Platform
             {
                 while (c != null)
                 {
-                    if (c.Owner.GetAttr(attrTemplate, out attrVal) && attrVal != "")
+                    if (c.Owner.GetAttr(attrTemplate, true, out attrVal) && attrVal != "")
                     {
                         ret = attrVal;
                         break;
@@ -120,23 +120,22 @@ namespace Platform
             return ret;
         }
         
-        public bool GetAttr(string name, out string val)
+        public bool GetAttr(string name, bool findInOwners, out string val)
         {
             if (_attrs.TryGetValue(name.ToLower(), out val))
             {
                 return true;
             }
-            //else if (this._ownerCollection != null)
-            //{
-            //    return this._ownerCollection.Owner.GetAttr(name, out val);
-            //}
+            else if (this._ownerCollection != null && findInOwners) // рекурсивно ищем во всех владельцах
+            {
+                return this._ownerCollection.Owner.GetAttr(name, true, out val);
+            }
             else
             {
                 return false;
             }
         }
-
-
+        
         public PBaseObject FindObjectById(int id)
         {
             return _model.FindObjectById(id, this);

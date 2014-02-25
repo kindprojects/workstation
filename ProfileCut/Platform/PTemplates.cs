@@ -59,7 +59,7 @@ namespace Platform
                 foreach (var attr in attrs)
                 {
                     string val = "";
-                    if (!obj.GetAttr(attr.Name, out val))
+                    if (!obj.GetAttr(attr.Name, true, out val))
                         val = NotFoundMarks.attrs.Begin + attr.Name + NotFoundMarks.attrs.End;
                     template = template.Replace(attr.OperatorText, val);
                 }

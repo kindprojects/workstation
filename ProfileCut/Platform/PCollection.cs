@@ -61,7 +61,7 @@ namespace Platform
             foreach (PBaseObject item in _items)
             {
                 string val = "";
-                if (item.GetAttr(name, out val))
+                if (item.GetAttr(name, true, out val))
                 {
                     if (val == value)
                     {

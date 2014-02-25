@@ -271,9 +271,9 @@ namespace ProfileCut
             }
 
             x = 0;
-            foreach (RConfigPrintButton item in _conf.PrinterButtons)
+            for (int ii = _conf.PrinterButtons.Count() - 1; ii >= 0; ii--)
             {
-                x = _createPrintButton(panelPrinterButtons, item, x);
+                x = _createPrintButton(panelPrinterButtons, _conf.PrinterButtons[ii], x);
             }
         }
         private int _createPrintButton(Control owner, RConfigPrintButton config, int x)
@@ -302,7 +302,7 @@ namespace ProfileCut
                     // string temp = _getPrintTemplateName(pointer, b.AttrTemplate);
                     if (o != null)
                     {
-                        string commands = _viewModel.Transform(o.GetAttr(b.AttrTemplate), o);
+                        string commands = _viewModel.Transform(o.GetAttr(b.AttrTemplate, false), o);
                         RPrinter printer = new RPrinter(b.ModuleFileName, b.ModuleNameSpace, b.ModuleClass, b.PrinterName);
                         printer.Print(commands);
                     }
@@ -466,7 +466,7 @@ namespace ProfileCut
             for (int ii = _startNavigatorPath.Parts.Count() - 1; ii >= 0; ii--)
             {
                 ABaseObject obj = _master.GetObjectByDepth(ii);
-                string attrVal = obj.GetAttr(attrTemplate);
+                string attrVal = obj.GetAttr(attrTemplate, false);
 
                 if (attrVal != null && attrVal != "")
                 {
@@ -479,7 +479,7 @@ namespace ProfileCut
             // поищем в мастере
             if (ret == null)
             {
-                string masterAttrVal = _master.GetAttr(attrTemplate);
+                string masterAttrVal = _master.GetAttr(attrTemplate, false);
                 if (masterAttrVal != null && masterAttrVal != "")
                 {
                     ret = _master;

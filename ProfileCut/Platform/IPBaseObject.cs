@@ -15,7 +15,7 @@ namespace Platform
         void SetNavigatorPointer(int id);
         List<string> GetPathFromObject(IPBaseObject obj);
         IPBaseObject GetObjectByDepth(int level);
-        bool GetAttr(string name, out string val);
+        bool GetAttr(string name, bool findInOwners, out string val);
         PCollection GetCollection(string name, bool createIfNotFound);
         PBaseObject FindObjectById(int id);
         string GetTemplateName(IPBaseObject obj, string attrTemplate);

@@ -45,16 +45,16 @@ namespace Api
             platformObject.SetNavigatorPointer(obj.Id);
         }
 
-        public string GetPathFromObject(ABaseObject obj, string separator)
-        {
-            List<string> path = this.platformObject.GetPathFromObject(obj.platformObject);
-            string ret = "";
-            foreach (string s in path)
-            {
-                ret += ((ret == "") ? "" : separator) + s;
-            }
-            return ret;
-        }
+        //public string GetPathFromObject(ABaseObject obj, string separator)
+        //{
+        //    List<string> path = this.platformObject.GetPathFromObject(obj.platformObject);
+        //    string ret = "";
+        //    foreach (string s in path)
+        //    {
+        //        ret += ((ret == "") ? "" : separator) + s;
+        //    }
+        //    return ret;
+        //}
 
         public ABaseObject GetObjectById(int id)
         {
@@ -62,16 +62,16 @@ namespace Api
             return _createApiObject(obj);
         }
 
-        public string GetTemplateName(string attrTemplateName)
-        {
-            IPBaseObject obj = platformObject.FindObjectById(this.Id);
-            return obj.GetTemplateName(obj, attrTemplateName);
-        }
+        //public string GetTemplateName(string attrTemplateName)
+        //{
+        //    IPBaseObject obj = platformObject.FindObjectById(this.Id);
+        //    return obj.GetTemplateName(obj, attrTemplateName);
+        //}
 
-        public string GetAttr(string attrName)
+        public string GetAttr(string attrName, bool findInOwners)
         {
             string val = "";
-            this.platformObject.GetAttr(attrName, out val);
+            this.platformObject.GetAttr(attrName, findInOwners, out val);
 
             return val;
         }
@@ -86,19 +86,19 @@ namespace Api
         }
     }
 
-    public class ACollection
-    {
-        List<ABaseObject> GetObjects()
-        {
-            List<ABaseObject> list = new List<ABaseObject>();
+    //public class ACollection
+    //{
+    //    List<ABaseObject> GetObjects()
+    //    {
+    //        List<ABaseObject> list = new List<ABaseObject>();
 
-            return list;
-        }
-        ABaseObject GetObjectByIndex(int index) 
-        {
-            return null;
-        }
-    }
+    //        return list;
+    //    }
+    //    ABaseObject GetObjectByIndex(int index) 
+    //    {
+    //        return null;
+    //    }
+    //}
     
     public class AModel
     {        
