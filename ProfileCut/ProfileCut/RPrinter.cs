@@ -220,6 +220,16 @@ namespace ProfileCut
                 RCustomizedPrinterCommand cmd = new RCustomizedPrinterCommand(cmdLine);
                 if (cmd.Code != null)
                 {
+					string expr = cmd.GetParamStr("hideif", "");
+					if (expr != "")
+					{
+						string[] parts = expr.Split('=');
+						if (parts.Count() == 2)
+						{
+							if (parts[0] == parts[1])
+								continue;
+						}
+					}
                     switch (cmd.Code.ToUpper())
                     {
                         //case "LBL":
