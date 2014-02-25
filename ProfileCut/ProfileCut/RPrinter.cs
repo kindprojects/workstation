@@ -226,7 +226,7 @@ namespace ProfileCut
 						string[] parts = expr.Split('=');
 						if (parts.Count() == 2)
 						{
-							if (parts[0] == parts[1])
+							if (parts[0].Trim() == parts[1].Trim())
 								continue;
 						}
 					}
