@@ -24,7 +24,9 @@ namespace ProfileCut
     {
         private JSObject _jsObject;
 
-        private RConfig _conf;
+        //private RConfig _conf;
+        private RAppConfig _conf;
+
 
         // представление модели
         private AModel _viewModel;
@@ -44,9 +46,9 @@ namespace ProfileCut
 
             _startNavigatorPath = new RNavigatorPath();
 
-            _buttonNames = new List<string>();            
-            
-            _conf = new RConfig();
+            _buttonNames = new List<string>();
+
+            _conf = new RAppConfig().Load();
             _parseNavigation(_conf.Navigation);
             _createButtons(_buttonNames);
 
@@ -57,6 +59,8 @@ namespace ProfileCut
             _printButtonsDisable(panelPrinterButtons);
             
             _domIsReady = true;
+
+            this.Text = "Распил " + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
         }
            
         private void FMain_Load(object sender, EventArgs e)
@@ -270,15 +274,15 @@ namespace ProfileCut
             }
 
             x = 0;
-            for (int ii = _conf.PrinterButtons.Count() - 1; ii >= 0; ii--)
+            for (int ii = _conf.Commands.Buttons.Count() - 1; ii >= 0; ii--)
             {
-                x = _createPrintButton(panelPrinterButtons, _conf.PrinterButtons[ii], x);
+                x = _createPrintButton(panelPrinterButtons, _conf.Commands.Buttons[ii], x);
             }
         }
-        private int _createPrintButton(Control owner, RConfigButton config, int x)
+        private int _createPrintButton(Control owner, RAppButton config, int x)
         {
             //RPrinterButton b = new RPrinterButton(config.Text, config.Module, config.NameSpace, config.Class, config.Printer, config.AttrTemplate);
-            RPrinterButton b = new RPrinterButton(config.Text, config.AttrTemplate, config.pri);
+            RPrinterButton b = new RPrinterButton(config.Text, config.AttrTemplate, config.TemplateOverloads.PrinterName);
             b.AutoSize = true;
             b.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             b.Height = owner.Height;

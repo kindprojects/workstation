@@ -1,0 +1,26 @@
+{
+	"Version": "1.0.0.0",
+	"ConnectionString": "charset=WIN1251;datasource=localhost;database=db.fdb;user=sysdba;password=masterkey",
+	"ModelCode": "podst",
+	"MasterItemTemplate": "OptItem",
+	"MasterCollectionPath": "Optimizations",
+	"DetailTemplate": "OptView",
+	"SelectedHtmlElementClass": "selectedObject",
+	"Navigation": "profiles:профиль/canes:хлыст",
+	"MasterItemsUpdateIntervalMs": 10000,
+	"Debug": true,
+	"Commands":
+	{
+		"Buttons":
+		[
+			{
+				"Text": "Печать",
+				"AttrTemplate": "PRINT_STICKERS",
+				"TemplateOverloads":
+				{
+					"PrinterName": "ZDesigner LP 2844"
+				}
+			}
+		]
+	}
+}
