@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 using System.Drawing;
 
-namespace ModuleDrawingPrinter
+namespace ModuleNamespace
 {
     public class MText : MAlignable
     {

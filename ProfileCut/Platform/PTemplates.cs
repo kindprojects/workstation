@@ -40,7 +40,7 @@ namespace Platform
             _items.Add(name.ToLower(), text);
         }
 
-        public string TransformText(string templateName, IPBaseObject obj, ref string path, bool addPath)
+        public string TransformText(string templateName, IPBaseObject obj, Dictionary<string,string>overloads, ref string path, bool addPath)
         {
             string template = "";
 
@@ -59,8 +59,11 @@ namespace Platform
                 foreach (var attr in attrs)
                 {
                     string val = "";
-                    if (!obj.GetAttr(attr.Name, true, out val))
-                        val = NotFoundMarks.attrs.Begin + attr.Name + NotFoundMarks.attrs.End;
+                    if (overloads == null || !overloads.TryGetValue(attr.Name, out val))
+                    {
+                        if (!obj.GetAttr(attr.Name, true, out val))
+                            val = NotFoundMarks.attrs.Begin + attr.Name + NotFoundMarks.attrs.End;
+                    }
                     template = template.Replace(attr.OperatorText, val);
                 }
 
@@ -81,7 +84,7 @@ namespace Platform
                                 path += ((path != "") ? "/" : "") + fcollect.collectionName + ":" + fcollect.navigatorLevelText;
                                 addPath = false;
                             }
-                            val += this.TransformText(fcollect.templateName, cobj, ref path, addNext);
+                            val += this.TransformText(fcollect.templateName, cobj, overloads, ref path, addNext);
 
                         }
                         template = template.Replace(fcollect.OperatorText, val);

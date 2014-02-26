@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using System.Drawing;
 using GenCode128;
 
-namespace ModuleDrawingPrinter
+namespace ModuleNamespace
 {
     public class MBarcode : MPrintable
     {

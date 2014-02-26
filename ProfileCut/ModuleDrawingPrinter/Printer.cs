@@ -4,22 +4,25 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Drawing;
+using System.Drawing.Printing;
 
-using HardwareInterfaces;
+using ModuleConnect;
 
-namespace ModuleDrawingPrinter
+namespace ModuleNamespace
 {
-    public class Printer : IStickerPrinter
+    public class Printer
     {
-        private MPrinter _printer;
+        private string _printerName;
         private List<MPage> _pages;
+        PrintDocument _sessionDoc;
+        private MPage _sessionPage;
         private MPage _currentPage;
         private Font _currentFont;
         //private MConfig _conf;
 
-        public Printer()
+        public Printer(string printerName)
         {
-            //_conf = new MConfig();
+            _printerName = printerName;
             _pages = new List<MPage>();
             _currentFont = new Font("Arial", 12);
         }
@@ -49,24 +52,14 @@ namespace ModuleDrawingPrinter
 
         public void NewPage(float width, float height, int fieldLeft, int fieldTop, int fieldRight, int filedBottom, float originY)
         {
-            _assertPriner();
-
             MPage page = new MPage(width, height, fieldLeft, fieldTop, fieldRight, filedBottom, originY);
             _pages.Add(page);
             _currentPage = page;
         }
-        public void Init(string printerName)
-        {
-            _printer = new MPrinter(printerName, new System.Drawing.Printing.PaperSize("custom", 500, 500));
-        }
-
-        private void _assertPriner()
-        {
-            if (_printer == null)
-            {
-                throw new Exception("Принтер не задан");
-            }
-        }
+        //public void Init(string printerName)
+        //{
+        //    _printer = new MPrinter(printerName);
+        //}
 
         private void _assertPage()
         {
@@ -76,9 +69,67 @@ namespace ModuleDrawingPrinter
             }
         }
 
-        public void Execute()
+        public void Print(List<MPage> pages)
         {
-            _printer.Print(_pages);
+            try
+            {
+                foreach (MPage page in pages)
+                {
+                    //_pd.DefaultPageSettings.PaperSize = new PaperSize("Custom", 350, 50);
+                    _sessionPage = page;
+                    _sessionDoc.Print();
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(String.Format("Ошибка принтера. {0}", ex.Message));
+            }
+        }
+        private void _printPage(object sender, PrintPageEventArgs ev)
+        {
+            ev.Graphics.PageUnit = GraphicsUnit.Millimeter;
+
+            foreach (object obj in _sessionPage.Content)
+            {
+                if (obj is MText)
+                {
+                    MText label = (MText)obj;
+
+                    ev.Graphics.TranslateTransform(label.X, label.Y);
+                    ev.Graphics.RotateTransform(label.Angle);
+                    ev.Graphics.DrawString(label.Text, label.Font, label.Brush, label.CalcPositionFromSelfOrigin(ev.Graphics), label.GetStringFormat());
+                    ev.Graphics.ResetTransform();
+                }
+                else if (obj is MBarcode)
+                {
+                    MBarcode barcode = (MBarcode)obj;
+                    ev.Graphics.DrawImage(barcode.Render(ev.Graphics), new PointF(barcode.X, barcode.Y));
+                }
+            }
+
+            ev.HasMorePages = false;
+        }
+
+        public void Print()
+        {
+            _sessionDoc = new PrintDocument();
+            _sessionDoc.PrinterSettings.PrinterName = _printerName;
+            _sessionDoc.DefaultPageSettings.Margins = new Margins(0, 0, 0, 0);
+            _sessionDoc.PrintPage += new PrintPageEventHandler(this._printPage);
+
+            try
+            {
+                foreach (MPage page in _pages)
+                {
+                    //_pd.DefaultPageSettings.PaperSize = new PaperSize("Custom", 350, 50);
+                    _sessionPage = page;
+                    _sessionDoc.Print();
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(String.Format("Ошибка принтера. {0}", ex.Message));
+            }
         }
     }
 }

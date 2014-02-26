@@ -8,7 +8,7 @@ using System.Configuration;
 
 namespace ProfileCut
 {
-    public class RConfigPrintButton : ConfigurationElement
+    public class RConfigButton : ConfigurationElement
     {
         [ConfigurationProperty("name", IsRequired = true)]
         public string Name
@@ -26,36 +26,36 @@ namespace ProfileCut
                 return this["text"] as string;
             }
         }
-        [ConfigurationProperty("module", IsRequired = true)]
-        public string Module
-        {
-            get
-            {
-                return this["module"] as string;
-            }
-        }
-        [ConfigurationProperty("nameSpace", IsRequired = true)]
-        public string NameSpace
-        {
-            get
-            {
-                return this["nameSpace"] as string;
-            }
-        }
-        [ConfigurationProperty("class", IsRequired = true)]
-        public string Class
-        {
-            get
-            {
-                return this["class"] as string;
-            }
-        }
-        [ConfigurationProperty("printer", IsRequired = true)]
+        //[ConfigurationProperty("module", IsRequired = true)]
+        //public string Module
+        //{
+        //    get
+        //    {
+        //        return this["module"] as string;
+        //    }
+        //}
+        //[ConfigurationProperty("nameSpace", IsRequired = true)]
+        //public string NameSpace
+        //{
+        //    get
+        //    {
+        //        return this["nameSpace"] as string;
+        //    }
+        //}
+        //[ConfigurationProperty("class", IsRequired = true)]
+        //public string Class
+        //{
+        //    get
+        //    {
+        //        return this["class"] as string;
+        //    }
+        //}
+        [ConfigurationProperty("printerName", IsRequired = true)]
         public string Printer
         {
             get
             {
-                return this["printer"] as string;
+                return this["printerName"] as string;
             }
         }
         [ConfigurationProperty("attrTemplate", IsRequired = true)]
@@ -69,11 +69,11 @@ namespace ProfileCut
     }
     public class RConfigButtons : ConfigurationElementCollection
     {
-        public RConfigPrintButton this[int index]
+        public RConfigButton this[int index]
         {
             get
             {
-                return base.BaseGet(index) as RConfigPrintButton;
+                return base.BaseGet(index) as RConfigButton;
             }
             set
             {
@@ -84,9 +84,10 @@ namespace ProfileCut
                 this.BaseAdd(index, value);
             }
         }
-        public new RConfigPrintButton this[string responseString]
+
+        public new RConfigButton this[string responseString]
         {
-            get { return (RConfigPrintButton)BaseGet(responseString); }
+            get { return (RConfigButton)BaseGet(responseString); }
             set
             {
                 if (BaseGet(responseString) != null)
@@ -98,19 +99,38 @@ namespace ProfileCut
         }
         protected override System.Configuration.ConfigurationElement CreateNewElement()
         {
-            return new RConfigPrintButton();
+            return new RConfigButton();
         }
 
         protected override object GetElementKey(System.Configuration.ConfigurationElement element)
         {
-            return ((RConfigPrintButton)element).Name;
+            return ((RConfigButton)element).Name;
         }
     }
+
+    //public class RConfigRegisterButtons : ConfigurationSection
+    //{
+    //    public static RConfigRegisterButtons GetConfig()
+    //    {
+    //        return (RConfigRegisterButtons)System.Configuration.ConfigurationManager.GetSection("printButtons") ?? new RConfigRegisterButtons();
+    //    }
+
+    //    [System.Configuration.ConfigurationProperty("buttons")]
+    //    [ConfigurationCollection(typeof(RConfigButtons), AddItemName = "button")]
+    //    public RConfigButtons Buttons
+    //    {
+    //        get
+    //        {
+    //            object o = this["buttons"];
+    //            return o as RConfigButtons;
+    //        }
+    //    }
+    //}
     public class RConfigRegisterButtons : ConfigurationSection
     {
         public static RConfigRegisterButtons GetConfig()
         {
-            return (RConfigRegisterButtons)System.Configuration.ConfigurationManager.GetSection("printButtons") ?? new RConfigRegisterButtons();
+            return (RConfigRegisterButtons)System.Configuration.ConfigurationManager.GetSection("commands") ?? new RConfigRegisterButtons();
         }
 
         [System.Configuration.ConfigurationProperty("buttons")]
@@ -123,7 +143,5 @@ namespace ProfileCut
                 return o as RConfigButtons;
             }
         }
-
     }
-
 }

@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 using System.Configuration;
+using System.Xml;
 
 namespace ProfileCut
 {
@@ -28,7 +29,7 @@ namespace ProfileCut
 
         //public string AttrPrintTemplate { private set; get; }
 
-        public List<RConfigPrintButton> PrinterButtons { private set; get; }
+        public List<RConfigButton> PrinterButtons { private set; get; }
 
         public RConfig()
         {
@@ -50,12 +51,12 @@ namespace ProfileCut
             //PrinterName = _getString("PrinterName", "");
             //AttrPrintTemplate = _getString("AttrPrintTemplate", "");
 
-            PrinterButtons = new List<RConfigPrintButton>();
+            PrinterButtons = new List<RConfigButton>();
             RConfigRegisterButtons config = RConfigRegisterButtons.GetConfig();
-            foreach (RConfigPrintButton item in config.Buttons)
+            foreach (RConfigButton item in config.Buttons)
             {
                 PrinterButtons.Add(item);
-            }
+            }           
         }
 
         private string _getString(string key, string defaultValue)
@@ -80,6 +81,14 @@ namespace ProfileCut
             }catch{
                 throw new Exception("Значение параметра '" + key + "' имеет неверный формат");
             }
-        }
+        }       
     }
+
+    //public class Handler: IConfigurationSectionHandler
+    //{
+    //    public object IConfigurationSectionHandler.Create(object parent, object configContext, XmlNode section)
+    //    {
+    //        return null;
+    //    }
+    //}
 }

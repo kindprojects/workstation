@@ -8,8 +8,6 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-
-using System.Drawing.Printing;
 using System.IO;
 using Awesomium.ComponentModel;
 using Awesomium.Core;
@@ -17,6 +15,7 @@ using Awesomium.Web;
 using Awesomium.Windows;
 using System.Text.RegularExpressions;
 using Api;
+using ModuleConnect;
 
 
 namespace ProfileCut
@@ -93,7 +92,7 @@ namespace ProfileCut
                     _domIsReady = false;
 
                     _master = obj;
-                    string html = _viewModel.Transform(_conf.DetailTemplate, obj);
+                    string html = _viewModel.Transform(_conf.DetailTemplate, obj, null);
                     webControlDetails.LoadHTML(_addScriptsToBody(html));
                 }
             }
@@ -113,7 +112,7 @@ namespace ProfileCut
                         _domIsReady = false;
 
                         _master = obj;
-                        string html = _viewModel.Transform(_conf.DetailTemplate, obj);
+                        string html = _viewModel.Transform(_conf.DetailTemplate, obj, null);
                         webControlDetails.LoadHTML(_addScriptsToBody(html));
                     }
                 }
@@ -276,9 +275,10 @@ namespace ProfileCut
                 x = _createPrintButton(panelPrinterButtons, _conf.PrinterButtons[ii], x);
             }
         }
-        private int _createPrintButton(Control owner, RConfigPrintButton config, int x)
+        private int _createPrintButton(Control owner, RConfigButton config, int x)
         {
-            RPrinterButton b = new RPrinterButton(config.Text, config.Module, config.NameSpace, config.Class, config.Printer, config.AttrTemplate);
+            //RPrinterButton b = new RPrinterButton(config.Text, config.Module, config.NameSpace, config.Class, config.Printer, config.AttrTemplate);
+            RPrinterButton b = new RPrinterButton(config.Text, config.AttrTemplate, config.pri);
             b.AutoSize = true;
             b.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             b.Height = owner.Height;
@@ -295,19 +295,25 @@ namespace ProfileCut
             if (_master != null)
             {                
                 ABaseObject pointer = _master.GetNavigatorPointer();
-                if (pointer != null && b.AttrTemplate != "" && b.ModuleFileName != "")
+                //if (pointer != null && b.AttrTemplate != "" && b.ModuleFileName != "")
+                if (pointer != null && b.AttrTemplate != "")
                 {
                     ABaseObject o = _getObjectWihtAttrTempate(b.AttrTemplate);
                     
                     // string temp = _getPrintTemplateName(pointer, b.AttrTemplate);
                     if (o != null)
                     {
-                        string commands = _viewModel.Transform(o.GetAttr(b.AttrTemplate, false), o);
-                        RPrinter printer = new RPrinter(b.ModuleFileName, b.ModuleNameSpace, b.ModuleClass, b.PrinterName);
-                        printer.Print(commands);
+                        string commands = _viewModel.Transform(o.GetAttr(b.AttrTemplate, false), o, b.GetOverload());
+                        MScriptManager.Execute(Path.GetDirectoryName(Application.ExecutablePath), 
+                            commands, new ModuleFinishedHandler(this.ModuleFinishedCallback));
                     }
                 }
             }
+        }
+        
+        private void ModuleFinishedCallback(IModule module)
+        {
+
         }
 
         private int _createDepthButtons(Control owner, int depth, string text, int x)
@@ -434,7 +440,7 @@ namespace ProfileCut
                 obj = root.GetNavigatorPointer();
                 listBoxOptimizations.Items.Add(new RMasterItem()
                 {
-                    DispTitle = _viewModel.Transform(_conf.MasterItemTemplate, obj),
+                    DispTitle = _viewModel.Transform(_conf.MasterItemTemplate, obj, null),
                     Object = obj
                 });
             } while (obj.Id != root.Navigate(0, 0).Id);

@@ -120,10 +120,10 @@ namespace Api
             return obj;
         }
 
-        public string Transform(string template, ABaseObject obj)
-        {            
+        public string Transform(string template, ABaseObject obj, Dictionary<string,string>overloads)
+        {
             string dummy = "";
-            return _model.Templates.TransformText(template, obj.platformObject, ref dummy, false);
+            return _model.Templates.TransformText(template, obj.platformObject, overloads, ref dummy, false);
         }
     }   
 }

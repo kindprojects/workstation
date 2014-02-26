@@ -7,7 +7,7 @@
     <ProjectGuid>{F6A47346-455C-4E31-8348-431EAB4B8B0D}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>ModuleDrawingPrinter</RootNamespace>
+    <RootNamespace>ModuleNamespace</RootNamespace>
     <AssemblyName>ModuleDrawingPrinter</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -45,9 +45,11 @@
   <ItemGroup>
     <Compile Include="MAlignable.cs" />
     <Compile Include="MBarcode.cs" />
+    <Compile Include="MCustomizedPrinterCommand.cs" />
     <Compile Include="MPage.cs" />
     <Compile Include="MPrintable.cs" />
-    <Compile Include="MPrinter.cs" />
+    <Compile Include="ModuleClass.cs" />
+    <Compile Include="MPrinterCommand.cs" />
     <Compile Include="MText.cs" />
     <Compile Include="Printer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
