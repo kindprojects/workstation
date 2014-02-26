@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+  <metadata>
+    <id>Neodynamic.Windows.ThermalLabelEditor</id>
+    <version>5.0.3500.14</version>
+    <title>Visual ThermalLabel Editor for .NET</title>
+    <authors>Neodynamic</authors>
+    <owners>Neodynamic</owners>
+    <licenseUrl>http://www.neodynamic.com/Licensing/EULA.aspx</licenseUrl>
+    <projectUrl>http://www.neodynamic.com/Products/Thermal-Label-Visual-Editor-Add-On/Thermal-Label-Visual-Editor-Add-On.aspx</projectUrl>
+    <iconUrl>http://www.neodynamic.com/images/ThermalLabelIcon32x32.gif</iconUrl>
+    <requireLicenseAcceptance>true</requireLicenseAcceptance>
+    <description>ThermalLabel Editor Add-on is a first-class barcode label designer component for .NET Windows desktop apps (WinForms &amp; WPF) which empowers your own apps by providing an end-user visual label editor! It features visual aids for the creation of items like texts, barcodes, pictures and shapes; an undo/redo engine, Cut-Copy-Paste functionality, Z-ordering, zooming, keyboard shortcuts for well-known common actions, In-place text edition for TextItem objects and many more features! It is also very customizable so you can skin it to match the app’s UI style on which it will be hosted in. With the ThermalLabel Editor component, you can allow your end-users to create, load, edit and save ThermalLabel objects in the form of XML template file definition or .NET object within your own .NET apps. You can also export the labels to PDF or raster image formats by leveraging the ThermalLabel SDK ThermalLabel Editor provides First-Class Internationl Barcode Standards compliance. Neodynamic is an expert in the barcode field and all the barcode algorithms were written from ground up based on the official specifications. ThermalLabel Editor leverages the ThermalLabel SDK and provides you and your end-users with barcode generation for most popular Linear (1D), Postal &amp;amp; 2D Symbologies/Standards including Code 39, Code 128, GS1-128 (formerly EAN/UCC-128), GS1 DataBar (RSS-14),  EAN 13 &amp;amp; UPC, Postal (USPS, British Royal Mail, Australia Post, DHL, etc.), Data Matrix (including GS1 version), QR Code, PDF 417, UPS MaxiCode, Micro QR Code, ALL EAN/UPC Composite Barcodes (CC-A, CC-B &amp;amp; CC-C)  and many more!</description>
+    <summary>First-class barcode label designer component for .NET Windows desktop apps (WinForms &amp; WPF) which empowers your own apps by providing an end-user visual label editor.</summary>
+    <releaseNotes># Improved! An exception will be thrown if a BarcodeItem or ImageItem cannot be generated
+
+#Improved! An error is displayed on the Visual Label Editor canvas if a BarcodeItem cannot be generated
+
+Fixed! MicroQR Code bug in Error Correction algorithm
+
+Fixed! Bug in Visual Editor Add-on component for Windows Forms when LabelDocumentFrameBackgroundImage property is set to an empty string
+
+# New! Added LabelDocumentFrameBackgroundImage property to ThermalLabelEditor for Windows Forms. Use it to set up a background image file for the label. Useful for pre-printed labels where user just need to design the blank zones.
+
+#Fixed! CacheItemId property was not persisted when updating it on the PropertyGrid control of the Visual Label Editor sample app.</releaseNotes>
+    <copyright>Copyright (c) 2012 - Neodynamic</copyright>
+    <tags>Barcode bar-code .net C# VB bar code Zebra ZPL EPL Thermal printer printdocument label editor designer Code39 Code128 EAN13 EAN UPC GS1-128 PDF417 Data Matrix QR Code Aztec USPS PostNet Maxicode ISBN HIBC ISBT-128 128 GS1 DataBar RSS14 IMpb Zip+4</tags>
+    <dependencies>
+      <dependency id="Neodynamic.SDK.ThermalLabel" version="5.0.3513.1022" />
+    </dependencies>
+  </metadata>
+</package>
