@@ -89,7 +89,6 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="RAppConfig.cs" />
-    <Compile Include="RConfigSection.cs" />
     <Compile Include="FMain.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -98,7 +97,6 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="RConfig.cs" />
     <Compile Include="RCut.cs" />
     <Compile Include="Resource.Designer.cs">
       <DependentUpon>Resource.resx</DependentUpon>
@@ -143,18 +141,12 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config">
-      <SubType>Designer</SubType>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Resources\circular.ico" />
     <Content Include="Resources\circular_black.ico" />
     <Content Include="Resources\printer.png" />
-    <Content Include="Screenshot.jpg" />
     <None Include="Resources\thin9.png" />
     <None Include="Resources\caret2.png" />
     <None Include="Resources\caret.png" />

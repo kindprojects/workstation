@@ -4,33 +4,44 @@ using System.Linq;
 using System.Text;
 
 using System.Windows.Forms;
+using System.Reflection;
+
+using System.ComponentModel.Design.Serialization;
 
 namespace ProfileCut
 {
-    class RPrinterButton : Button
+    public class RTemplateOverloads
     {
-        //public string ModuleFileName { set; get; }                
-        //public string ModuleNameSpace { set; get; }                
-        //public string ModuleClass { set; get; }                
         public string PrinterName { set; get; }
-        public string AttrTemplate { set; get; }                
-        //public RPrinterButton(string text, string moduleFileName, string moduleNameSpace, string moduleClassName, string printerName, string attrTemplate)
-        public RPrinterButton(string text, string attrTemplate, string printerName)
-        {
-            Text = text;
-            //ModuleFileName = moduleFileName;
-            //ModuleNameSpace = moduleNameSpace;
-            //ModuleClass = moduleClassName;
-            PrinterName = printerName;
-            AttrTemplate = attrTemplate;
-        }
 
-        public Dictionary<string, string> GetOverload()
+        public Dictionary<string, string> GetTemplateOverloadsDictonary()
         {
             Dictionary<string, string> ret = new Dictionary<string, string>();
-            ret.Add("PrinterName", PrinterName);
+
+            Type type = this.GetType();
+            var infoArray = type.GetProperties();
+            foreach (MemberInfo info in infoArray)
+            {
+                ret.Add(info.Name.ToLower(), PrinterName);
+            }
 
             return ret;
+        }
+    }
+    
+    public class RPrinterButton : Button
+    {
+        public string AttrTemplate { set; get; }
+
+        public RTemplateOverloads TemplateOverloads { set; get; }
+
+        public RPrinterButton(RAppButton config)
+        {
+            Text = config.Text;
+            AttrTemplate = config.AttrTemplate;
+
+            TemplateOverloads = new ProfileCut.RTemplateOverloads();
+            TemplateOverloads.PrinterName = config.TemplateOverloads.PrinterName;
         }
     }
 }

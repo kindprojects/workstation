@@ -44,7 +44,16 @@ namespace ProfileCut
 
         public RAppConfig Load()
         {
-            string json = System.IO.File.ReadAllText(_fileName);
+            string json = "";
+            try
+            {
+                json = System.IO.File.ReadAllText(_fileName);
+            }
+            catch(Exception ex)
+            {
+                throw new Exception(String.Format("Неудалось открыть файл {0}. {1}", _fileName, ex.Message));
+            }
+
             RAppConfig conf = JsonSerializer.DeserializeFromString<RAppConfig>(json);
 
             if (conf == null || conf.Version == null)            
@@ -52,7 +61,8 @@ namespace ProfileCut
             
             string version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
             if (conf.Version != version)
-                throw new Exception(String.Format("Версия указаная в конфигурационном файле {0} не совпадает с версией приложения {1}", 
+                throw new Exception(String.Format(
+                    "Версия указаная в конфигурационном файле {0} не совпадает с версией приложения {1}", 
                     conf.Version, version));
             
             return JsonSerializer.DeserializeFromString<RAppConfig>(json);

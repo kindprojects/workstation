@@ -59,7 +59,7 @@ namespace Platform
                 foreach (var attr in attrs)
                 {
                     string val = "";
-                    if (overloads == null || !overloads.TryGetValue(attr.Name, out val))
+                    if (overloads == null || !overloads.TryGetValue(attr.Name.ToLower(), out val))
                     {
                         if (!obj.GetAttr(attr.Name, true, out val))
                             val = NotFoundMarks.attrs.Begin + attr.Name + NotFoundMarks.attrs.End;

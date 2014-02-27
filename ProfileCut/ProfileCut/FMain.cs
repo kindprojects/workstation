@@ -282,7 +282,7 @@ namespace ProfileCut
         private int _createPrintButton(Control owner, RAppButton config, int x)
         {
             //RPrinterButton b = new RPrinterButton(config.Text, config.Module, config.NameSpace, config.Class, config.Printer, config.AttrTemplate);
-            RPrinterButton b = new RPrinterButton(config.Text, config.AttrTemplate, config.TemplateOverloads.PrinterName);
+            RPrinterButton b = new RPrinterButton(config);
             b.AutoSize = true;
             b.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             b.Height = owner.Height;
@@ -307,15 +307,15 @@ namespace ProfileCut
                     // string temp = _getPrintTemplateName(pointer, b.AttrTemplate);
                     if (o != null)
                     {
-                        string commands = _viewModel.Transform(o.GetAttr(b.AttrTemplate, false), o, b.GetOverload());
+                        string commands = _viewModel.Transform(o.GetAttr(b.AttrTemplate, false), o, b.TemplateOverloads.GetTemplateOverloadsDictonary());
                         MScriptManager.Execute(Path.GetDirectoryName(Application.ExecutablePath), 
-                            commands, new ModuleFinishedHandler(this.ModuleFinishedCallback));
+                            commands, new ModuleFinishedHandler(this._moduleFinishedCallback));
                     }
                 }
             }
         }
         
-        private void ModuleFinishedCallback(IModule module)
+        private void _moduleFinishedCallback(IModule module)
         {
 
         }

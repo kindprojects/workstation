@@ -15,6 +15,8 @@ namespace ModuleConnect
 
         public MCallData(string moduleCall)
         {
+            ModuleParams = new Dictionary<string, string>();
+
             if (moduleCall == "")
                 throw new Exception("Не задан параметр moduleCall конструктора MCallData");
             
