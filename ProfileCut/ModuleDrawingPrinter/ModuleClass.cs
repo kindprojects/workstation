@@ -22,7 +22,7 @@ namespace ModuleNamespace
         public ModuleClass(Dictionary<string,string>moduleParams)
         {
             string printerName;
-            if (moduleParams == null || !moduleParams.TryGetValue("PrinterName", out printerName))
+            if (moduleParams == null || !moduleParams.TryGetValue("printername", out printerName))
                  AddProblem("PrinterName не задан");
             else
                 _printer = new Printer(printerName);

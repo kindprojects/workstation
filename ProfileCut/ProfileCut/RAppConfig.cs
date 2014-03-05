@@ -29,10 +29,9 @@ namespace ProfileCut
         public RAppConfig()
         {
             _fileName = Path.GetDirectoryName(Application.ExecutablePath) + "\\config.json";
-            //Commands = new RAppCommands();
         }
 
-        public void Save()
+        private void Save()
         {
             string json = JsonSerializer.SerializeToString<RAppConfig>(this);
 
@@ -68,7 +67,7 @@ namespace ProfileCut
             return JsonSerializer.DeserializeFromString<RAppConfig>(json);
         }
 
-        public RAppConfig CreateDefault()
+        private RAppConfig CreateDefault()
         {
             RAppConfig config = new RAppConfig();
             config.ModelCode = "podst";
@@ -97,11 +96,6 @@ namespace ProfileCut
     public class RAppCommands
     {
         public List<RAppButton> Buttons { set; get; }
-
-        //public RAppCommands()
-        //{
-        //    Buttons = new List<RAppButton>();
-        //}
     }
 
     public class RAppButton
@@ -109,11 +103,6 @@ namespace ProfileCut
         public string Text { set; get; }
         public string AttrTemplate { set; get; }
         public RAppTemplateOverloads TemplateOverloads {set; get; }
-
-        //public RAppButton()
-        //{
-        //    TemplateOverloads = new RAppTemplateOverloads();
-        //}
     }
 
     public class RAppTemplateOverloads
