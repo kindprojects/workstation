@@ -204,11 +204,24 @@ namespace Platform
 
     public class RTemplateAttr : RTemplateOperator
     {
+        public string Module;
+
         public string Name;
         public RTemplateAttr(string operatorText)
             : base(operatorText)
         {
-            Name = Regex.Match(operatorText, @"%([^%]+)%").Groups[1].Value;
+            string text = Regex.Match(operatorText, @"%([^%]+)%").Groups[1].Value;
+            int index = text.IndexOf(":");
+            if (index > 0)
+            {
+                Module = text.Substring(0, index);
+                Name = text.Substring(index + 1, text.Length - index - 1);
+            }
+            else
+            {
+                Module = "";
+                Name = text;
+            }
         }
     }
 
