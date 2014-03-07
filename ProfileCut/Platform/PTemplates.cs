@@ -216,7 +216,7 @@ namespace Platform
             {
                 Module = text.Substring(0, index);
                 Name = text.Substring(index + 1, text.Length - index - 1);
-            }
+            }   
             else
             {
                 Module = "";
