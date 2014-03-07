@@ -32,7 +32,7 @@ namespace Platform
         public string Transform(string template, IPBaseObject obj, Dictionary<string, string>overloads)
         {
             string path = "";
-            return _model.Templates.TransformText(template, (PBaseObject)obj, overloads, ref path, false);
+            return _model.Templates.TransformText(template, (PBaseObject)obj, overloads, ref path, false);            
         }
     }
 }

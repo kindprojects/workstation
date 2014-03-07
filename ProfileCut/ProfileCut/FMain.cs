@@ -293,24 +293,40 @@ namespace ProfileCut
 
             return b.Width + 2;
         }
+        //private void _printButtonClick(object sender, EventArgs e)
+        //{            
+        //    RPrinterButton b = (RPrinterButton)sender;
+        //    if (_master != null)
+        //    {                
+        //        ABaseObject pointer = _master.GetNavigatorPointer();
+        //        //if (pointer != null && b.AttrTemplate != "" && b.ModuleFileName != "")
+        //        if (pointer != null && b.AttrTemplate != "")
+        //        {
+        //            ABaseObject o = _getObjectWihtAttrTempate(b.AttrTemplate);
+                    
+        //            // string temp = _getPrintTemplateName(pointer, b.AttrTemplate);
+        //            if (o != null)
+        //            {
+        //                string commands = _viewModel.Transform(o.GetAttr(b.AttrTemplate, false), o, b.TemplateOverloads.GetTemplateOverloadsDictonary());
+        //                MScriptManager.Execute(Path.GetDirectoryName(Application.ExecutablePath), 
+        //                    commands, new ModuleFinishedHandler(this._moduleFinishedCallback));
+        //            }
+        //        }
+        //    }
+        //}
+
         private void _printButtonClick(object sender, EventArgs e)
-        {            
+        {
             RPrinterButton b = (RPrinterButton)sender;
             if (_master != null)
-            {                
+            {
                 ABaseObject pointer = _master.GetNavigatorPointer();
                 //if (pointer != null && b.AttrTemplate != "" && b.ModuleFileName != "")
                 if (pointer != null && b.AttrTemplate != "")
                 {
-                    ABaseObject o = _getObjectWihtAttrTempate(b.AttrTemplate);
-                    
-                    // string temp = _getPrintTemplateName(pointer, b.AttrTemplate);
-                    if (o != null)
-                    {
-                        string commands = _viewModel.Transform(o.GetAttr(b.AttrTemplate, false), o, b.TemplateOverloads.GetTemplateOverloadsDictonary());
-                        MScriptManager.Execute(Path.GetDirectoryName(Application.ExecutablePath), 
-                            commands, new ModuleFinishedHandler(this._moduleFinishedCallback));
-                    }
+                    string commands = pointer.FindAndFormat(b.AttrTemplate, b.TemplateOverloads.GetTemplateOverloadsDictonary());                    
+                    MScriptManager.Execute(Path.GetDirectoryName(Application.ExecutablePath),
+                        commands, new ModuleFinishedHandler(this._moduleFinishedCallback));
                 }
             }
         }

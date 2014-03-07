@@ -19,5 +19,6 @@ namespace Platform
         PCollection GetCollection(string name, bool createIfNotFound);
         PBaseObject FindObjectById(int id);
         string GetTemplateName(IPBaseObject obj, string attrTemplate);
+        string FindAndFormat(string attrName, Dictionary<string, string> overloads);
     }
 }

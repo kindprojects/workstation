@@ -14,9 +14,9 @@ namespace Platform
         private string _modelCode;
 
         // отложенная загрузка. Если false, то содержимое всей модели прогружается целиком, иначе частично, при обращении (для тяжёлых моделей)
-        public bool DeferredLoad = true; 
+        public bool DeferredLoad = true;
 
-        public Dictionary<int, PBaseObject> _listObjects;
+        public Dictionary<int, PBaseObject> _listObjects { set; get; }
 
         public PModel(IPDBLink db, string modelCode, bool deferredLoad)
         {
@@ -95,15 +95,14 @@ namespace Platform
 
         public void LoadModel()
         {
-            this.Templates.Clear();
-            Dictionary<string, string> tList = this._db.ListTemplates(this._modelCode);
-            foreach (KeyValuePair<string, string> p in tList)
-            {
-                this.Templates.AddTemplate(p.Key, p.Value);
-            }
+            //this.Templates.Clear();
+            //Dictionary<string, string> tList = this._db.ListTemplates(this._modelCode);
+            //foreach (KeyValuePair<string, string> p in tList)
+            //{
+            //    this.Templates.AddTemplate(p.Key, p.Value);
+            //}
 
             this.Data = this.GetRootObject();
         }
     }
-
 }

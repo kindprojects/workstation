@@ -107,7 +107,7 @@ namespace Api
             Dictionary<string, string> ret = new Dictionary<string, string>();
             
             string[] paramList = { "objectid", objectId.ToString() };
-            List<Dictionary<string, string>> q = this.SqlSelect("select a.attributecode, oa.val "
+            List<Dictionary<string, string>> q = this.SqlSelect("select a.attributecode, coalesce(oa.blobval, oa.val) as val "
                 + " from object_attributes oa"
                 + " left join attributes a on a.attributeid = oa.attributeid"
                 + " where oa.objectid = @objectid", paramList);

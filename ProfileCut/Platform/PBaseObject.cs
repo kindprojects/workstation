@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+
 namespace Platform
 {
     public class PBaseObject: IPBaseObject
@@ -15,6 +16,7 @@ namespace Platform
         private IPDataModel _model;
         private PCollection _ownerCollection;
         private PModelObjectNavigator _navigator;
+        private PTemplates _templates;
 
         public PBaseObject(int id, PCollection ownerCollection, IPDataModel model)
         {
@@ -23,6 +25,44 @@ namespace Platform
             _collects = new List<PCollection>();
             _ownerCollection = ownerCollection;
             _model = model;
+            _templates = new PTemplates();
+        }
+
+        public string FindAndFormat(string attrName, Dictionary<string,string>overloads)
+        {
+            string ret = "";
+
+            string nameAttrTemplate = "";
+            PBaseObject formatObj = null;
+            if (this.GetAttrWithObject(attrName, true, out nameAttrTemplate, out formatObj))
+            {
+                if (nameAttrTemplate != "")
+                {
+                    string template = "";
+                    if (formatObj.GetAttr(nameAttrTemplate, true, out template))
+                    {
+                        if (template != "")
+                        {
+                            string dummy = "";
+                            ret = _templates.Format(template, formatObj, overloads, ref dummy, false);
+                        }
+                    }
+                    else
+                    {
+                        throw new Exception(String.Format("Не найден объект с атрибутом {0}", nameAttrTemplate));
+                    }
+                }
+                else
+                {
+                    ret = _templates.NotFoundMarks.attrs.Begin + attrName + _templates.NotFoundMarks.attrs.End;
+                }
+            }
+            else
+            {                
+                throw new Exception(String.Format("Не найден объект с атрибутом {0}", attrName));
+            }
+
+            return ret;
         }
 
         public IPBaseObject GetNavigatorPointer()
@@ -132,6 +172,25 @@ namespace Platform
             }
             else
             {
+                return false;
+            }
+        }
+
+        public bool GetAttrWithObject(string name, bool findInOwners, out string val, out PBaseObject obj)
+        {
+            if (_attrs.TryGetValue(name.ToLower(), out val))
+            {
+                obj = this;
+                return true;
+            }
+            else if (this._ownerCollection != null && findInOwners) // рекурсивно ищем во всех владельцах
+            {
+                obj = this._ownerCollection.Owner;
+                return this._ownerCollection.Owner.GetAttr(name, true, out val);
+            }
+            else
+            {
+                obj = null;
                 return false;
             }
         }

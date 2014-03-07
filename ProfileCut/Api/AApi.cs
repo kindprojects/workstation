@@ -45,6 +45,11 @@ namespace Api
             platformObject.SetNavigatorPointer(obj.Id);
         }
 
+        public string FindAndFormat(string attrName, Dictionary<string, string> overloads)
+        {
+            return platformObject.FindAndFormat(attrName, overloads);
+        }
+
         //public string GetPathFromObject(ABaseObject obj, string separator)
         //{
         //    List<string> path = this.platformObject.GetPathFromObject(obj.platformObject);
@@ -123,6 +128,7 @@ namespace Api
         public string Transform(string template, ABaseObject obj, Dictionary<string,string>overloads)
         {
             string dummy = "";
+            //return _model.Templates.TransformText(template, obj.platformObject, overloads, ref dummy, false);
             return _model.Templates.TransformText(template, obj.platformObject, overloads, ref dummy, false);
         }
     }   

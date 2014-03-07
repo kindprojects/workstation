@@ -13,99 +13,165 @@ namespace Platform
     {
         public PNotFoundMarks NotFoundMarks;
 
-        private Dictionary<string, string> _items;
+        //private Dictionary<string, string> _items;
 
         public PTemplates()
         {
             NotFoundMarks = new PNotFoundMarks();
-            _loadFiles(Directory.GetCurrentDirectory());
+            //_loadFiles(Directory.GetCurrentDirectory());
         }
 
-        private void _loadFiles(string folder)
+        //private void _loadFiles(string folder)
+        //{
+        //    _items = new Dictionary<string, string>();
+        //    foreach (string file in Directory.EnumerateFiles(folder, "*.tmp"))
+        //    {
+        //        _items.Add(Path.GetFileNameWithoutExtension(file).ToLower(), File.ReadAllText(file));
+        //    }
+        //}
+
+        //public void Clear()
+        //{
+        //    _items = new Dictionary<string, string>();
+        //}
+
+        //public void AddTemplate(string name, string text)
+        //{
+        //    _items.Add(name.ToLower(), text);
+        //}
+
+        public string Format(string template, IPBaseObject obj, Dictionary<string, string> overloads, ref string path, bool addPath)
         {
-            _items = new Dictionary<string, string>();
-            foreach (string file in Directory.EnumerateFiles(folder, "*.tmp"))
+            List<RTemplateAttr> attrs;
+            List<RTemplateCollection> fcollects;
+
+            _parse(template, out attrs, out fcollects);
+
+            template = template.Replace("%id%", obj.Id.ToString());
+            foreach (var attr in attrs)
             {
-                _items.Add(Path.GetFileNameWithoutExtension(file).ToLower(), File.ReadAllText(file));
+                string val = "";
+                if (overloads == null || !overloads.TryGetValue(attr.Name.ToLower(), out val))
+                {
+                    if (!obj.GetAttr(attr.Name, true, out val))
+                        val = NotFoundMarks.attrs.Begin + attr.Name + NotFoundMarks.attrs.End;
+                }
+                template = template.Replace(attr.OperatorText, val);
             }
-        }
 
-        public void Clear()
-        {
-            _items = new Dictionary<string, string>();
-        }
+            foreach (var fcollect in fcollects)
+            {
+                PCollection coll = obj.GetCollection(fcollect.collectionName, false);
+                if (coll != null)
+                {
+                    string val = "";
+                    for (int ii = 0; ii < coll.Count(); ii++)
+                    {
+                        PBaseObject cobj = coll.GetObject(ii);
+                        bool addNext = (addPath && fcollect.navigatorLevelText != "");
+                        if (addNext)
+                        {
+                            path += ((path != "") ? "/" : "") + fcollect.collectionName + ":" + fcollect.navigatorLevelText;
+                            addPath = false;
+                        }
 
-        public void AddTemplate(string name, string text)
-        {
-            _items.Add(name.ToLower(), text);
+                        string tmp = "";
+                        if (cobj.GetAttr(fcollect.templateName, true, out tmp))
+                        {
+                            val += this.Format(tmp, cobj, overloads, ref path, addNext);
+                        }
+                        else
+                        {
+                            val += NotFoundMarks.attrs.Begin + fcollect.templateName + NotFoundMarks.attrs.End; 
+                        }
+                    }
+                    template = template.Replace(fcollect.OperatorText, val);
+                }
+            }
+
+            return template;
         }
 
         public string TransformText(string templateName, IPBaseObject obj, Dictionary<string,string>overloads, ref string path, bool addPath)
-        {
+        {            
             string template = "";
-
-            if (!_items.TryGetValue(templateName.ToLower(), out template))
+            if (obj.GetAttr(templateName, true, out template))
             {
-                template = NotFoundMarks.collections.Begin + templateName + NotFoundMarks.collections.End;
+                return Format(template, obj, overloads,ref path, addPath);
             }
-            else
+            else 
             {
-                List<RTemplateAttr> attrs;
-                List<RTemplateCollection> fcollects;
-
-                _parse(template, out attrs, out fcollects);
-
-                template = template.Replace("%id%", obj.Id.ToString());
-                foreach (var attr in attrs)
-                {
-                    string val = "";
-                    if (overloads == null || !overloads.TryGetValue(attr.Name.ToLower(), out val))
-                    {
-                        if (!obj.GetAttr(attr.Name, true, out val))
-                            val = NotFoundMarks.attrs.Begin + attr.Name + NotFoundMarks.attrs.End;
-                    }
-                    template = template.Replace(attr.OperatorText, val);
-                }
-
-                foreach (var fcollect in fcollects)
-                {
-                    PCollection coll = obj.GetCollection(fcollect.collectionName, false);
-                    if (coll != null)
-                    {
-                        string val = "";
-                        for (int ii = 0; ii < coll.Count(); ii++)
-                        {
-                            //val += this.PreScript + TransformText(fcollect.templateName, coll.GetObject(ii)) + this.PostStript;
-
-                            PBaseObject cobj = coll.GetObject(ii);
-                            bool addNext = (addPath && fcollect.navigatorLevelText != "");
-                            if (addNext)
-                            {
-                                path += ((path != "") ? "/" : "") + fcollect.collectionName + ":" + fcollect.navigatorLevelText;
-                                addPath = false;
-                            }
-                            val += this.TransformText(fcollect.templateName, cobj, overloads, ref path, addNext);
-
-                        }
-                        template = template.Replace(fcollect.OperatorText, val);
-                    }
-                }
+                return NotFoundMarks.attrs.Begin + templateName + NotFoundMarks.attrs.End; 
             }
 
-            return template;
         }
 
-        private string _getTemplate(string name)
-        {
-            string template = "";
+        //public string TransformText(string templateName, IPBaseObject obj, Dictionary<string,string>overloads, ref string path, bool addPath)
+        //{
+        //    string template = "";
 
-            if (!_items.TryGetValue(name.ToLower(), out template))
-            {
-                template = NotFoundMarks.collections.Begin + name + NotFoundMarks.collections.End;
-            }
+        //    if (!_items.TryGetValue(templateName.ToLower(), out template))
+        //    {
+        //        template = NotFoundMarks.collections.Begin + templateName + NotFoundMarks.collections.End;
+        //    }
+        //    else
+        //    {
+        //        List<RTemplateAttr> attrs;
+        //        List<RTemplateCollection> fcollects;
 
-            return template;
-        }
+        //        _parse(template, out attrs, out fcollects);
+
+        //        template = template.Replace("%id%", obj.Id.ToString());
+        //        foreach (var attr in attrs)
+        //        {
+        //            string val = "";
+        //            if (overloads == null || !overloads.TryGetValue(attr.Name.ToLower(), out val))
+        //            {
+        //                if (!obj.GetAttr(attr.Name, true, out val))
+        //                    val = NotFoundMarks.attrs.Begin + attr.Name + NotFoundMarks.attrs.End;
+        //            }
+        //            template = template.Replace(attr.OperatorText, val);
+        //        }
+
+        //        foreach (var fcollect in fcollects)
+        //        {
+        //            PCollection coll = obj.GetCollection(fcollect.collectionName, false);
+        //            if (coll != null)
+        //            {
+        //                string val = "";
+        //                for (int ii = 0; ii < coll.Count(); ii++)
+        //                {
+        //                    //val += this.PreScript + TransformText(fcollect.templateName, coll.GetObject(ii)) + this.PostStript;
+
+        //                    PBaseObject cobj = coll.GetObject(ii);
+        //                    bool addNext = (addPath && fcollect.navigatorLevelText != "");
+        //                    if (addNext)
+        //                    {
+        //                        path += ((path != "") ? "/" : "") + fcollect.collectionName + ":" + fcollect.navigatorLevelText;
+        //                        addPath = false;
+        //                    }
+        //                    val += this.TransformText(fcollect.templateName, cobj, overloads, ref path, addNext);
+
+        //                }
+        //                template = template.Replace(fcollect.OperatorText, val);
+        //            }
+        //        }
+        //    }
+
+        //    return template;
+        //}
+
+        //private string _getTemplate(string name)
+        //{
+        //    string template = "";
+
+        //    if (!_items.TryGetValue(name.ToLower(), out template))
+        //    {
+        //        template = NotFoundMarks.collections.Begin + name + NotFoundMarks.collections.End;
+        //    }
+
+        //    return template;
+        //}
 
         private void _parse(string template, out List<RTemplateAttr> attrs, out List<RTemplateCollection> fcollects)
         {

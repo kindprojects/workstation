@@ -141,6 +141,7 @@ namespace ModuleNamespace
                     }
 
                     _printer.Print();
+
                     return true;
                 }
                 else
@@ -151,6 +152,7 @@ namespace ModuleNamespace
             catch (Exception e)
             {
                 AddProblem(e.Message);
+                
                 return false;
             }
         }
@@ -167,6 +169,7 @@ namespace ModuleNamespace
             {
                 s += prb+"\n";
             }
+            
             return s.TrimEnd();
         }
     }
