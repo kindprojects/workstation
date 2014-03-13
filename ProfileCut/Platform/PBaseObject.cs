@@ -13,10 +13,10 @@ namespace Platform
         private Dictionary<string, string> _attrs;
         private List<PCollection> _collects;
         //private RBaseObject _owner;
-        private IPDataModel _model;
+        public IPDataModel Model { set; get; }
         private PCollection _ownerCollection;
         private PModelObjectNavigator _navigator;
-        private PTemplates _templates;
+        public PTemplates Templates;
 
         public PBaseObject(int id, PCollection ownerCollection, IPDataModel model)
         {
@@ -24,11 +24,11 @@ namespace Platform
             _attrs = new Dictionary<string, string>();
             _collects = new List<PCollection>();
             _ownerCollection = ownerCollection;
-            _model = model;
-            _templates = new PTemplates();
+            Model = model;
+            Templates = new PTemplates(this);
         }
 
-        public string FindAndFormat(string attrName, Dictionary<string,string>overloads)
+        public string FindAndFormat(string attrName)//, Dictionary<string,string>overloads)
         {
             string ret = "";
 
@@ -43,27 +43,33 @@ namespace Platform
                     {
                         if (template != "")
                         {
-                            string dummy = "";
-                            ret = _templates.Format(template, formatObj, overloads, ref dummy, false);
+                            //ret = Templates.Format(template, formatObj, overloads);//, ref dummy, false);
+                            ret = Templates.Format(template, formatObj);
                         }
                     }
                     else
                     {
-                        throw new Exception(String.Format("Не найден объект с атрибутом {0}", nameAttrTemplate));
+                        throw new Exception(String.Format("Не найден объект с атрибутом {0} содержащим имя шаблона", nameAttrTemplate));
                     }
                 }
                 else
                 {
-                    ret = _templates.NotFoundMarks.attrs.Begin + attrName + _templates.NotFoundMarks.attrs.End;
+                    ret = Templates.NotFoundMarks.attrs.Begin + attrName + Templates.NotFoundMarks.attrs.End;
                 }
             }
             else
             {                
-                throw new Exception(String.Format("Не найден объект с атрибутом {0}", attrName));
+                throw new Exception(String.Format("Не найден объект с атрибутом {0} содержащим имя шаблона", attrName));
             }
 
             return ret;
         }
+
+        //public string Transform(string template, ABaseObject obj, Dictionary<string,string>overloads)
+        //{
+        //    string dummy = "";
+        //    return this. _model.Templates.TransformText(template, obj.platformObject, overloads, ref dummy, false);
+        //}
 
         public IPBaseObject GetNavigatorPointer()
         {
@@ -197,7 +203,7 @@ namespace Platform
         
         public PBaseObject FindObjectById(int id)
         {
-            return _model.FindObjectById(id, this);
+            return Model.FindObjectById(id, this);
         }
 
         public void SetAttr(string name, string value)
@@ -300,7 +306,7 @@ namespace Platform
             {
                 if (createIfNotFound)
                 {
-                    coll = _model.NewCollection(this, name.ToLower());
+                    coll = Model.NewCollection(this, name.ToLower());
                     _collects.Add(coll);
                     return coll;
                 }

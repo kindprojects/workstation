@@ -9,7 +9,7 @@
 	"Navigation": "profiles:профиль/canes:хлыст",
 	"MasterItemsUpdateIntervalMs": 10000,
 	"Debug": true,
-	"Commands":
+    "Commands":
 	{
 		"Buttons":
 		[
@@ -18,9 +18,9 @@
 				"AttrTemplate": "PRINT_STICKERS",
 				"TemplateOverloads":
 				{
-					"PrinterName": "ZDesigner LP 2844"
+					"PrinterName": "ZDesigner GK420d"
 				}
 			}
 		]
-	}
+	}	
 }

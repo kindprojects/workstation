@@ -12,5 +12,11 @@ namespace Platform
         bool FillCollection(PCollection coll);
         PCollection NewCollection(PBaseObject owner, string name);
         PBaseObject FindObjectById(int id, PBaseObject where);
+        //void RiseHostRequest(string textRequest);
+        //void RiseHostResponse(string textResponse);
+
+        //event EventHandler<HostQueryEventArgs> HostRersponse;
+
+        PPlatform Platform { set; get; }
     }
 }

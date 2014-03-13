@@ -47,6 +47,7 @@
     <Compile Include="IPDBLink.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="IPHost.cs" />
     <Compile Include="PBaseObject.cs" />
     <Compile Include="PCollection.cs" />
     <Compile Include="PModel.cs" />
@@ -55,6 +56,12 @@
     <Compile Include="PPlatform.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PTemplates.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ModuleConnect\ModuleConnect.csproj">
+      <Project>{1e742822-3118-4630-a19e-803791ba7bc2}</Project>
+      <Name>ModuleConnect</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

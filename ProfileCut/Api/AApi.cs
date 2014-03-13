@@ -5,14 +5,15 @@ using System.Text;
 using System.Threading.Tasks;
 
 using Platform;
+using System.Windows.Forms;
 
 namespace Api
-{
+{    
     public class ABaseObject
     {        
         public int Id {set;get;}
 
-        internal IPBaseObject platformObject;
+        internal IPBaseObject platformObject;        
 
         public ABaseObject Navigate(string path)
         {
@@ -45,33 +46,16 @@ namespace Api
             platformObject.SetNavigatorPointer(obj.Id);
         }
 
-        public string FindAndFormat(string attrName, Dictionary<string, string> overloads)
+        public string FindAndFormat(string attrName) //, Dictionary<string, string> overloads)
         {
-            return platformObject.FindAndFormat(attrName, overloads);
+            return platformObject.FindAndFormat(attrName);//, overloads);
         }
-
-        //public string GetPathFromObject(ABaseObject obj, string separator)
-        //{
-        //    List<string> path = this.platformObject.GetPathFromObject(obj.platformObject);
-        //    string ret = "";
-        //    foreach (string s in path)
-        //    {
-        //        ret += ((ret == "") ? "" : separator) + s;
-        //    }
-        //    return ret;
-        //}
 
         public ABaseObject GetObjectById(int id)
         {
             IPBaseObject obj = platformObject.FindObjectById(id);
             return _createApiObject(obj);
         }
-
-        //public string GetTemplateName(string attrTemplateName)
-        //{
-        //    IPBaseObject obj = platformObject.FindObjectById(this.Id);
-        //    return obj.GetTemplateName(obj, attrTemplateName);
-        //}
 
         public string GetAttr(string attrName, bool findInOwners)
         {
@@ -83,37 +67,41 @@ namespace Api
         
         ABaseObject _createApiObject(IPBaseObject obj)
         {
-            return new ABaseObject()
-            {
-                Id = obj.Id,
-                platformObject = obj
-            };
+            if (obj != null)
+                return new ABaseObject()
+                {
+                    Id = obj.Id,
+                    platformObject = obj
+                };
+            else
+                return null;
         }
+
+        //public string Transform(string template, ABaseObject obj, Dictionary<string, string> overloads)
+        //{
+        //    string dummy = "";
+        //    //return _model.Templates.TransformText(template, obj.platformObject, overloads, ref dummy, false);
+        //    return _model.Templates.TransformText(template, obj.platformObject, overloads, ref dummy, false);
+        //    //return this.platformObject.FindAndFormat.Templates.TransformText(template, obj.platformObject, overloads, ref dummy, false);
+        //}
     }
-
-    //public class ACollection
-    //{
-    //    List<ABaseObject> GetObjects()
-    //    {
-    //        List<ABaseObject> list = new List<ABaseObject>();
-
-    //        return list;
-    //    }
-    //    ABaseObject GetObjectByIndex(int index) 
-    //    {
-    //        return null;
-    //    }
-    //}
     
     public class AModel
     {        
         private IPDBLink _db;
-        private PModel _model;        
+        private PModel _model;
 
-        public AModel(string connectionString, string modelCode, bool defferedLoad)
-        {
+        public string PrinterName;
+
+        public AModel(IAHost host, string connectionString, string modelCode, bool defferedLoad)
+        {            
             _db = new AFbLink(connectionString);
-            _model = new PModel(_db, modelCode, defferedLoad);
+
+            AHost ahost = new AHost(host);
+
+            _model = new PPlatform(_db, modelCode, defferedLoad, ahost).Model;
+
+            //_model.HostRequest += new EventHandler<HostQueryEventArgs>(ProcessHostRequest);            
         }
 
         public ABaseObject GetRoot()
@@ -125,11 +113,22 @@ namespace Api
             return obj;
         }
 
-        public string Transform(string template, ABaseObject obj, Dictionary<string,string>overloads)
+        public string Transform(string template, ABaseObject obj)//, Dictionary<string, string> overloads)
         {
             string dummy = "";
-            //return _model.Templates.TransformText(template, obj.platformObject, overloads, ref dummy, false);
-            return _model.Templates.TransformText(template, obj.platformObject, overloads, ref dummy, false);
+
+            if (obj != null)
+                return _model.Templates.TransformText(template, obj.platformObject);//, overloads, ref dummy, false);
+            else
+                return "";
         }
+        
+        //public void ProcessHostRequest(object sender, HostQueryEventArgs e)
+        //{
+        //    if (e.Text.ToLower() == "printername")
+        //    {
+        //        (sender as PModel).RiseHostResponse(this.PrinterName);
+        //    }
+        //}
     }   
 }

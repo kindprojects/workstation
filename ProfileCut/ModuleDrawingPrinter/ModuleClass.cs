@@ -172,5 +172,10 @@ namespace ModuleNamespace
             
             return s.TrimEnd();
         }
+
+        public string ModuleQuery(string text)
+        {
+            return "%Not implement%";
+        }
     }
 }

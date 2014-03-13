@@ -46,6 +46,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AApi.cs" />
+    <Compile Include="AHost.cs" />
+    <Compile Include="IAHost.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Repository\AFbRepository.cs" />
     <Compile Include="AFbLink.cs" />

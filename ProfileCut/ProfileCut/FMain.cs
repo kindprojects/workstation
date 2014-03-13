@@ -17,16 +17,14 @@ using System.Text.RegularExpressions;
 using Api;
 using ModuleConnect;
 
-
 namespace ProfileCut
 {
-    public partial class FMain : Form
+    public partial class FMain : Form, IAHost
     {
         private JSObject _jsObject;
 
         //private RConfig _conf;
         private RAppConfig _conf;
-
 
         // представление модели
         private AModel _viewModel;
@@ -38,8 +36,10 @@ namespace ProfileCut
 
         private List<string> _buttonNames;
 
-        private bool _domIsReady;       
+        private bool _domIsReady;
 
+        private RPrinterButton _printButtonPress = null;
+        
         public FMain()
         {
             InitializeComponent();
@@ -52,7 +52,7 @@ namespace ProfileCut
             _parseNavigation(_conf.Navigation);
             _createButtons(_buttonNames);
 
-            _viewModel = new AModel(_conf.ConnectionString, _conf.ModelCode, false);
+            _viewModel = new AModel(this, _conf.ConnectionString, _conf.ModelCode, false);
             _master = _viewModel.GetRoot().Navigate(_conf.MasterCollectionPath + ":0");
 
             _navButtonsDisable(panelNavigator);
@@ -62,7 +62,21 @@ namespace ProfileCut
 
             this.Text = "Распил " + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
         }
-           
+
+        public string QueryToHost(string text)
+        {
+            string ret = null;
+            if (text.ToLower() == "printername")
+            {
+                if (_printButtonPress != null)
+                {
+                    ret = _printButtonPress.TemplateOverloads.PrinterName;
+                }
+            }
+
+            return ret;
+        }
+          
         private void FMain_Load(object sender, EventArgs e)
         {
             WindowState = FormWindowState.Maximized;
@@ -96,7 +110,8 @@ namespace ProfileCut
                     _domIsReady = false;
 
                     _master = obj;
-                    string html = _viewModel.Transform(_conf.DetailTemplate, obj, null);
+                    string html = _viewModel.Transform(_conf.DetailTemplate, obj);
+                    //string html = _master.Transform(_conf.DetailTemplate, obj, null);
                     webControlDetails.LoadHTML(_addScriptsToBody(html));
                 }
             }
@@ -116,7 +131,7 @@ namespace ProfileCut
                         _domIsReady = false;
 
                         _master = obj;
-                        string html = _viewModel.Transform(_conf.DetailTemplate, obj, null);
+                        string html = _viewModel.Transform(_conf.DetailTemplate, obj);
                         webControlDetails.LoadHTML(_addScriptsToBody(html));
                     }
                 }
@@ -273,10 +288,13 @@ namespace ProfileCut
                 depth++;
             }
 
-            x = 0;
-            for (int ii = _conf.Commands.Buttons.Count() - 1; ii >= 0; ii--)
+            if (_conf.Commands != null)
             {
-                x = _createPrintButton(panelPrinterButtons, _conf.Commands.Buttons[ii], x);
+                x = 0;
+                for (int ii = _conf.Commands.Buttons.Count() - 1; ii >= 0; ii--)
+                {
+                    x = _createPrintButton(panelPrinterButtons, _conf.Commands.Buttons[ii], x);
+                }
             }
         }
         private int _createPrintButton(Control owner, RAppButton config, int x)
@@ -293,6 +311,7 @@ namespace ProfileCut
 
             return b.Width + 2;
         }
+        
         //private void _printButtonClick(object sender, EventArgs e)
         //{            
         //    RPrinterButton b = (RPrinterButton)sender;
@@ -318,13 +337,15 @@ namespace ProfileCut
         private void _printButtonClick(object sender, EventArgs e)
         {
             RPrinterButton b = (RPrinterButton)sender;
+            _printButtonPress = b;
+
             if (_master != null)
             {
                 ABaseObject pointer = _master.GetNavigatorPointer();
                 //if (pointer != null && b.AttrTemplate != "" && b.ModuleFileName != "")
                 if (pointer != null && b.AttrTemplate != "")
                 {
-                    string commands = pointer.FindAndFormat(b.AttrTemplate, b.TemplateOverloads.GetTemplateOverloadsDictonary());                    
+                    string commands = pointer.FindAndFormat(b.AttrTemplate);//, b.TemplateOverloads.GetTemplateOverloadsDictonary());                    
                     MScriptManager.Execute(Path.GetDirectoryName(Application.ExecutablePath),
                         commands, new ModuleFinishedHandler(this._moduleFinishedCallback));
                 }
@@ -439,7 +460,7 @@ namespace ProfileCut
         {
             object selectedItem = this.listBoxOptimizations.SelectedItem;
 
-            _viewModel = new AModel(_conf.ConnectionString, _conf.ModelCode, true);
+            _viewModel = new AModel(this, _conf.ConnectionString, _conf.ModelCode, true);
             _viewModel.GetRoot().Navigate(_conf.MasterCollectionPath+":0");           
             _refreshOptimizationList();
 
@@ -460,7 +481,7 @@ namespace ProfileCut
                 obj = root.GetNavigatorPointer();
                 listBoxOptimizations.Items.Add(new RMasterItem()
                 {
-                    DispTitle = _viewModel.Transform(_conf.MasterItemTemplate, obj, null),
+                    DispTitle = _viewModel.Transform(_conf.MasterItemTemplate, obj),
                     Object = obj
                 });
             } while (obj.Id != root.Navigate(0, 0).Id);
@@ -516,4 +537,3 @@ namespace ProfileCut
         }
     }
 }
-

@@ -5,28 +5,62 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Platform
-{    
+{        
+    public class HostQueryEventArgs: EventArgs
+    {
+        public string Text { set; get; }             
+    }
+
     public class PModel : IPDataModel
     {
+        // запрос
+        //public event EventHandler<HostQueryEventArgs> HostRequest;// = delegate { };
+
+        // ответ
+        //public event EventHandler<HostQueryEventArgs> HostRersponse;// = delegate { };
+
         public PBaseObject Data;
         public PTemplates Templates;
         private IPDBLink _db;
         private string _modelCode;
-
+        
         // отложенная загрузка. Если false, то содержимое всей модели прогружается целиком, иначе частично, при обращении (для тяжёлых моделей)
         public bool DeferredLoad = true;
 
+        public PPlatform Platform { set; get; }
+
         public Dictionary<int, PBaseObject> _listObjects { set; get; }
 
-        public PModel(IPDBLink db, string modelCode, bool deferredLoad)
+        public PModel(IPDBLink db, string modelCode, bool deferredLoad, PPlatform platform)
         {
             this._db = db;
             this._modelCode = modelCode;
             this._listObjects = new Dictionary<int, PBaseObject>();
-            this.Templates = new PTemplates();
+            this.Templates = new PTemplates(null); // старье
             this.DeferredLoad = deferredLoad;
+            this.Platform = platform;
+
             this.LoadModel(); // хз?
         }
+
+        // запрос
+        //public void RiseHostRequest(string textRequest)
+        //{
+        //    HostRequest(this, new HostQueryEventArgs()
+        //    {
+        //        Text = textRequest
+        //    });
+        //}
+
+        //// ответ
+        //public void RiseHostResponse(string textResponse)
+        //{
+        //    HostRersponse(this, new HostQueryEventArgs()
+        //    {
+        //        Text = textResponse
+        //    });
+        //}
+
 
         public PBaseObject FindObjectById(int id, PBaseObject where)
         {

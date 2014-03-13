@@ -10,29 +10,32 @@ namespace Platform
 {
     public class PPlatform
     {
-        private PModel _model;
-        public PPlatform(IPDBLink db, string modelCode, bool defferedLoad)
+        public IPHost Host { set; get; }
+
+        public PModel Model { set; get; }
+        public PPlatform(IPDBLink db, string modelCode, bool defferedLoad, IPHost host)
         {
-            _model = new PModel(db, modelCode, defferedLoad);
+            Host = host;
+            Model = new PModel(db, modelCode, defferedLoad, this);
         }
 
-        public List<IPBaseObject> GetCollectionObjects(string masterCollection)
-        {
-            List<IPBaseObject> list = new List<IPBaseObject>();
+        //public List<IPBaseObject> GetCollectionObjects(string masterCollection)
+        //{
+        //    List<IPBaseObject> list = new List<IPBaseObject>();
 
-            PCollection collection = _model.Data.GetCollection(masterCollection, false);
-            for (int ii = 0; ii < collection.Count(); ii ++ )
-            {
-                list.Add(collection.GetObject(ii));
-            }
+        //    PCollection collection = Model.Data.GetCollection(masterCollection, false);
+        //    for (int ii = 0; ii < collection.Count(); ii ++ )
+        //    {
+        //        list.Add(collection.GetObject(ii));
+        //    }
 
-            return list;
-        }        
+        //    return list;
+        //}        
 
-        public string Transform(string template, IPBaseObject obj, Dictionary<string, string>overloads)
-        {
-            string path = "";
-            return _model.Templates.TransformText(template, (PBaseObject)obj, overloads, ref path, false);            
-        }
+        //public string Transform(string template, IPBaseObject obj, Dictionary<string, string>overloads)
+        //{
+        //    string path = "";
+        //    return _model.Templates.TransformText(template, (PBaseObject)obj, overloads, ref path, false);            
+        //}
     }
 }

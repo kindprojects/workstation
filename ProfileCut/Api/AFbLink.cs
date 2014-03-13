@@ -14,54 +14,68 @@ namespace Api
 {
     public class AFbLink : IPDBLink
     {
-        private FbConnection _db;
+        //private FbConnection _db;
 
-        private bool IsOpen()
+        private string _connectionString;
+       
+        //private bool IsOpen()
+        //{
+        //    return (_db.State == System.Data.ConnectionState.Open);
+        //}
+
+        public AFbLink(string connectionString)
         {
-            return (_db.State == System.Data.ConnectionState.Open);
+            _connectionString = connectionString;
+
+            //_localDBPath = _genLocalDBPathIfLocalDB(connectionString);
+            //this._db = new FbConnection(this._genLocalDBPathIfLocalDB(ConnectionString));            
         }
 
-        public AFbLink(string ConnectionString)
-        {
-            this._db = new FbConnection(this._genLocalDBPathIfLocalDB(ConnectionString));
-        }
+        //private void _ConnectDB()
+        //{
+        //    if (!this.IsOpen())
+        //        this._db.Open();
+        //}
 
-        private void _ConnectDB()
-        {
-            if (!this.IsOpen())
-                this._db.Open();
-        }
-
-        public void DisconnectDB()
-        {
-            if (this.IsOpen())
-                _db.Close();
-        }
+        //public void DisconnectDB()
+        //{
+        //    if (this.IsOpen())
+        //        _db.Close();
+        //}
 
         private List<Dictionary<string, string>> SqlSelect(string sqlQuery, string[] paramList)
         {
-            this._ConnectDB();
             List<Dictionary<string, string>> ret = new List<Dictionary<string, string>>();
-            using (FbCommand cmd = new FbCommand(sqlQuery, this._db))
-            {
-                for (int ii = 0; ii < Math.Floor(paramList.Count() / 2.0); ii++)
-                {
-                    cmd.Parameters.AddWithValue(paramList[ii * 2], paramList[ii * 2 + 1]);
-                }
-
-                using (FbDataReader reader = cmd.ExecuteReader())
-                {
-                    while (reader.Read())
+            using (FbConnection db = new FbConnection(this._genLocalDBPathIfLocalDB(_connectionString)))
+            {    
+                db.Open();
+                using (FbTransaction trans = db.BeginTransaction())
+                {                    
+                    using (FbCommand cmd = new FbCommand(sqlQuery, db, trans))
                     {
-                        Dictionary<string, string> row = new Dictionary<string, string>();
-                        for (int jj = 0; jj < reader.FieldCount; jj++)
+                        for (int ii = 0; ii < Math.Floor(paramList.Count() / 2.0); ii++)
                         {
-                            row.Add(reader.GetName(jj).ToLower(), reader.GetString(jj));                            
+                            cmd.Parameters.AddWithValue(paramList[ii * 2], paramList[ii * 2 + 1]);
                         }
-                        ret.Add(row);
+
+                        using (FbDataReader reader = cmd.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                Dictionary<string, string> row = new Dictionary<string, string>();
+                                for (int jj = 0; jj < reader.FieldCount; jj++)
+                                {
+                                    row.Add(reader.GetName(jj).ToLower(), reader.GetString(jj));
+                                }
+                                ret.Add(row);
+                            }
+                        }
                     }
+
+                    trans.Commit();
                 }
             }
+
             return ret;
         }
 
@@ -205,6 +219,7 @@ namespace Api
                     builder.Database = dbPath;
                 }
             }
+            
             return builder.ConnectionString;
         }
     }

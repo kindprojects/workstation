@@ -58,7 +58,8 @@ namespace ModuleConnect
             MConnect connect = new MConnect(Path.Combine(modulesDir, this.ModuleName));
             IModule module = connect.GetModuleInterface(this.ModuleParams);
             module.Execute(this.Commands);
+            
             callBack(module);
-        }
+        }        
     }
 }

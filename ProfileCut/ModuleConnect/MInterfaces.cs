@@ -12,6 +12,7 @@ namespace ModuleConnect
         bool Execute(string commands);
         void AddProblem(string description);
         string CheckProblems();
+        string ModuleQuery(string text);
     }
     
     //public interface IStickerPrinter : IBaseFunction

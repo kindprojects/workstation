@@ -35,7 +35,10 @@ namespace Platform
         {
             _loadIfNotLoaded();
 
-            return _items[index];
+            if (_items.Count() > 0)
+                return _items[index];
+            else 
+                return null;
         }
 
         public int Count()
