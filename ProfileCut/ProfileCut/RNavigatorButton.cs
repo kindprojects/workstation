@@ -5,16 +5,16 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-using Platform;
+using Platform2;
 
 namespace ProfileCut
 {
     class RNavigatorButton : Button
     {
         public int Depth { set; get; }
-        public int Direction { set; get; }
+        public NAV_DIRECTION Direction { set; get; }
 
-        public RNavigatorButton(int depth, int direction)
+        public RNavigatorButton(int depth, NAV_DIRECTION direction)
         {
             Depth = depth;
             Direction = direction;

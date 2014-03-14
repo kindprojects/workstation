@@ -4,13 +4,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using Api;
+//using Api;
+using Platform2;
 
 namespace ProfileCut
 {
     public class RMasterItem
     {
-        public string DispTitle { set; get; }
-        public ABaseObject Object { set; get; }
+        public string Title { set; get; }
+        public IPObject Object { set; get; }
     }
 }

@@ -106,6 +106,7 @@
       <AutoGen>True</AutoGen>
     </Compile>
     <Compile Include="RMasterItem.cs" />
+    <Compile Include="RModel.cs" />
     <Compile Include="RNavigatorPath.cs" />
     <Compile Include="RNavigatorButton.cs">
       <SubType>Component</SubType>
@@ -198,6 +199,14 @@
     <ProjectReference Include="..\ModuleConnect\ModuleConnect.csproj">
       <Project>{1e742822-3118-4630-a19e-803791ba7bc2}</Project>
       <Name>ModuleConnect</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Platform2\Platform2.csproj">
+      <Project>{09126158-cbb3-4b8a-a888-2d440bc871f3}</Project>
+      <Name>Platform2</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Repository\Repository.csproj">
+      <Project>{eb591448-1385-4b25-8008-6575bb872294}</Project>
+      <Name>Repository</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

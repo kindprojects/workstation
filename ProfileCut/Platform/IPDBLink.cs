@@ -11,7 +11,6 @@ namespace Platform
         int GetModelRootID(string modelCode, int ifNotFound);
         List<string> ListCollections(int objectId);
         Dictionary<string, string> ListAttributes(int objectId);
-        Dictionary<string, string> ListTemplates(string modelCode);
         List<int> ListCollectionObjects(int objectId, string collName);
     }
 }
