@@ -210,7 +210,7 @@ namespace Platform2
             Dictionary<string, string> attrs = _repository.Implement.ListAttributes(id);
             foreach (KeyValuePair<string, string> p in attrs)
             {
-                obj._setAttr(p.Key, p.Value);
+                obj.SetAttr(p.Key, p.Value);
             }
 
             List<string> listColl = this._repository.Implement.ListCollections(id);
@@ -225,7 +225,7 @@ namespace Platform2
             return obj;
         }
 
-        private void _setAttr(string name, string value)
+        public void SetAttr(string name, string value)
         {
             string val = "";
             if (!_attrs.TryGetValue(name, out val))
@@ -236,6 +236,11 @@ namespace Platform2
             {
                 _attrs[name.ToLower()] = value;
             }
+        }
+
+        public void DelAttr(string name)
+        {
+            _attrs.Remove(name);
         }
 
         public IPObject Navigate(int depth, NAV_DIRECTION direction)

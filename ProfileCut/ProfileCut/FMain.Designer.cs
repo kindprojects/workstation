@@ -35,6 +35,7 @@
             this.panelNavigator = new System.Windows.Forms.Panel();
             this.labeOpt = new System.Windows.Forms.Label();
             this.panelAwesomiumWebControl = new System.Windows.Forms.Panel();
+            this.buttonCut = new System.Windows.Forms.Button();
             this.webControlDetails = new Awesomium.Windows.Forms.WebControl(this.components);
             this.printDocument1 = new System.Drawing.Printing.PrintDocument();
             this.buttonRefresh = new System.Windows.Forms.Button();
@@ -80,11 +81,23 @@
             this.panelAwesomiumWebControl.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.panelAwesomiumWebControl.Controls.Add(this.buttonCut);
             this.panelAwesomiumWebControl.Controls.Add(this.webControlDetails);
             this.panelAwesomiumWebControl.Location = new System.Drawing.Point(221, 5);
             this.panelAwesomiumWebControl.Name = "panelAwesomiumWebControl";
             this.panelAwesomiumWebControl.Size = new System.Drawing.Size(532, 479);
             this.panelAwesomiumWebControl.TabIndex = 8;
+            // 
+            // buttonCut
+            // 
+            this.buttonCut.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.buttonCut.Location = new System.Drawing.Point(474, 11);
+            this.buttonCut.Name = "buttonCut";
+            this.buttonCut.Size = new System.Drawing.Size(44, 38);
+            this.buttonCut.TabIndex = 1;
+            this.buttonCut.Text = "Р";
+            this.buttonCut.UseVisualStyleBackColor = true;
+            this.buttonCut.Click += new System.EventHandler(this.buttonCut_Click);
             // 
             // webControlDetails
             // 
@@ -147,6 +160,7 @@
         private Awesomium.Windows.Forms.WebControl webControlDetails;
         private System.Drawing.Printing.PrintDocument printDocument1;
         private System.Windows.Forms.Panel panelPrinterButtons;
+        private System.Windows.Forms.Button buttonCut;
     }
 }
 

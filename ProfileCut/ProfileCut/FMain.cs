@@ -18,22 +18,16 @@ using System.Text.RegularExpressions;
 using ModuleConnect;
 using Platform2;
 
-//using Api;
-
 namespace ProfileCut
 {
     public partial class FMain : Form, IPHost
     {
         private JSObject _jsObject;
 
-        //private RConfig _conf;
         private RAppConfig _conf;
 
-        // представление модели
-        //private AModel _viewModel;
         private RModel _viewModel;
-        
-        //private ABaseObject _master;
+
         private IPObject _master;
 
         private int _previousId;
@@ -45,7 +39,7 @@ namespace ProfileCut
         private bool _domIsReady;
 
         private RPrinterButton _printButtonPress = null;
-        
+
         public FMain()
         {
             InitializeComponent();
@@ -57,15 +51,13 @@ namespace ProfileCut
             _parseNavigation(_conf.Navigation);
             _createButtons(_buttonNames);
 
-            //_viewModel = new AModel(this, _conf.ConnectionString, _conf.ModelCode, false);
             _viewModel = new RModel(_conf.ConnectionString, _conf.ModelCode, true, this);
 
-            //_master = _viewModel.GetRoot().Navigate(_conf.MasterCollectionPath + ":0");
             _master = _viewModel.Root.Navigate(_conf.MasterCollectionPath + ":0");
 
             _navButtonsDisable(panelNavigator);
             _printButtonsDisable(panelPrinterButtons);
-            
+
             _domIsReady = true;
 
             this.Text = "Распил " + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
@@ -84,7 +76,7 @@ namespace ProfileCut
 
             return ret;
         }
-          
+
         private void FMain_Load(object sender, EventArgs e)
         {
             WindowState = FormWindowState.Maximized;
@@ -94,7 +86,7 @@ namespace ProfileCut
 
             _refreshOptimizationList();
         }
- 
+
         private void listBoxOptimizations_SelectedIndexChanged(object sender, EventArgs e)
         {
             ListBox list_box = (sender as ListBox);
@@ -110,7 +102,7 @@ namespace ProfileCut
         private void _loadHtml()
         {
             if (listBoxOptimizations.SelectedItem != null)
-            {                
+            {
                 IPObject obj = (listBoxOptimizations.SelectedItem as RMasterItem).Object;
 
                 if (obj != null)
@@ -217,7 +209,7 @@ namespace ProfileCut
 
             webControlDetails.ExecuteJavascript(str);
         }
-    
+
 
         private void _removeClassFromElement(string id, string className)
         {
@@ -241,14 +233,14 @@ namespace ProfileCut
                 string id = args.Arguments[0];
                 //ABaseObject obj = _master.GetObjectById(Convert.ToInt32(id));
                 IPObject obj = _master.GetObjectById(Convert.ToInt32(id));
-                
+
                 _master.SetNavigatorPointer(obj);
-                _updateActiveHtmlElement(_previousId, obj.Id, false);                
+                _updateActiveHtmlElement(_previousId, obj.Id, false);
                 _previousId = obj.Id;
 
                 _printButtonsEnable(panelPrinterButtons);
             }
-        }           
+        }
 
         private void Awesomium_Windows_Forms_WebControl_DocumentReady(object sender, Awesomium.Core.UrlEventArgs e)
         {
@@ -271,16 +263,16 @@ namespace ProfileCut
 
         private void _parseNavigation(string path)
         {
-            try 
+            try
             {
                 foreach (Match match in Regex.Matches(path, @"([^:/\\]+(?::[^:/\\]+)?)"))
                 {
-                    MatchCollection partMatches =  Regex.Matches(match.Groups[1].ToString(), @"([^:]+)(?::([^:]+))?", RegexOptions.IgnoreCase);                    
-                    foreach(Match partMatch in partMatches)
+                    MatchCollection partMatches = Regex.Matches(match.Groups[1].ToString(), @"([^:]+)(?::([^:]+))?", RegexOptions.IgnoreCase);
+                    foreach (Match partMatch in partMatches)
                     {
-                        _startNavigatorPath.Parts.Add(new RNavigatorPartPath(partMatch.Groups[1].Value.ToString(), 0));                      
+                        _startNavigatorPath.Parts.Add(new RNavigatorPartPath(partMatch.Groups[1].Value.ToString(), 0));
                         _buttonNames.Add(partMatch.Groups[2].Value.ToString());
-                    }                    
+                    }
                 }
             }
             catch (Exception ex)
@@ -288,12 +280,12 @@ namespace ProfileCut
                 throw new Exception("Не верный формат пути. " + ex.Message);
             }
         }
-        
+
         private void _createButtons(List<string> names)
         {
             int depth = 0;
             int x = 0;
-            foreach(string name in names)
+            foreach (string name in names)
             {
                 x = _createDepthButtons(panelNavigator, depth, name, x);
                 depth++;
@@ -316,13 +308,13 @@ namespace ProfileCut
             b.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             b.Height = owner.Height;
             b.Left = owner.Width - b.Width - x;
-            b.Click += new System.EventHandler(this._printButtonClick);                    
-                    
+            b.Click += new System.EventHandler(this._printButtonClick);
+
             owner.Controls.Add(b);
 
             return b.Width + 2;
         }
-        
+
         private void _printButtonClick(object sender, EventArgs e)
         {
             RPrinterButton b = (RPrinterButton)sender;
@@ -331,7 +323,6 @@ namespace ProfileCut
             if (_master != null)
             {
                 IPObject pointer = _master.GetNavigatorPointer();
-                //if (pointer != null && b.AttrTemplate != "" && b.ModuleFileName != "")
                 if (pointer != null && b.AttrTemplate != "")
                 {
                     string commands = pointer.FindAndFormat(b.AttrTemplate);//, b.TemplateOverloads.GetTemplateOverloadsDictonary());                    
@@ -340,7 +331,7 @@ namespace ProfileCut
                 }
             }
         }
-        
+
         private void _moduleFinishedCallback(IModule module)
         {
 
@@ -396,7 +387,7 @@ namespace ProfileCut
         private void _navButtonsEnable(Control owner)
         {
             owner.Enabled = true;
-            foreach(Control button in owner.Controls)
+            foreach (Control button in owner.Controls)
             {
                 button.Enabled = true;
             }
@@ -408,7 +399,7 @@ namespace ProfileCut
             {
                 button.Enabled = false;
             }
-        }     
+        }
 
         private void _printButtonsEnable(Control owner)
         {
@@ -423,7 +414,7 @@ namespace ProfileCut
                 {
                     button.Enabled = false;
                 }
-            }                
+            }
         }
 
         private void _printButtonsDisable(Control owner)
@@ -433,24 +424,24 @@ namespace ProfileCut
                 button.Enabled = false;
             }
         }
-       
+
         private void _navButtonClick(object sender, EventArgs e)
         {
             RNavigatorButton b = (RNavigatorButton)sender;
             IPObject obj = _master.Navigate(b.Depth, b.Direction);
-            
+
             _updateActiveHtmlElement(_previousId, obj.Id, false);
             _previousId = obj.Id;
 
             _printButtonsEnable(panelPrinterButtons);
         }
-     
+
         private void buttonRefresh_Click(object sender, EventArgs e)
         {
             object selectedItem = this.listBoxOptimizations.SelectedItem;
 
             _viewModel = new RModel(_conf.ConnectionString, _conf.ModelCode, true, this);
-            _viewModel.Root.Navigate(_conf.MasterCollectionPath + ":0");           
+            _viewModel.Root.Navigate(_conf.MasterCollectionPath + ":0");
             _refreshOptimizationList();
 
             if (selectedItem != null)
@@ -493,7 +484,7 @@ namespace ProfileCut
             }
             finally
             {
-               listBoxOptimizations.SelectedIndexChanged += new System.EventHandler(this.listBoxOptimizations_SelectedIndexChanged);
+                listBoxOptimizations.SelectedIndexChanged += new System.EventHandler(this.listBoxOptimizations_SelectedIndexChanged);
             }
         }
 
@@ -530,6 +521,16 @@ namespace ProfileCut
             }
 
             return ret;
+        }
+
+        private void buttonCut_Click(object sender, EventArgs e)
+        {
+            IPObject pointer = _master.GetNavigatorPointer();
+            string attr = "";
+            if (pointer.GetAttr("ISCUT", false, out attr))
+                pointer.DelAttr("ISCUT");
+            else
+                pointer.SetAttr("ISCUT", "true");
         }
     }
 }

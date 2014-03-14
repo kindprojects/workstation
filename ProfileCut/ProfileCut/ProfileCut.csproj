@@ -192,10 +192,6 @@
     <Folder Include="bin\Debug\" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Api\Api.csproj">
-      <Project>{f274f3ea-051d-4209-90c5-9614be0fe3f5}</Project>
-      <Name>Api</Name>
-    </ProjectReference>
     <ProjectReference Include="..\ModuleConnect\ModuleConnect.csproj">
       <Project>{1e742822-3118-4630-a19e-803791ba7bc2}</Project>
       <Name>ModuleConnect</Name>

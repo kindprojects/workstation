@@ -19,6 +19,8 @@ namespace Platform2
         void SetNavigatorPointer(IPObject obj);
         IPObject GetNavigatorPointer();
         string FindAndFormat(string attrName);
-        string TransformText(string templateName);        
+        string TransformText(string templateName);
+        void SetAttr(string name, string value);
+        void DelAttr(string name);
     }
 }
