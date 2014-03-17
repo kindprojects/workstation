@@ -228,14 +228,14 @@ namespace Platform2
         public void SetAttr(string name, string value)
         {
             string val = "";
-            if (!_attrs.TryGetValue(name, out val))
+            if (!_attrs.TryGetValue(name.ToLower(), out val))
             {
                 _attrs.Add(name.ToLower(), value);
             }
             else
             {
                 _attrs[name.ToLower()] = value;
-            }
+            }            
         }
 
         public void DelAttr(string name)
@@ -272,15 +272,6 @@ namespace Platform2
             else
                 return null;
         }
-
-        //public void SetNavigatorPointer(int id)
-        //{
-        //    if (_navigator == null)
-        //        throw new Exception("Навигатор не создан");
-
-        //    PObject obj = GetObjectById(id);            
-        //    _navigator.Pointer = obj;
-        //}
 
         public void SetNavigatorPointer(IPObject obj)
         {
@@ -366,9 +357,14 @@ namespace Platform2
             return true;
         }
 
-        public string TransformText(string templateName)
+        public string Format(string templateName)
         {
             return this.Templates.TransformText(templateName);
+        }
+
+        public void SaveAttr(string name, string value)
+        {
+            _repository.Implement.SaveAttribute(this.Id, name, value);
         }
     }
 }

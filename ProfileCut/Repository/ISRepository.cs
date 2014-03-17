@@ -9,8 +9,13 @@ namespace Repository
     public interface ISRepository
     {
         int RootObjectId(string modelCode, int ifNotFound);
+        
         List<string> ListCollections(int objectId);
+        
         Dictionary<string, string> ListAttributes(int objectId);
+        
         List<int> ListCollectionObjects(int objectId, string collName);
+
+        void SaveAttribute(int objectId, string name, string value);
     }
 }

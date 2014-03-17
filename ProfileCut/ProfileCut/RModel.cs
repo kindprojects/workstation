@@ -14,7 +14,11 @@ namespace ProfileCut
 
         public RModel(string connectionString, string modelCode, bool defferedLoad, IPHost host)
         {
-            Root = new PModel().GetRoot(new SRepositoryDb(connectionString), modelCode, defferedLoad, host);                        
+            Root = new PPlatform().GetRoot(
+                new SRepositoryDb(connectionString), 
+                modelCode, 
+                defferedLoad, 
+                host);                        
         }        
     }
 }

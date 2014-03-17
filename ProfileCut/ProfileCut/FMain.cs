@@ -110,7 +110,7 @@ namespace ProfileCut
                     _domIsReady = false;
 
                     _master = obj;
-                    string html = _master.TransformText(_conf.DetailTemplate);
+                    string html = _master.Format(_conf.DetailTemplate);
                     webControlDetails.LoadHTML(_addScriptsToBody(html));
                 }
             }
@@ -132,7 +132,7 @@ namespace ProfileCut
                             _domIsReady = false;
 
                             _master = obj;
-                            string html = _master.TransformText(_conf.DetailTemplate);
+                            string html = _master.Format(_conf.DetailTemplate);
                             webControlDetails.LoadHTML(_addScriptsToBody(html));
                         }
                     }
@@ -144,15 +144,15 @@ namespace ProfileCut
         {
             if (deselectObjectId > 0)
             {
-                _removeClassFromElement(deselectObjectId.ToString(), _conf.SelectedHtmlElementClass);
+                _removeClass(deselectObjectId.ToString(), _conf.SelectedHtmlElementClass);                
             }
             if (selectObjectId > 0)
             {
-                _addClassToElement(selectObjectId.ToString(), _conf.SelectedHtmlElementClass);
+                _addClass(selectObjectId.ToString(), _conf.SelectedHtmlElementClass);
 
                 if (doScroll)
                 {
-                    _scrollToElement(selectObjectId.ToString(), 60);
+                    _scrollTo(selectObjectId.ToString(), 60);
                 }
             }
         }
@@ -165,10 +165,8 @@ namespace ProfileCut
                 + " function bodyOnClick(e) {"
                 + " var element = e.target;"
                 + " while (element && !element.id){"
-                + " element = element.parentNode;"
-                + " } "
-                + " app.bodyOnClick(element ? element.id : undefined);"
-                + " }"
+                + " element = element.parentNode;} "
+                + " app.bodyOnClick(element ? element.id : undefined);}"
                 + " </script>";
 
             var index = ret.IndexOf("</body>");
@@ -180,21 +178,18 @@ namespace ProfileCut
             return ret;
         }
 
-        private void _addClassToElement(string id, string className)
+        private void _addClass(string id, string className)
         {
-            string js = "function addClass(o, c) {"
-            + " if (o.className.indexOf(c) == -1) {"
-            + " o.className = o.className + ' '+c+' '; "
-            + " } "
-            + " } "
-            + " addClass(document.getElementById('" + id + "'), '" + className + "');";
+            string js = "function f(o, c) {"
+            + " if (o.className.indexOf(c) == -1) o.className = o.className + ' ' + c + ' ';}"
+            + " f(document.getElementById('" + id + "'), '" + className + "');";
 
             webControlDetails.ExecuteJavascript(js);
         }
 
-        private void _scrollToElement(string id, int yOffset)
+        private void _scrollTo(string id, int yOffset)
         {
-            string str = "function jumpTo(elementId, yOffset){"
+            string str = "function f(elementId, yOffset){"
                 + "var e = document.getElementById(elementId);"
                 + "if (e){"
                 + " var left = 0;"
@@ -203,20 +198,31 @@ namespace ProfileCut
                 + " left += e.offsetLeft;"
                 + " top += e.offsetTop;"
                 + " } while(e = e.offsetParent);"
-                + " window.scrollTo(left, top - yOffset);"
-                + " }}"
-                + " jumpTo ('" + id + "', " + yOffset.ToString() + ");";
+                + " window.scrollTo(left, top - yOffset);}}"
+                + " f('" + id + "', " + yOffset.ToString() + ");";
 
             webControlDetails.ExecuteJavascript(str);
         }
 
-
-        private void _removeClassFromElement(string id, string className)
+        private void _removeClass(string id, string className)
         {
-            string js = "function removeClass(o, c) {"
-            + " o.className = o.className.replace(c, '');"
-            + " }"
-            + " removeClass(document.getElementById('" + id + "'), ' " + className + " ');";
+            string js = "function f(o, c) {"
+            + " o.className = o.className.replace(c, '');}"
+            + " f(document.getElementById('" + id + "'), ' " + className + "');";
+
+            webControlDetails.ExecuteJavascript(js);
+        }
+
+        private void _addOrRemoveClass(string id, string className)
+        {
+            string js = "function f(id, name) {"
+                + " var e = document.getElementById(id);"
+                + " if (e) {"
+                + " var c = e.className;"
+                + " if (c.indexOf(' ' + name) == -1) c += ' ' + name; "
+                + " else c = c.replace(' ' + name, '');"
+                + " e.className = c;}}"
+                + " f(" + id + ", '" + className + "');";
 
             webControlDetails.ExecuteJavascript(js);
         }
@@ -461,7 +467,7 @@ namespace ProfileCut
                 obj = root.GetNavigatorPointer();
 
                 RMasterItem item = new RMasterItem();
-                item.Title = obj.TransformText(_conf.MasterItemTemplate);
+                item.Title = obj.Format(_conf.MasterItemTemplate);
                 item.Object = obj;
 
                 listBoxOptimizations.Items.Add(item);
@@ -527,10 +533,18 @@ namespace ProfileCut
         {
             IPObject pointer = _master.GetNavigatorPointer();
             string attr = "";
-            if (pointer.GetAttr("ISCUT", false, out attr))
-                pointer.DelAttr("ISCUT");
+            if (pointer.GetAttr("CUTCANE", false, out attr))
+            {
+                pointer.SetAttr("CUTCANE", "");
+                pointer.SaveAttr("CUTCANE", "");
+            }
             else
-                pointer.SetAttr("ISCUT", "true");
+            {
+                pointer.SetAttr("CUTCANE", "cutCane");
+                pointer.SaveAttr("CUTCANE", "cutCane");
+            }
+            
+             _addOrRemoveClass(pointer.Id.ToString(), "cutCane");
         }
     }
 }

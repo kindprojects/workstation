@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using FirebirdSql.Data.FirebirdClient;
 using System.IO;
 using System.Windows.Forms;
+using System.Data;
 
 namespace Repository
 {
@@ -62,6 +63,37 @@ namespace Repository
                         ret.Add(row);
                     }
                 }
+            }
+
+            return ret;
+        }
+
+        private int? _sqlInsert(string sqlQuery, string[] paramList)
+        {
+            int? ret;
+
+            _openConnection();
+
+            using (FbTransaction trans = _db.BeginTransaction())
+            {
+                using (FbCommand cmd = new FbCommand(sqlQuery, _db, trans))
+                {
+                    for (int ii = 0; ii < Math.Floor(paramList.Count() / 2.0); ii++)
+                    {
+                        cmd.Parameters.AddWithValue(paramList[ii * 2], paramList[ii * 2 + 1]);
+                    }
+
+                    FbParameter outparam = new FbParameter("@out", FbDbType.Integer)
+                    {
+                        Direction = ParameterDirection.Output
+                    };
+                    cmd.Parameters.Add(outparam);
+
+                    cmd.ExecuteNonQuery();
+                    ret = outparam.Value as int?;
+                }
+
+                trans.Commit();
             }
 
             return ret;
@@ -186,6 +218,38 @@ namespace Repository
 
             return ret;
         }
-        #endregion
+
+        public void SaveAttribute(int objectId, string name, string value)
+        {
+            string[] paramList = { "attributecode", name };
+
+            List<Dictionary<string, string>> q = _sqlSelect(
+                "select attributeid from attributes a where attributecode = @attributecode",
+                paramList
+            );
+
+            string attrId = "";
+            if (q.Count() == 0)
+            {
+                int? retId = _sqlInsert(
+                    "insert into attributes (attributecode) values (@attributecode) returning attributeid",
+                    paramList);
+
+                if (retId != null)
+                    attrId = retId.ToString();
+            }
+            else
+                q[0].TryGetValue("attributeid", out attrId);
+
+            if (attrId != "")
+            {
+                string[] insParamList = { "attributeid", attrId, "objectid", objectId.ToString(), "val", value };
+                int? retObjectId = _sqlInsert(
+                    "update or insert into object_attributes (attributeid, objectid, val) values (@attributeid, @objectid, @val) returning objectid",
+                    insParamList);
+            }
+        }
+
+        #endregion        
     }
 }

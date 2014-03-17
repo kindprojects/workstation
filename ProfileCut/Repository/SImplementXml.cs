@@ -28,6 +28,12 @@ namespace Repository
         {
             throw new NotImplementedException();
         }
+
+        public void SaveAttribute(int objectId, string name, string value)
+        {
+            throw new NotImplementedException();
+        }
         #endregion
+        
     }
 }

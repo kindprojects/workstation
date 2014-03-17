@@ -44,7 +44,7 @@
     <Compile Include="IPHost.cs" />
     <Compile Include="IPObject.cs" />
     <Compile Include="PCollection.cs" />
-    <Compile Include="PModel.cs" />
+    <Compile Include="PPlatform.cs" />
     <Compile Include="PNavigator.cs" />
     <Compile Include="PNavigatorPath.cs" />
     <Compile Include="PObject.cs" />
