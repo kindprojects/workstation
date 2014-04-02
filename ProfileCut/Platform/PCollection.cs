@@ -57,6 +57,37 @@ namespace Platform
             }
         }
 
+        public PBaseObject FindObjectByAttrValue(string name, string value)
+        {
+            _loadIfNotLoaded();
+
+            foreach (PBaseObject item in _items)
+            {
+                string val = "";
+                if (item.GetAttr(name, true, out val))
+                {
+                    if (val == value)
+                    {
+                        return item;
+                    }
+                }
+            }
+
+            return null;
+        }
+
+        public PBaseObject PrevSibling(PBaseObject obj)
+        {
+            int i = this._items.IndexOf(obj) - 1;
+            return (i < 0) ? null : this._items[i];
+        }
+
+        public PBaseObject NextSibling(PBaseObject obj)
+        {
+            int i = this._items.IndexOf(obj) + 1;
+            return (i >= this._items.Count()) ? null : this._items[i];
+        }
+
         public int IndexOf(PBaseObject obj)
         {
             if (obj != null)

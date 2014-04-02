@@ -139,40 +139,40 @@ namespace Api
             return ret;
         }
 
-        //public Dictionary<string, string> ListTemplates(string modelCode)
-        //{
-        //    Dictionary<string,string> ret = new Dictionary<string,string>();
+        public Dictionary<string, string> ListTemplates(string modelCode)
+        {
+            Dictionary<string,string> ret = new Dictionary<string,string>();
 
-        //    string[] paramList = { "code", modelCode};
-        //    List<Dictionary<string, string>> q = this.SqlSelect("select t.templatecode, t.templatedata, t.append_line_break"
-        //        + " from models m"
-        //        + " join templates t on t.modelid = m.modelid"
-        //        + " where upper(m.modelcode) = upper(@code)", paramList);
+            string[] paramList = { "code", modelCode};
+            List<Dictionary<string, string>> q = this.SqlSelect("select t.templatecode, t.templatedata, t.append_line_break"
+                + " from models m"
+                + " join templates t on t.modelid = m.modelid"
+                + " where upper(m.modelcode) = upper(@code)", paramList);
 
             
 
-        //    foreach (Dictionary<string, string> row in q)
-        //    {
-        //        string tplName = "";
-        //        string tplData = "";                
-        //        if (row.TryGetValue("templatecode", out tplName)
-        //            && row.TryGetValue("templatedata", out tplData)
-        //          )
-        //        {
-        //            string line_break = "";
-        //            string tplBreak = "";
-        //            if (row.TryGetValue("append_line_break", out tplBreak))
-        //            { 
-        //                if (tplBreak != "0")
-        //                    line_break = "\n";
-        //            }
+            foreach (Dictionary<string, string> row in q)
+            {
+                string tplName = "";
+                string tplData = "";                
+                if (row.TryGetValue("templatecode", out tplName)
+                    && row.TryGetValue("templatedata", out tplData)
+                  )
+                {
+                    string line_break = "";
+                    string tplBreak = "";
+                    if (row.TryGetValue("append_line_break", out tplBreak))
+                    { 
+                        if (tplBreak != "0")
+                            line_break = "\n";
+                    }
 
-        //            ret.Add(tplName, tplData + line_break);
-        //        }
-        //    }
+                    ret.Add(tplName, tplData + line_break);
+                }
+            }
             
-        //    return ret;
-        //}
+            return ret;
+        }
 
         public int GetModelRootID(string modelCode, int ifNotFound)
         {

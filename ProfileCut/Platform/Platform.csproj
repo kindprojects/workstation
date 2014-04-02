@@ -62,10 +62,6 @@
       <Project>{1e742822-3118-4630-a19e-803791ba7bc2}</Project>
       <Name>ModuleConnect</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Repository\Repository.csproj">
-      <Project>{eb591448-1385-4b25-8008-6575bb872294}</Project>
-      <Name>Repository</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
