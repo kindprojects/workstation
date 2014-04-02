@@ -48,7 +48,6 @@ namespace Platform2
                         _path.Parts[ii].PositionInLevel = positions[ii];
                     }
 
-
                     _pointer = value;
                 }
                 else

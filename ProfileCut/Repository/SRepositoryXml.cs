@@ -8,8 +8,8 @@ namespace Repository
 {
     public class SRepositoryXml : SRepository
     {
-        public SRepositoryXml() : 
-            base(new SImplementXml())
+        public SRepositoryXml(string fileName) : 
+            base(new SStorageXml(fileName))
         {
         }
     }

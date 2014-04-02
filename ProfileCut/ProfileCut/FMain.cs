@@ -26,7 +26,7 @@ namespace ProfileCut
 
         private RAppConfig _conf;
 
-        private RModel _viewModel;
+        private PFb _viewModel;
 
         private IPObject _master;
 
@@ -51,7 +51,7 @@ namespace ProfileCut
             _parseNavigation(_conf.Navigation);
             _createButtons(_buttonNames);
 
-            _viewModel = new RModel(_conf.ConnectionString, _conf.ModelCode, true, this);
+            _viewModel = new PFb(_conf.ConnectionString, _conf.ModelCode, true, this);
 
             _master = _viewModel.Root.Navigate(_conf.MasterCollectionPath + ":0");
 
@@ -308,7 +308,6 @@ namespace ProfileCut
         }
         private int _createPrintButton(Control owner, RAppButton config, int x)
         {
-            //RPrinterButton b = new RPrinterButton(config.Text, config.Module, config.NameSpace, config.Class, config.Printer, config.AttrTemplate);
             RPrinterButton b = new RPrinterButton(config);
             b.AutoSize = true;
             b.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
@@ -413,13 +412,9 @@ namespace ProfileCut
             {
                 IPObject o = _getObjectWihtAttrTempate(button.AttrTemplate);
                 if (o != null)
-                {
                     button.Enabled = true;
-                }
                 else
-                {
                     button.Enabled = false;
-                }
             }
         }
 
@@ -444,9 +439,14 @@ namespace ProfileCut
 
         private void buttonRefresh_Click(object sender, EventArgs e)
         {
+            _refreshOptimization();
+        }
+
+        private void _refreshOptimization()
+        {
             object selectedItem = this.listBoxOptimizations.SelectedItem;
 
-            _viewModel = new RModel(_conf.ConnectionString, _conf.ModelCode, true, this);
+            _viewModel = new PFb(_conf.ConnectionString, _conf.ModelCode, true, this);
             _viewModel.Root.Navigate(_conf.MasterCollectionPath + ":0");
             _refreshOptimizationList();
 
@@ -469,9 +469,8 @@ namespace ProfileCut
                 RMasterItem item = new RMasterItem();
                 item.Title = obj.Format(_conf.MasterItemTemplate);
                 item.Object = obj;
-
                 listBoxOptimizations.Items.Add(item);
-
+                
             } while (obj.Id != root.Navigate(0, NAV_DIRECTION.DOWN).Id);
         }
 
@@ -531,20 +530,33 @@ namespace ProfileCut
 
         private void buttonCut_Click(object sender, EventArgs e)
         {
-            IPObject pointer = _master.GetNavigatorPointer();
-            string attr = "";
-            if (pointer.GetAttr("CUTCANE", false, out attr))
+            if (listBoxOptimizations.SelectedItem != null)
             {
-                pointer.SetAttr("CUTCANE", "");
-                pointer.SaveAttr("CUTCANE", "");
+                string attr = "";
+                if (_master.GetAttr("CUTOPT", false, out attr))
+                {
+                    if (attr == "")
+                        _master.SetAttr("CUTOPT", "#");
+                    else
+                        _master.SetAttr("CUTOPT", "");
+                }
+                else
+                    _master.SetAttr("CUTOPT", "#");
+
+                _master.SaveAttr("CUTOPT");
+
+                int index = listBoxOptimizations.SelectedIndex;
+                listBoxOptimizations.SelectedIndexChanged -= new System.EventHandler(this.listBoxOptimizations_SelectedIndexChanged);
+                try
+                {
+                    _refreshOptimization();
+                }
+                finally
+                {
+                    listBoxOptimizations.SelectedIndexChanged += new System.EventHandler(this.listBoxOptimizations_SelectedIndexChanged);
+                    listBoxOptimizations.SelectedIndex = index;
+                }
             }
-            else
-            {
-                pointer.SetAttr("CUTCANE", "cutCane");
-                pointer.SaveAttr("CUTCANE", "cutCane");
-            }
-            
-             _addOrRemoveClass(pointer.Id.ToString(), "cutCane");
         }
     }
 }

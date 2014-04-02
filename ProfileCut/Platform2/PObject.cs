@@ -45,7 +45,7 @@ namespace Platform2
             _ownerCollection = null;
             _deferredLoad = deferredLoad;
             
-            _attrs = _repository.Implement.ListAttributes(Id);
+            _attrs = _repository.Storage.ListAttributes(Id);
 
             _loadCollections(_deferredLoad);
         }
@@ -65,14 +65,14 @@ namespace Platform2
             _deferredLoad = deferredLoad;
             _ownerCollection = ownerCollection;
             
-            _attrs = _repository.Implement.ListAttributes(Id);
+            _attrs = _repository.Storage.ListAttributes(Id);
             _collections = new List<PCollection>();
         }
 
         private void _loadCollections(bool defferendLoad)
         {
             _collections = new List<PCollection>();
-            List<string> collectsNames = _repository.Implement.ListCollections(Id);
+            List<string> collectsNames = _repository.Storage.ListCollections(Id);
             foreach(string name in collectsNames)            
             {
                 PCollection collection = new PCollection(this, name, _deferredLoad);
@@ -85,7 +85,7 @@ namespace Platform2
         private int _getRootObjectId(string model)
         {
             int id;
-            id = _repository.Implement.RootObjectId(model, -1);
+            id = _repository.Storage.RootObjectId(model, -1);
             if (id == -1)
                 throw new Exception("Модель с кодом \"" + model + "\" не найдена!");
 
@@ -182,7 +182,7 @@ namespace Platform2
 
         private bool _fillCollection(PCollection collection)
         {
-            List<int> lst = _repository.Implement.ListCollectionObjects(collection.OwnerObject.Id, collection.Name);
+            List<int> lst = _repository.Storage.ListCollectionObjects(collection.OwnerObject.Id, collection.Name);
             foreach (int id in lst)
             {
                 this._loadNewObject(id, collection);
@@ -207,13 +207,13 @@ namespace Platform2
 
             if (ownerCollection != null)
                 ownerCollection.InsertObject(obj);
-            Dictionary<string, string> attrs = _repository.Implement.ListAttributes(id);
+            Dictionary<string, string> attrs = _repository.Storage.ListAttributes(id);
             foreach (KeyValuePair<string, string> p in attrs)
             {
                 obj.SetAttr(p.Key, p.Value);
             }
 
-            List<string> listColl = this._repository.Implement.ListCollections(id);
+            List<string> listColl = this._repository.Storage.ListCollections(id);
 
             foreach (string coll in listColl)
             {
@@ -236,12 +236,7 @@ namespace Platform2
             {
                 _attrs[name.ToLower()] = value;
             }            
-        }
-
-        public void DelAttr(string name)
-        {
-            _attrs.Remove(name);
-        }
+        }     
 
         public IPObject Navigate(int depth, NAV_DIRECTION direction)
         {
@@ -348,7 +343,7 @@ namespace Platform2
 
         internal bool FillCollection(PCollection collection)
         {
-            List<int> lst = _repository.Implement.ListCollectionObjects(collection.OwnerObject.Id, collection.Name);
+            List<int> lst = _repository.Storage.ListCollectionObjects(collection.OwnerObject.Id, collection.Name);
             foreach (int id in lst)
             {
                 _loadNewObject(id, collection);
@@ -362,9 +357,17 @@ namespace Platform2
             return this.Templates.TransformText(templateName);
         }
 
-        public void SaveAttr(string name, string value)
+        public void SaveAttr(string name)
         {
-            _repository.Implement.SaveAttribute(this.Id, name, value);
+            string value = "";
+            if (GetAttr(name, false, out value))
+            {
+                _repository.Storage.SaveAttribute(this.Id, name, value);
+            }
+            else
+            {
+                throw new Exception(String.Format("Атрибут {0} у объекта {1} не найден", name, this.Id.ToString()));
+            }
         }
     }
 }

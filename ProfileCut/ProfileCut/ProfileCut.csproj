@@ -105,7 +105,6 @@
       <AutoGen>True</AutoGen>
     </Compile>
     <Compile Include="RMasterItem.cs" />
-    <Compile Include="RModel.cs" />
     <Compile Include="RNavigatorPath.cs" />
     <Compile Include="RNavigatorButton.cs">
       <SubType>Component</SubType>
@@ -149,6 +148,8 @@
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Resources\check23.png" />
+    <None Include="Resources\check2.png" />
     <Content Include="Resources\circular.ico" />
     <Content Include="Resources\circular_black.ico" />
     <Content Include="Resources\printer.png" />
@@ -194,6 +195,10 @@
     <ProjectReference Include="..\ModuleConnect\ModuleConnect.csproj">
       <Project>{1e742822-3118-4630-a19e-803791ba7bc2}</Project>
       <Name>ModuleConnect</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ModuleDrawingPrinter\ModuleDrawingPrinter.csproj">
+      <Project>{f6a47346-455c-4e31-8348-431eab4b8b0d}</Project>
+      <Name>ModuleDrawingPrinter</Name>
     </ProjectReference>
     <ProjectReference Include="..\Platform2\Platform2.csproj">
       <Project>{09126158-cbb3-4b8a-a888-2d440bc871f3}</Project>

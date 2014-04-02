@@ -35,11 +35,11 @@
             this.panelNavigator = new System.Windows.Forms.Panel();
             this.labeOpt = new System.Windows.Forms.Label();
             this.panelAwesomiumWebControl = new System.Windows.Forms.Panel();
-            this.buttonCut = new System.Windows.Forms.Button();
             this.webControlDetails = new Awesomium.Windows.Forms.WebControl(this.components);
             this.printDocument1 = new System.Drawing.Printing.PrintDocument();
             this.buttonRefresh = new System.Windows.Forms.Button();
             this.panelPrinterButtons = new System.Windows.Forms.Panel();
+            this.buttonCut = new System.Windows.Forms.Button();
             this.panelAwesomiumWebControl.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -53,7 +53,7 @@
             this.listBoxOptimizations.ItemHeight = 25;
             this.listBoxOptimizations.Location = new System.Drawing.Point(12, 49);
             this.listBoxOptimizations.Name = "listBoxOptimizations";
-            this.listBoxOptimizations.Size = new System.Drawing.Size(203, 479);
+            this.listBoxOptimizations.Size = new System.Drawing.Size(203, 435);
             this.listBoxOptimizations.TabIndex = 0;
             this.listBoxOptimizations.SelectedIndexChanged += new System.EventHandler(this.listBoxOptimizations_SelectedIndexChanged);
             // 
@@ -81,23 +81,11 @@
             this.panelAwesomiumWebControl.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.panelAwesomiumWebControl.Controls.Add(this.buttonCut);
             this.panelAwesomiumWebControl.Controls.Add(this.webControlDetails);
             this.panelAwesomiumWebControl.Location = new System.Drawing.Point(221, 5);
             this.panelAwesomiumWebControl.Name = "panelAwesomiumWebControl";
             this.panelAwesomiumWebControl.Size = new System.Drawing.Size(532, 479);
             this.panelAwesomiumWebControl.TabIndex = 8;
-            // 
-            // buttonCut
-            // 
-            this.buttonCut.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.buttonCut.Location = new System.Drawing.Point(474, 11);
-            this.buttonCut.Name = "buttonCut";
-            this.buttonCut.Size = new System.Drawing.Size(44, 38);
-            this.buttonCut.TabIndex = 1;
-            this.buttonCut.Text = "Р";
-            this.buttonCut.UseVisualStyleBackColor = true;
-            this.buttonCut.Click += new System.EventHandler(this.buttonCut_Click);
             // 
             // webControlDetails
             // 
@@ -127,11 +115,25 @@
             this.panelPrinterButtons.Size = new System.Drawing.Size(192, 38);
             this.panelPrinterButtons.TabIndex = 9;
             // 
+            // buttonCut
+            // 
+            this.buttonCut.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.buttonCut.BackgroundImage = global::ProfileCut.Resource.check;
+            this.buttonCut.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.buttonCut.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.buttonCut.Location = new System.Drawing.Point(12, 490);
+            this.buttonCut.Name = "buttonCut";
+            this.buttonCut.Size = new System.Drawing.Size(40, 38);
+            this.buttonCut.TabIndex = 10;
+            this.buttonCut.UseVisualStyleBackColor = true;
+            this.buttonCut.Click += new System.EventHandler(this.buttonCut_Click);
+            // 
             // FMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(765, 540);
+            this.Controls.Add(this.buttonCut);
             this.Controls.Add(this.panelPrinterButtons);
             this.Controls.Add(this.panelAwesomiumWebControl);
             this.Controls.Add(this.buttonRefresh);

@@ -8,11 +8,11 @@ namespace Repository
 {
     public class SRepository
     {
-        public ISRepository Implement { set; get; }
+        public ISRepository Storage { set; get; }
 
-        public SRepository(ISRepository implement)
+        public SRepository(ISRepository storage)
         {
-            Implement = implement;
+            Storage = storage;
         }
     }
 }

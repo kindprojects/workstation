@@ -31,6 +31,6 @@ namespace Platform2
         
         string Format(string templateName);
         
-        void SaveAttr(string name, string value);
+        void SaveAttr(string name);
     }
 }
