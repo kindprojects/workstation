@@ -5,6 +5,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.IO;
 
+
 namespace ModuleConnect
 {
     public class MCallData
@@ -12,6 +13,7 @@ namespace ModuleConnect
         public string ModuleName {set; get; }
         Dictionary<string, string> ModuleParams {set; get; }
         public string Commands {set; get; }
+
 
         public MCallData(string moduleCall)
         {
