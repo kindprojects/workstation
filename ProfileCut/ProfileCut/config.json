@@ -1,6 +1,6 @@
 {
 	"Version": "1.0.0.0",
-	"ConnectionString": "charset=WIN1251;datasource=localhost;database=db.fdb;user=sysdba;password=masterkey", 
+	"ConnectionString": "charset=WIN1251;datasource=localhost;database=profilecut;user=sysdba;password=masterkey",
 	"ModelCode": "alum",
 	"MasterItemTemplate": "OptItem",
 	"MasterCollectionPath": "Optimizations",
@@ -22,5 +22,5 @@
 				}
 			}
 		]
-	}	
+	}
 }

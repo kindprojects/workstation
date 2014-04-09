@@ -16,8 +16,10 @@ namespace Repository
         private FbConnection _db;
 
         public SStorageFB(string connectionString)
-        {            
-            _db = new FbConnection(this._genLocalDBPathIfLocalDB(connectionString));    
+        {
+			string modified = this._genLocalDBPathIfLocalDB(connectionString);
+
+			_db = new FbConnection(connectionString); // отказались от использования модифицированного пути, слишком много нюансов. Алиас на сервере надежнее и правильнее.
         }
 
         #region Service
