@@ -330,9 +330,9 @@ namespace ProfileCut
                 IPObject pointer = _master.GetNavigatorPointer();
                 if (pointer != null && b.AttrTemplate != "")
                 {
-                    string commands = pointer.FindAndFormat(b.AttrTemplate);//, b.TemplateOverloads.GetTemplateOverloadsDictonary());                    
-                    MScriptManager.Execute(Path.GetDirectoryName(Application.ExecutablePath),
-                        commands, new ModuleFinishedHandler(this._moduleFinishedCallback));
+					string commands = pointer.FindAndFormat(b.AttrTemplate);//, b.TemplateOverloads.GetTemplateOverloadsDictonary());
+					MScriptManager.Execute(Path.GetDirectoryName(Application.ExecutablePath),
+						commands, new ModuleFinishedHandler(this._moduleFinishedCallback));
                 }
             }
         }
@@ -465,11 +465,16 @@ namespace ProfileCut
             do
             {
                 obj = root.GetNavigatorPointer();
+				string ready;
+				obj.GetAttr("READY", false, out ready);
 
-                RMasterItem item = new RMasterItem();
-                item.Title = obj.Format(_conf.MasterItemTemplate);
-                item.Object = obj;
-                listBoxOptimizations.Items.Add(item);
+				if (ready == "1")
+				{
+					RMasterItem item = new RMasterItem();
+					item.Title = obj.Format(_conf.MasterItemTemplate);
+					item.Object = obj;
+					listBoxOptimizations.Items.Add(item);
+				}
                 
             } while (obj.Id != root.Navigate(0, NAV_DIRECTION.DOWN).Id);
         }

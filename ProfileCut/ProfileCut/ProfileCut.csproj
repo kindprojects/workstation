@@ -131,9 +131,7 @@
     <None Include="config.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="DB.FDB">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
+    <Fakes Include="DB.FDB" />
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>

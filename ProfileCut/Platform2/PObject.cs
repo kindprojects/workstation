@@ -306,7 +306,7 @@ namespace Platform2
                     }
                     else
                     {
-                        throw new Exception(String.Format("Не найден объект с атрибутом {0} содержащим имя шаблона", nameAttrTemplate));
+                        throw new Exception(String.Format("Не найден объект с атрибутом {0}, содержащим текст шаблона", nameAttrTemplate));
                     }
                 }
                 else
@@ -316,7 +316,7 @@ namespace Platform2
             }
             else
             {
-                throw new Exception(String.Format("Не найден объект с атрибутом {0} содержащим имя шаблона", attrName));
+                throw new Exception(String.Format("Не найден объект с атрибутом {0}, содержащим имя шаблона", attrName));
             }
 
             return ret;
@@ -324,7 +324,18 @@ namespace Platform2
 
         private bool _getAttrWithObject(string name, bool findInOwners, out string val, out PObject obj)
         {
-            if (_attrs.TryGetValue(name.ToLower(), out val))
+			obj = this;
+			while (!obj.GetAttr(name, false, out val))
+			{
+				if (obj._ownerCollection != null)
+					obj = obj._ownerCollection.OwnerObject;
+				else
+					return false;
+			}
+			return true;
+            /* ДАЛЕЕ НЕПРАВИЛЬНЫЙ КОД:
+			 * ПРАВИЛЬНЫЙ ВЫШЕ
+			if (_attrs.TryGetValue(name.ToLower(), out val))
             {
                 obj = this;
                 return true;
@@ -332,13 +343,13 @@ namespace Platform2
             else if (this._ownerCollection != null && findInOwners) // рекурсивно ищем во всех владельцах
             {
                 obj = _ownerCollection.OwnerObject;
-                return this._ownerCollection.OwnerObject.GetAttr(name, true, out val);
+                return this._ownerCollection.OwnerObject.GetAttr(name, true, out val); // НЕПРАВИЛЬНО - этот метод надёт значение, но не скажет где
             }
             else
             {
                 obj = null;
                 return false;
-            }
+            }*/
         }
 
         internal bool FillCollection(PCollection collection)

@@ -1,7 +1,7 @@
 {
 	"Version": "1.0.0.0",
-	"ConnectionString": "charset=WIN1251;datasource=localhost;database=profilecut;user=sysdba;password=masterkey",
-	"ModelCode": "alum",
+	"ConnectionString": "charset=WIN1251;datasource=192.168.11.1;database=ms2;user=sysdba;password=mojobaby",
+	"ModelCode": "pms",
 	"MasterItemTemplate": "OptItem",
 	"MasterCollectionPath": "Optimizations",
 	"DetailTemplate": "OptView",
@@ -15,10 +15,10 @@
 		[
 			{
 				"Text": "Печать",
-				"AttrTemplate": "PRINT_STICKERS",
+				"AttrTemplate": "optStickers",
 				"TemplateOverloads":
 				{
-					"PrinterName": "ZDesigner GK420d"
+					"PrinterName": "ZDesigner GK420d (копия 1)"
 				}
 			}
 		]
