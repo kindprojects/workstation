@@ -58,9 +58,15 @@ namespace Repository
                     while (reader.Read())
                     {
                         Dictionary<string, string> row = new Dictionary<string, string>();
+
+                        Object[] values = new Object[reader.FieldCount];
+                        reader.GetValues(values);
+
                         for (int jj = 0; jj < reader.FieldCount; jj++)
                         {
-                            row.Add(reader.GetName(jj).ToLower(), reader.GetString(jj));
+                            row.Add(reader.GetName(jj).ToLower(), values[jj].ToString());
+
+                            //row.Add(reader.GetName(jj).ToLower(), reader.GetValue(jj).ToString());
                         }
                         ret.Add(row);
                     }
@@ -69,6 +75,39 @@ namespace Repository
 
             return ret;
         }
+
+        //private List<Dictionary<string, string>> _sqlSelect(string sqlQuery, string[] paramList)
+        //{
+        //    List<Dictionary<string, string>> ret = new List<Dictionary<string, string>>();
+
+        //    _openConnection();
+
+        //    using (FbCommand cmd = new FbCommand(sqlQuery, _db))
+        //    {
+        //        for (int ii = 0; ii < Math.Floor(paramList.Count() / 2.0); ii++)
+        //        {
+        //            cmd.Parameters.AddWithValue(paramList[ii * 2], paramList[ii * 2 + 1]);
+        //        }
+
+        //        DataTable table = new DataTable();
+        //        using (FbDataReader reader = cmd.ExecuteReader())
+        //        {
+        //            table.Load(reader);
+        //            foreach(DataRow row in table.Rows)
+        //            {
+        //                Dictionary<string, string> dict = new Dictionary<string, string>();
+        //                foreach(DataColumn column in table.Columns)
+        //                {
+        //                    dict.Add(column.ColumnName.ToLower(), row[column.ColumnName].ToString());
+        //                }
+
+        //                ret.Add(dict);
+        //            }
+        //        }
+        //    }
+
+        //    return ret;
+        //}
 
         private int? _sqlInsert(string sqlQuery, string[] paramList)
         {
@@ -173,9 +212,17 @@ namespace Repository
         {
             Dictionary<string, string> ret = new Dictionary<string, string>();
 
+            //string[] paramList = { "objectid", objectId.ToString() };
+            //List<Dictionary<string, string>> q = _sqlSelect(
+            //    "select a.attributecode, coalesce(oa.blobval, oa.val) as val "
+            //    + " from object_attributes oa"
+            //    + " left join attributes a on a.attributeid = oa.attributeid"
+            //    + " where oa.objectid = @objectid"
+            //    , paramList);
+
             string[] paramList = { "objectid", objectId.ToString() };
             List<Dictionary<string, string>> q = _sqlSelect(
-                "select a.attributecode, coalesce(oa.blobval, oa.val) as val "
+                "select a.attributecode, oa.val as val "
                 + " from object_attributes oa"
                 + " left join attributes a on a.attributeid = oa.attributeid"
                 + " where oa.objectid = @objectid"

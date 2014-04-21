@@ -45,10 +45,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="SRepositoryLinq.cs" />
     <Compile Include="SStorageFB.cs" />
     <Compile Include="ISRepository.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SRepository.cs" />
+    <Compile Include="SStorageLinq.cs" />
     <Compile Include="SStorageXml.cs" />
     <Compile Include="SRepositoryFb.cs" />
     <Compile Include="SRepositoryXml.cs" />

@@ -468,13 +468,13 @@ namespace ProfileCut
 				string ready;
 				obj.GetAttr("READY", false, out ready);
 
-				if (ready == "1")
-				{
+				//if (ready == "1")
+				//{
 					RMasterItem item = new RMasterItem();
 					item.Title = obj.Format(_conf.MasterItemTemplate);
 					item.Object = obj;
 					listBoxOptimizations.Items.Add(item);
-				}
+				//}
                 
             } while (obj.Id != root.Navigate(0, NAV_DIRECTION.DOWN).Id);
         }

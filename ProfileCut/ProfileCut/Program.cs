@@ -11,17 +11,17 @@ namespace ProfileCut
         [STAThread]
         static void Main()
         {
-            try
-            {
+            //try
+            //{
                 Application.EnableVisualStyles();
                 Application.SetCompatibleTextRenderingDefault(false);
                 Application.Run(new FMain());
 
-            }
-            catch (Exception e)
-            {
-                MessageBox.Show(e.GetType().ToString() + ":\n" + e.Message, Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
+            //}
+            //catch (Exception e)
+            //{
+            //    MessageBox.Show(e.GetType().ToString() + ":\n" + e.Message, Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error);
+            //}
         }
     }
 }
