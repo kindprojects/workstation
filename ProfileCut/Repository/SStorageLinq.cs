@@ -20,7 +20,9 @@ namespace Repository
             string modified = this._genLocalDBPathIfLocalDB(connectionString);
 
             _db = new FbConnection(connectionString);
-            _ds = _loadTables();
+
+            _ds = new DataSet();
+            _loadTables();
         }
 
         private bool _isOpen()
@@ -59,58 +61,58 @@ namespace Repository
             return builder.ConnectionString;
         }
 
-        private DataSet _loadTables()
+        private void _loadTables()
         {
-            DataSet ret = new DataSet();
-
-            _openConnection();
-
-            using (FbDataAdapter da = new FbDataAdapter("select * from attributes", _db))
-            {                
-                da.Fill(ret, "attributes");
-            }
-
-            using (FbDataAdapter da = new FbDataAdapter("select * from collections", _db))
+            try
             {
-                da.Fill(ret, "collections");
-            }
+                _openConnection();
 
-            using (FbDataAdapter da = new FbDataAdapter("select * from models", _db))
-            {
-                da.Fill(ret, "models");
+                _loadTable("attributes");
+                _loadTable("collections");
+                _loadTable("models");
+                _loadTable("objects");
+                _loadTable("object_attributes");
             }
-            
-            using (FbDataAdapter da = new FbDataAdapter("select * from objects", _db))
+            catch (Exception ex)
             {
-                da.Fill(ret, "objects");
+                throw new Exception(String.Format("Не удалось загрузить БД в память.\n{0}", ex.Message));
             }
+            finally
+            {
+                _closeConnection();
+            }
+        }
 
-            using (FbDataAdapter da = new FbDataAdapter("select * from object_attributes", _db))
+        private void _loadTable(string tableName)
+        {
+            using (FbDataAdapter da = new FbDataAdapter(String.Format("select * from {0}", tableName), _db))
             {
-                da.Fill(ret, "object_attributes");
+                da.Fill(_ds, tableName);
             }
-
-            return ret;
         }
 
         public int RootObjectId(string model, int ifNotFound)
         {
-            var res = from objectid_root in _ds.Tables["models"].AsEnumerable()
-                      where objectid_root.Field<string>("modelcode") == model.ToUpper()
+            var dtModels = _ds.Tables["models"].AsEnumerable();
+            var res = from objectid_root in dtModels
+                      where objectid_root.Field<string>("modelcode").ToUpper() == model.ToUpper()
                       select new
                       {
                           objectid_root = objectid_root.Field<int>("objectid_root")   
                       };
 
-
-            return res.First().objectid_root;
+            if (res.Count() > 0)
+                return res.First().objectid_root;
+            else
+                return -1;
         }
 
         public List<string> ListCollections(int objectId)
         {
             List<string> ret = new List<string>();
 
-            var res = from collections in _ds.Tables["collections"].AsEnumerable()
+            var dtCollections = _ds.Tables["collections"].AsEnumerable();
+            var res = from collections in dtCollections
                       where collections.Field<int>("owner_objectid") == objectId
                       select new
                       {
@@ -118,9 +120,7 @@ namespace Repository
                       };
 
             foreach(var row in res)
-            {
                 ret.Add(row.collectioncode);
-            }
 
             return ret;
         }
@@ -129,8 +129,10 @@ namespace Repository
         {
             Dictionary<string, string> ret = new Dictionary<string, string>();
 
-            var res = from object_attributes in _ds.Tables["object_attributes"].AsEnumerable()
-                      join attributes in _ds.Tables["attributes"].AsEnumerable()
+            var dtObjectAttributes = _ds.Tables["object_attributes"].AsEnumerable();
+            var dtAttributes = _ds.Tables["attributes"].AsEnumerable();
+            var res = from object_attributes in dtObjectAttributes
+                      join attributes in dtAttributes
                       on object_attributes.Field<int>("attributeid") equals attributes.Field<int>("attributeid")
                       where object_attributes.Field<int>("objectid") == objectId
                       select new
@@ -140,9 +142,7 @@ namespace Repository
                       };
 
             foreach (var row in res)
-            {
                 ret.Add(row.attributecode, row.val);                                
-            }
 
             return ret;
         }
@@ -151,8 +151,10 @@ namespace Repository
         {
             List<int> ret = new List<int>();
 
-            var res = from collections in _ds.Tables["collections"].AsEnumerable()
-                      join objects in _ds.Tables["objects"].AsEnumerable()
+            var dtCollections = _ds.Tables["collections"].AsEnumerable();
+            var dtObjects = _ds.Tables["objects"].AsEnumerable();
+            var res = from collections in dtCollections
+                      join objects in dtObjects
                       on collections.Field<int>("collectionid") equals objects.Field<int?>("owner_collectionid")
                       where collections.Field<int>("owner_objectid") == objectId &&
                           collections.Field<string>("collectioncode").ToUpper() == collName.ToUpper()
@@ -163,9 +165,7 @@ namespace Repository
                       };
 
             foreach(var row in res)
-            {
                 ret.Add(row.objectid);
-            }
 
             return ret;
         }

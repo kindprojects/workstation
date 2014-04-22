@@ -13,8 +13,8 @@ namespace Platform2
 
         public PFb(string connectionString, string model, bool deferredLoad, IPHost host)
         {
-            //Root = new PObject(new SRepositoryFb(connectionString), model, deferredLoad, host);
-            Root = new PObject(new SRepositoryLinq(connectionString), model, deferredLoad, host);
+            Root = new PObject(new SRepositoryFb(connectionString), model, deferredLoad, host);
+            //Root = new PObject(new SRepositoryLinq(connectionString), model, deferredLoad, host);
         }
     }
 }

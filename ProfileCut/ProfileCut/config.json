@@ -1,7 +1,7 @@
 {
 	"Version": "1.0.0.0",
 	"ConnectionString": "charset=WIN1251;datasource=192.168.11.1;database=ms2;user=sysdba;password=mojobaby",
-	"ModelCode": "pms",
+	"ModelCode": "ALUM_TEST",
 	"MasterItemTemplate": "OptItem",
 	"MasterCollectionPath": "Optimizations",
 	"DetailTemplate": "OptView",
