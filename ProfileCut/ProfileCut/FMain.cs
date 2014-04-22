@@ -40,7 +40,7 @@ namespace ProfileCut
 
         private RPrinterButton _printButtonPress = null;
 
-        public FMain()
+        public FMain() 
         {
             InitializeComponent();
             _startNavigatorPath = new RNavigatorPath();
