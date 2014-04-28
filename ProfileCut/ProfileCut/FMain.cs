@@ -11,6 +11,7 @@ using System.Windows.Forms;
 using System.IO;
 using Awesomium.ComponentModel;
 using Awesomium.Core;
+using Awesomium.Core.Data;
 using Awesomium.Web;
 using Awesomium.Windows;
 using System.Text.RegularExpressions;
@@ -22,7 +23,7 @@ namespace ProfileCut
 {
     public partial class FMain : Form, IPHost
     {
-        private JSObject _jsObject;
+        //private JSObject _jsObject;
 
         private RAppConfig _conf;
 
@@ -36,11 +37,11 @@ namespace ProfileCut
 
         private List<string> _buttonNames;
 
-        private bool _domIsReady;
+        //private bool _domIsReady;
 
         private RPrinterButton _printButtonPress = null;
 
-        public FMain() 
+        public FMain()
         {
             InitializeComponent();
             _startNavigatorPath = new RNavigatorPath();
@@ -58,7 +59,7 @@ namespace ProfileCut
             _navButtonsDisable(panelNavigator);
             _printButtonsDisable(panelPrinterButtons);
 
-            _domIsReady = true;
+            //_domIsReady = true;
 
             this.Text = "Распил " + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
         }
@@ -92,10 +93,10 @@ namespace ProfileCut
             ListBox list_box = (sender as ListBox);
 
             // нельзя грузить html в awesomium если загрузка уже идет
-            if (_domIsReady)
-            {
+            //if (_domIsReady)
+            //{
                 _loadHtml();
-            }
+            //}
         }
 
         // загружает в awesomium html выбранной оптимизации
@@ -107,44 +108,66 @@ namespace ProfileCut
 
                 if (obj != null)
                 {
-                    _domIsReady = false;
+                    //_domIsReady = false;
 
                     _master = obj;
-                    string html = _master.Format(_conf.DetailTemplate);
-                    webControlDetails.LoadHTML(_addScriptsToBody(html));
-                }
-            }
-        }
 
-        // загружает html только если выбранная оптимизация отлична от текущей
-        private void _reloadHtml()
-        {
-            if (listBoxOptimizations.SelectedItem != null)
-            {
-                IPObject obj = (listBoxOptimizations.SelectedItem as RMasterItem).Object;
-
-                if (obj != null)
-                {
-                    if (obj.Id != _master.Id)
+                    using (FFormat form = new FFormat(this.Width / 2 - 150, this.Height / 2 - 81, _master, _conf.DetailTemplate))
                     {
-                        if (_domIsReady)
-                        {
-                            _domIsReady = false;
+                        form.ShowDialog();
 
-                            _master = obj;
-                            string html = _master.Format(_conf.DetailTemplate);
-                            webControlDetails.LoadHTML(_addScriptsToBody(html));
+                        if (form.Result != "")
+                        {
+                            string fileName = Application.StartupPath + @"//detail.html";
+                            _saveHtml(fileName, _addScriptsToBody(form.Result));
+
+                            webControlAwesomium.Source = new Uri(@"file:///" + fileName);
+                            webControlAwesomium.Update();                                
                         }
+                        else
+                            webControlAwesomium.LoadHTML(_getEmptyHtml());
                     }
                 }
             }
         }
 
+        private void _saveHtml(string fileName, string content)
+        {
+            using (StreamWriter file = new StreamWriter(fileName))
+            {
+                file.WriteLine(content);
+            }
+        }
+        
+        // загружает html только если выбранная оптимизация отлична от текущей
+        //private void _reloadHtml()
+        //{
+        //    if (listBoxOptimizations.SelectedItem != null)
+        //    {
+        //        IPObject obj = (listBoxOptimizations.SelectedItem as RMasterItem).Object;
+
+        //        if (obj != null)
+        //        {
+        //            if (obj.Id != _master.Id)
+        //            {
+        //                if (_domIsReady)
+        //                {
+        //                    _domIsReady = false;
+
+        //                    _master = obj;
+        //                    string html = _master.Format(_conf.DetailTemplate);
+        //                    webControlDetails.LoadHTML(_addScriptsToBody(html));
+        //                }
+        //            }
+        //        }
+        //    }
+        //}
+
         private void _updateActiveHtmlElement(int deselectObjectId, int selectObjectId, bool doScroll)
         {
             if (deselectObjectId > 0)
             {
-                _removeClass(deselectObjectId.ToString(), _conf.SelectedHtmlElementClass);                
+                _removeClass(deselectObjectId.ToString(), _conf.SelectedHtmlElementClass);
             }
             if (selectObjectId > 0)
             {
@@ -184,7 +207,7 @@ namespace ProfileCut
             + " if (o.className.indexOf(c) == -1) o.className = o.className + ' ' + c + ' ';}"
             + " f(document.getElementById('" + id + "'), '" + className + "');";
 
-            webControlDetails.ExecuteJavascript(js);
+            webControlAwesomium.ExecuteJavascript(js);
         }
 
         private void _scrollTo(string id, int yOffset)
@@ -201,7 +224,7 @@ namespace ProfileCut
                 + " window.scrollTo(left, top - yOffset);}}"
                 + " f('" + id + "', " + yOffset.ToString() + ");";
 
-            webControlDetails.ExecuteJavascript(str);
+            webControlAwesomium.ExecuteJavascript(str);
         }
 
         private void _removeClass(string id, string className)
@@ -210,7 +233,7 @@ namespace ProfileCut
             + " o.className = o.className.replace(c, '');}"
             + " f(document.getElementById('" + id + "'), ' " + className + "');";
 
-            webControlDetails.ExecuteJavascript(js);
+            webControlAwesomium.ExecuteJavascript(js);
         }
 
         private void _addOrRemoveClass(string id, string className)
@@ -224,47 +247,55 @@ namespace ProfileCut
                 + " e.className = c;}}"
                 + " f(" + id + ", '" + className + "');";
 
-            webControlDetails.ExecuteJavascript(js);
+            webControlAwesomium.ExecuteJavascript(js);
         }
 
         private void _jsBind()
         {
-            _jsObject.Bind("bodyOnClick", true, _jsBodyClickHandler);
+            JSObject jsObject = webControlAwesomium.CreateGlobalJavascriptObject("app");
+            jsObject.Bind("bodyOnClick", true, _jsBodyClickHandler);
         }
 
         private void _jsBodyClickHandler(object sender, JavascriptMethodEventArgs args)
         {
-            if (args.Arguments.Count() > 0 && !args.Arguments[0].IsUndefined)
+            try
             {
-                string id = args.Arguments[0];
-                //ABaseObject obj = _master.GetObjectById(Convert.ToInt32(id));
-                IPObject obj = _master.GetObjectById(Convert.ToInt32(id));
+                if (args.Arguments.Count() > 0 && !args.Arguments[0].IsUndefined)
+                {
+                    string id = args.Arguments[0];
+                    //ABaseObject obj = _master.GetObjectById(Convert.ToInt32(id));
+                    IPObject obj = _master.GetObjectById(Convert.ToInt32(id));
 
-                _master.SetNavigatorPointer(obj);
-                _updateActiveHtmlElement(_previousId, obj.Id, false);
-                _previousId = obj.Id;
+                    _master.SetNavigatorPointer(obj);
+                    _updateActiveHtmlElement(_previousId, obj.Id, false);
+                    _previousId = obj.Id;
 
-                _printButtonsEnable(panelPrinterButtons);
+                    _printButtonsEnable(panelPrinterButtons);
+                }
+            }
+            catch(Exception ex)
+            {
+                MessageBox.Show(ex.GetType().ToString() + ":\n" + ex.Message, Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
         private void Awesomium_Windows_Forms_WebControl_DocumentReady(object sender, Awesomium.Core.UrlEventArgs e)
         {
-            _jsObject = webControlDetails.CreateGlobalJavascriptObject("app");
-            _jsBind();
+            try
+            {
+                _jsBind();
 
-            var obj = _master.Navigate(_startNavigatorPath.GetStringPath());
-            _updateActiveHtmlElement(0, obj.Id, true);
-            _previousId = obj.Id;
-            _navButtonsEnable(panelNavigator);
+                var obj = _master.Navigate(_startNavigatorPath.GetStringPath());
+                _updateActiveHtmlElement(0, obj.Id, true);
+                _previousId = obj.Id;
+                _navButtonsEnable(panelNavigator);
 
-            _domIsReady = true;
-
-            // загрузим новую оптимизацию, если выбранная оптимизация отлична от текущей
-            // такая ситуация возможна при быстром перемещении по списку оптимизаций          
-            //_reloadHtml();
-
-            _printButtonsEnable(panelPrinterButtons);
+                _printButtonsEnable(panelPrinterButtons);
+            }
+            catch(Exception ex)
+            {
+                MessageBox.Show(ex.GetType().ToString() + ":\n" + ex.Message, Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void _parseNavigation(string path)
@@ -330,9 +361,9 @@ namespace ProfileCut
                 IPObject pointer = _master.GetNavigatorPointer();
                 if (pointer != null && b.AttrTemplate != "")
                 {
-					string commands = pointer.FindAndFormat(b.AttrTemplate);//, b.TemplateOverloads.GetTemplateOverloadsDictonary());
-					MScriptManager.Execute(Path.GetDirectoryName(Application.ExecutablePath),
-						commands, new ModuleFinishedHandler(this._moduleFinishedCallback));
+                    string commands = pointer.FindAndFormat(b.AttrTemplate, null);//, b.TemplateOverloads.GetTemplateOverloadsDictonary());
+                    MScriptManager.Execute(Path.GetDirectoryName(Application.ExecutablePath),
+                        commands, new ModuleFinishedHandler(this._moduleFinishedCallback));
                 }
             }
         }
@@ -353,7 +384,8 @@ namespace ProfileCut
             p.Controls.Add(l);
             l.Text = text;
             l.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            l.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            l.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, 
+                System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             l.AutoSize = true;
             int labWidth = l.Width;
             l.AutoSize = false;
@@ -386,7 +418,7 @@ namespace ProfileCut
             owner.Controls.Add(p);
             p.Parent = owner;
 
-            return p.Width;
+            return p.Width + x;
         }
 
         private void _navButtonsEnable(Control owner)
@@ -465,17 +497,17 @@ namespace ProfileCut
             do
             {
                 obj = root.GetNavigatorPointer();
-				string ready;
-				obj.GetAttr("READY", false, out ready);
+                string ready;
+                obj.GetAttr("READY", false, out ready);
 
-				//if (ready == "1")
-				//{
-					RMasterItem item = new RMasterItem();
-					item.Title = obj.Format(_conf.MasterItemTemplate);
-					item.Object = obj;
-					listBoxOptimizations.Items.Add(item);
-				//}
-                
+                //if (ready == "1")
+                //{
+                RMasterItem item = new RMasterItem();
+                item.Title = obj.Format(_conf.MasterItemTemplate, null);
+                item.Object = obj;
+                listBoxOptimizations.Items.Add(item);
+                //}
+
             } while (obj.Id != root.Navigate(0, NAV_DIRECTION.DOWN).Id);
         }
 
@@ -563,5 +595,17 @@ namespace ProfileCut
                 }
             }
         }
+        private string _getEmptyHtml()
+        {
+            return "<!DOCTYPE html><html><head></head><body></body>";
+        }
+
+        private void buttonHideOptimizationsList_Click(object sender, EventArgs e)
+        {
+            if (splitContainer.Panel1Collapsed)
+                splitContainer.Panel1Collapsed = false;
+            else
+                splitContainer.Panel1Collapsed = true;
+        }     
     }
 }

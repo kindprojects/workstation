@@ -19,7 +19,7 @@ namespace Repository
         {
 			string modified = this._genLocalDBPathIfLocalDB(connectionString);
 
-			_db = new FbConnection(connectionString); // отказались от использования модифицированного пути, слишком много нюансов. Алиас на сервере надежнее и правильнее.
+			_db = new FbConnection(modified); // отказались от использования модифицированного пути, слишком много нюансов. Алиас на сервере надежнее и правильнее.
         }
 
         #region Service
@@ -212,21 +212,21 @@ namespace Repository
         {
             Dictionary<string, string> ret = new Dictionary<string, string>();
 
-            //string[] paramList = { "objectid", objectId.ToString() };
-            //List<Dictionary<string, string>> q = _sqlSelect(
-            //    "select a.attributecode, coalesce(oa.blobval, oa.val) as val "
-            //    + " from object_attributes oa"
-            //    + " left join attributes a on a.attributeid = oa.attributeid"
-            //    + " where oa.objectid = @objectid"
-            //    , paramList);
-
             string[] paramList = { "objectid", objectId.ToString() };
             List<Dictionary<string, string>> q = _sqlSelect(
-                "select a.attributecode, oa.val as val "
+                "select a.attributecode, coalesce(oa.blobval, oa.val) as val "
                 + " from object_attributes oa"
                 + " left join attributes a on a.attributeid = oa.attributeid"
                 + " where oa.objectid = @objectid"
                 , paramList);
+
+            //string[] paramList = { "objectid", objectId.ToString() };
+            //List<Dictionary<string, string>> q = _sqlSelect(
+            //    "select a.attributecode, oa.val as val "
+            //    + " from object_attributes oa"
+            //    + " left join attributes a on a.attributeid = oa.attributeid"
+            //    + " where oa.objectid = @objectid"
+            //    , paramList);
 
             foreach (Dictionary<string, string> row in q)
             {

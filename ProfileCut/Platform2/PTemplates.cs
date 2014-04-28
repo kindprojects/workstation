@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 using System.IO;
 using System.Text.RegularExpressions;
-
 using ModuleConnect;
 using System.Windows.Forms;
+using System.ComponentModel;
 
 namespace Platform2
 {
@@ -54,8 +54,8 @@ namespace Platform2
                 return NotFoundMarks.attrs.Begin + text + NotFoundMarks.attrs.End;
         }
 
-        public string Format(string template)
-        {
+        public string Format(string template, BackgroundWorker worker)
+        {           
             List<PTemplateAttr> attrs;
             List<PTemplateCollection> fcollects;
 
@@ -94,7 +94,11 @@ namespace Platform2
                         if (cobj.GetAttr(fcollect.templateName, true, out tmp))
                         {
                             string carret = "";
-                            string format = cobj.Templates.Format(tmp);
+
+                            if (worker != null && worker.CancellationPending)
+                                return "";                            
+
+                            string format = cobj.Templates.Format(tmp, worker);
                             if (fcollect.endsWithNewLine)
                             {
                                 carret = "\n";
@@ -119,13 +123,20 @@ namespace Platform2
             return template;
         }
 
-        public string TransformText(string templateName)
+        public string TransformText(string templateName, BackgroundWorker worker)
         {       
             string template = "";
             if (OwnerObject.GetAttr(templateName, true, out template))
-                return Format(template);
-            else 
+            {
+                if (worker != null && worker.CancellationPending)
+                    return "";
+                
+                return Format(template, worker);
+            }
+            else
+            {
                 return NotFoundMarks.attrs.Begin + templateName + NotFoundMarks.attrs.End; 
+            }   
         }
 
         private void _parse(string template, out List<PTemplateAttr> attrs, out List<PTemplateCollection> fcollects)

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 
 using Repository;
+using System.ComponentModel;
 
 namespace Platform2
 {
@@ -27,9 +28,9 @@ namespace Platform2
         
         IPObject GetNavigatorPointer();
         
-        string FindAndFormat(string attrName);
+        string FindAndFormat(string attrName, BackgroundWorker worker);
         
-        string Format(string templateName);
+        string Format(string templateName, BackgroundWorker worker);
         
         void SaveAttr(string name);
     }

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 
 using Repository;
+using System.ComponentModel;
 
 namespace Platform2
 {
@@ -285,7 +286,7 @@ namespace Platform2
                 return _navigator.Pointer;
         }     
 
-        public string FindAndFormat(string attrName)//, Dictionary<string,string>overloads)
+        public string FindAndFormat(string attrName, BackgroundWorker worker)//, Dictionary<string,string>overloads)
         {
             string ret = "";
 
@@ -301,7 +302,7 @@ namespace Platform2
                         if (template != "")
                         {
                             //ret = Templates.Format(template, formatObj, overloads);//, ref dummy, false);
-                            ret = formatObj.Templates.Format(template);
+                            ret = formatObj.Templates.Format(template, worker);
                         }
                     }
                     else
@@ -363,9 +364,9 @@ namespace Platform2
             return true;
         }
 
-        public string Format(string templateName)
+        public string Format(string templateName, BackgroundWorker worker)
         {
-            return this.Templates.TransformText(templateName);
+            return this.Templates.TransformText(templateName, worker);
         }
 
         public void SaveAttr(string name)
