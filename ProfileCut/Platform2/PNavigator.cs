@@ -10,26 +10,25 @@ using System.Text.RegularExpressions;
 
 namespace Platform2
 {
-    public enum NAV_DIRECTION { UP, DOWN };
-    internal class PNavigator
+    public class PNavigator : IPNavigator
     {
         private PNavigatorPath _path;
 
-        private PObject _owner;
+        private IPObject _base;
 
         private PObject _pointer;
         
-        public PObject Pointer
+        public IPObject Pointer
         {
             set
             {
-                if (value != null && _owner == null)
+                if (value != null && _base == null)
                 {
                     throw new Exception("Текущий объект не задан");
                 }
-                else if (value.IsChildOf(_owner))
+                else if (value.IsChildOf(_base))
                 {
-                    PNavigatorPath path = this._owner.GetPathTo(value);
+                    PNavigatorPath path = this._base.GetPathTo(value);
 
                     if (path.Parts.Count() > _path.Parts.Count())
                         throw new Exception("Попытка установить указатель навигатора за пределы описанного в нём пути");
@@ -64,19 +63,19 @@ namespace Platform2
         public delegate void NavigatedEventHandler(object sender, IPObject o);
         //public event NavigatedEventHandler OnNavigated;
 
-        internal PNavigator(PObject owner)
+        public PNavigator(IPObject owner)
         {
-            _owner = owner;
+            _base = owner;
             _path = new PNavigatorPath();
         }
         
-        public PObject GetObjectByDepth(int depth)
+        public IPObject GetObjectAtPathLevel(int depth)
         {
             if (depth >= _path.Parts.Count())
                 throw new Exception(String.Format("Уровень {0} не существует", depth));
 
             // объект которому пренадлежит навигатор
-            PObject o = this._owner;
+            IPObject o = this._base;
             for (int ii = 0; ii <= depth; ii++)
             {
                 PCollection collection = o.GetCollection(_path.Parts[ii].Level, false);
@@ -88,7 +87,27 @@ namespace Platform2
 
             return o;
         }
-
+		public void ParseNavigationSetup(string path, out PNavigatorPath navPath, out List<string> levelsAliases)
+		{
+			levelsAliases = new List<string>();
+			navPath = new PNavigatorPath();
+			try
+			{
+				foreach (Match match in Regex.Matches(path, @"([^:/\\]+(?::[^:/\\]+)?)"))
+				{
+					MatchCollection partMatches = Regex.Matches(match.Groups[1].ToString(), @"([^:]+)(?::([^:]+))?", RegexOptions.IgnoreCase);
+					foreach (Match partMatch in partMatches)
+					{
+						navPath.Parts.Add(new PNavigatorPathPart(partMatch.Groups[1].Value.ToString(), 0));
+						levelsAliases.Add(partMatch.Groups[2].Value.ToString());
+					}
+				}
+			}
+			catch (Exception ex)
+			{
+				throw new Exception("Неверный формат пути. " + ex.Message);
+			}
+		}
         // collection:index/collection:index/...
         private void _parseToLevels(string path)
         {
@@ -120,12 +139,12 @@ namespace Platform2
 
         private void _updatePointer()
         {
-            if (_owner == null)
+            if (_base == null)
             {
                 throw new Exception("Текущий объект не задан");
             }
 
-            PObject owner = _owner;
+            PObject owner = _base;
             for (int ii = 0; ii < _path.Parts.Count(); ii++)
             {
                 string level = _path.Parts[ii].Level;
@@ -157,9 +176,9 @@ namespace Platform2
             }
         }
     
-        public PObject Navigate(int depth, NAV_DIRECTION dir)
+        public IPObject Navigate(int depth, NAV_DIRECTION dir)
         {
-            if (_owner == null)
+            if (_base == null)
                 throw new Exception("Текущий объект не задан");
 
             int cnt = depth + 1;
@@ -227,7 +246,7 @@ namespace Platform2
 
         private bool _validatePath(List<int> path, int toIndex)
         {
-            PObject o = _owner;
+            PObject o = _base;
             if (o == null)
                 throw new Exception("Текущий объект не задан");
 

@@ -3,18 +3,20 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Repository;
 
 namespace Platform2
 {
     internal class PCollection
-    {        
+    {
         internal string Name { set; get; }
 
         internal PObject OwnerObject;
 
+		private bool _deferredLoad;
+
         private List<PObject> _items { set; get; }
-        
-        private bool _deferredLoad;
+		
         private bool _loaded;
 
         internal PCollection(PObject owner, string name, bool deferredLoad)
@@ -22,13 +24,19 @@ namespace Platform2
             _items = new List<PObject>();
             OwnerObject = owner;
             Name = name;
-            _deferredLoad = deferredLoad;
             _loaded = false;
+			_deferredLoad = deferredLoad;
+
+			if (!deferredLoad)
+			{
+				this.FillWithObjects(deferredLoad);
+			}
         }
 
         internal PObject InsertObject(PObject obj)
         {
             _items.Add(obj);
+			obj.ownerCollection = this;
             return obj;
         }
 
@@ -36,10 +44,11 @@ namespace Platform2
         {
             _loadIfNotLoaded();
 
-            if (_items.Count() > 0)
+			int cnt = _items.Count();
+            if (index >= 0 && index < cnt)
                 return _items[index];
-            else 
-                return null;
+            else
+				throw new Exception(string.Format("Запрошен объект с несуществующим индексом ({0}), коллекция {1}", index, this.Name));
         }
 
         internal int Count()
@@ -51,12 +60,25 @@ namespace Platform2
 
         internal void _loadIfNotLoaded()
         {
-            if (_deferredLoad && !_loaded)
+            if (!_loaded)
             {
-                if (this.OwnerObject.FillCollection(this))
-                    _loaded = true;
+				this.FillWithObjects(this._deferredLoad);
+				_loaded = true;
             }
         }
+
+		internal void FillWithObjects(bool deferredLoad)
+		{
+			if (!_loaded)
+			{
+				List<int> lst = OwnerObject.storage.ListCollectionObjects(OwnerObject.Id, this.Name);
+				foreach (int id in lst)
+				{
+					this.InsertObject(new PObject(OwnerObject.storage, id, OwnerObject.objectsIndex, deferredLoad));
+				}
+				_loaded = true;
+			}
+		}
 
         internal PObject FindObjectByAttrValue(string name, string value)
         {

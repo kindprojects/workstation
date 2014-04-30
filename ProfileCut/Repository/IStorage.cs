@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Repository
 {
-    public interface ISRepository
+    public interface IStorage
     {
         int RootObjectId(string modelCode, int ifNotFound);
         
@@ -16,6 +16,6 @@ namespace Repository
         
         List<int> ListCollectionObjects(int objectId, string collName);
 
-        void SaveAttribute(int objectId, string name, string value);
+        void SetAttribute(int objectId, string name, string value);
     }
 }

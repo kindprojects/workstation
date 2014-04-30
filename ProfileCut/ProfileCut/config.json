@@ -17,10 +17,20 @@
 				"Text": "Печать",
 				"AttrTemplate": "optStickers",
 				"TemplateOverloads":
-				{
-					"PrinterName": "ZDesigner GK420d (копия 1)"
-				}
+				[
+					{
+						"Param" : "PrinterName",
+						"Value" : "ZDesigner GK420d (копия 1)"
+					}
+				]
 			}
 		]
-	}
+	},
+	"HostVars":
+	[
+		{
+			"Param" : "test",
+			"Value" : "test value"
+		}
+	]
 }

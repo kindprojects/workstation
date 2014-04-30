@@ -16,8 +16,6 @@ namespace ModuleNamespace
     {
         List<string> _problems = new List<string>();
         Printer _printer;
-        private PrintDocument _pd;
-        private MPage _page;
         
         public ModuleClass(Dictionary<string,string>moduleParams)
         {
@@ -173,9 +171,10 @@ namespace ModuleNamespace
             return s.TrimEnd();
         }
 
-        public string ModuleQuery(string text)
+        public bool QueryValue(string paramName, bool caseSensitive, out string result)
         {
-            return "%Not implement%";
+			result = null;
+			return false;
         }
     }
 }

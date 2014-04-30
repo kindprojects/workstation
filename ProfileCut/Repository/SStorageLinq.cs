@@ -10,7 +10,7 @@ using System.Data;
 
 namespace Repository
 {
-    class SStorageLinq : ISRepository
+    class SStorageLinq : IStorage
     {
         private FbConnection _db;
         private DataSet _ds;
@@ -170,7 +170,7 @@ namespace Repository
             return ret;
         }
 
-        public void SaveAttribute(int objectId, string name, string value)
+        public void SetAttribute(int objectId, string name, string value)
         {
             string[] paramList = { "attributecode", name };
 

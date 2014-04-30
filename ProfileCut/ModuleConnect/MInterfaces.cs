@@ -7,12 +7,11 @@ using System.Drawing;
 
 namespace ModuleConnect
 {
-    public interface IModule
+    public interface IModule : IMValueGetter
     {
         bool Execute(string commands);
         void AddProblem(string description);
-        string CheckProblems();
-        string ModuleQuery(string text);
+		string CheckProblems();
     }
     
     //public interface IStickerPrinter : IBaseFunction

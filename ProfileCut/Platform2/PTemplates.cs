@@ -12,77 +12,56 @@ using System.Windows.Forms;
 
 namespace Platform2
 {
-    internal class PTemplates
+    static public class PTemplates
     {
-        public PNotFoundMarks NotFoundMarks;
-        public PObject OwnerObject { set; get; }
-
-        public PTemplates(PObject ownerObject)
+        private static bool _queryToModule(string moduleName, string varName, out string value)
         {
-            NotFoundMarks = new PNotFoundMarks();
-            OwnerObject = ownerObject;            
-        }
-        
-        private string _queryToOutside(string module, string text)
-        {
-            if (module.ToLower().Trim() == "host")
-                return _queryToHost(text);
-            else
-                return _queryToModule(module, text);
-        }
-
-        private string _queryToHost(string text)
-        {
-            string response = this.OwnerObject.Host.QueryToHost(text);
-            if (response != null)
-                return response;
-            else
-                return NotFoundMarks.attrs.Begin + text + NotFoundMarks.attrs.End;
-        }
-
-        private string _queryToModule(string moduleName, string text)
-        {
-            string response = null;
             string modulesDir = Path.GetDirectoryName(Application.ExecutablePath);
             MConnect connect = new MConnect(Path.Combine(modulesDir, moduleName));
             IModule module = connect.GetModuleInterface(null);
 
-            response = module.ModuleQuery(text);
-            if (response != null)
-                return response;
-            else
-                return NotFoundMarks.attrs.Begin + text + NotFoundMarks.attrs.End;
+            return module.QueryValue(varName, true, out value);
         }
 
-        public string Format(string template)
+        public static string FormatObject(IPObject obj, string template, IMValueGetter host, IMValueGetter overloads)
         {
             List<PTemplateAttr> attrs;
             List<PTemplateCollection> fcollects;
 
             _parse(template, out attrs, out fcollects);
 
-            template = template.Replace("%id%", OwnerObject.Id.ToString());
+            template = template.Replace("%id%", obj.Id.ToString());
             foreach (var attr in attrs)
             {
                 string val = "";
-                if (attr.Module == "")
+				string moduleName = attr.Module.Trim().ToLower();
+				string attrName = attr.Name;
+
+				bool valFound = false;
+                
+				if (moduleName == "")
                 {
-                    if (!OwnerObject.GetAttr(attr.Name, true, out val))
-                    {
-                        val = NotFoundMarks.attrs.Begin + attr.Name + NotFoundMarks.attrs.End;
-                    }
+					if (overloads == null || !overloads.QueryValue(attrName, true, out val))
+						valFound = obj.GetAttr(attr.Name, true, out val);
                 }
-                else
+                else if (moduleName == "host")
                 {
-                    val = _queryToOutside(attr.Module, attr.Name);
-                }
+					if (host != null)
+						valFound = host.QueryValue(attr.Name, false, out val);
+				}
+				else
+				{
+					valFound = _queryToModule(moduleName, attrName, out val);
+				}
+				if (!valFound)
+					val = "<" + attrName + ">";
 
                 template = template.Replace(attr.OperatorText, val);
             }
 
             foreach (var fcollect in fcollects)
             {
-                PCollection coll = OwnerObject.GetCollection(fcollect.collectionName, false);
+                PCollection coll = obj.GetCollection(fcollect.collectionName);
                 if (coll != null)
                 {
                     string val = "";
@@ -92,47 +71,22 @@ namespace Platform2
 
                         string tmp = "";
                         if (cobj.GetAttr(fcollect.templateName, true, out tmp))
-                        {
-                            string carret = "";
-                            string format = cobj.Templates.Format(tmp);
-                            if (fcollect.endsWithNewLine)
-                            {
-                                carret = "\n";
-                            }
-                            else
-                            {
-                                // г.к. выпилить при следующем диплое
-                                if (format.IndexOf("PAGE") >= 0)
-                                    carret = "\n";
-                            }
-                            val += (format + carret);
-                        }
+                            val += FormatObject(cobj, tmp, host, overloads);
                         else
-                        {
-                            val += NotFoundMarks.attrs.Begin + fcollect.templateName + NotFoundMarks.attrs.End;
-                        }
+							val += "<!" + fcollect.templateName + "!>";
+						val += (fcollect.endsWithNewLine ? "\n" : "");
                     }
                     template = template.Replace(fcollect.OperatorText, val);
                 }
-            }
+            } // ToDo: может надо else что-нибудь вывести? Коллекция не найдена
 
             return template;
         }
-
-        public string TransformText(string templateName)
-        {       
-            string template = "";
-            if (OwnerObject.GetAttr(templateName, true, out template))
-                return Format(template);
-            else 
-                return NotFoundMarks.attrs.Begin + templateName + NotFoundMarks.attrs.End; 
-        }
-
-        private void _parse(string template, out List<PTemplateAttr> attrs, out List<PTemplateCollection> fcollects)
+		
+        static private void _parse(string template, out List<PTemplateAttr> attrs, out List<PTemplateCollection> fcollects)
         {
             attrs = new List<PTemplateAttr>();
             fcollects = new List<PTemplateCollection>();
-
 
             foreach (Match match in Regex.Matches(template, @"(%[^%\s\[\]<>']+%)"))
             {
@@ -204,16 +158,14 @@ namespace Platform2
 
     internal class PNotFoundMarks
     {
-        internal PTagMarks attrs;
-        internal PTagMarks collections;
+        static internal PTagMarks attrs;
+        static internal PTagMarks collections;
 
         internal PNotFoundMarks()
         {
-            attrs = new PTagMarks();
             attrs.Begin = "<";
             attrs.End = ">";
 
-            collections = new PTagMarks();
             collections.Begin = "<!";
             collections.End = "!>";
         }

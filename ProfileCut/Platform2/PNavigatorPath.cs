@@ -5,57 +5,41 @@ using System.Text;
 
 namespace Platform2
 {
-    internal class PNavigatorPart
+    public class PNavigatorPath
     {
-        internal string Level { set; get; }
-        internal int PositionInLevel { set; get; }
-        internal PNavigatorPart(string level, int positionInLevel)
-        {
-            Level = level;
-            PositionInLevel = positionInLevel;
-        }
-    }
+        public List<PNavigatorPathPart> Parts { set; get; }
 
-    internal class PNavigatorPath
-    {
-        internal List<PNavigatorPart> Parts { set; get; }
-
-        internal PNavigatorPath()
+        public PNavigatorPath()
         {
-            Parts = new List<PNavigatorPart>();
+            Parts = new List<PNavigatorPathPart>();         
         }
 
-        //public string GetStringPath()
-        //{
-        //    string ret = "";
-
-        //    for (int ii = 0; ii < Parts.Count(); ii++)
-        //    {
-        //        PNavigatorPart part = Parts[ii];
-        //        ret += part.Level + ":" + part.PositionInLevel.ToString();
-        //        if (ii < Parts.Count() - 1)
-        //        {
-        //            ret += "/";
-        //        }
-        //    }
-
-        //    return ret;
-        //}
-
-        internal int IndexOf(string level)
+        public string GetStringPath() 
         {
-            int ret = -1;
+            string ret = "";
 
             for (int ii = 0; ii < Parts.Count(); ii++)
             {
-                if (Parts[ii].Level.ToLower() == level.ToLower())
+                PNavigatorPathPart part = Parts[ii];
+                ret += part.Level + ":" + part.PositionInLevel.ToString();
+                if (ii < Parts.Count() - 1)
                 {
-                    ret = ii;
-                    break;
+                    ret += "/";
                 }
             }
 
             return ret;
         }
     }
+	public class PNavigatorPathPart
+	{
+		public string Level { set; get; }
+		public int PositionInLevel { set; get; }
+
+		public PNavigatorPathPart(string level, int positionInLevel)
+		{
+			Level = level;
+			PositionInLevel = positionInLevel;
+		}
+	}
 }

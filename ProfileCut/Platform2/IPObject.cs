@@ -10,27 +10,11 @@ namespace Platform2
     public interface IPObject
     {
         int Id { set; get; }
-
+		PCollection GetCollection(string name);
         bool GetAttr(string name, bool findInOwners, out string val);
-
-        void SetAttr(string name, string value);
-
-        IPObject Navigate(int depth, NAV_DIRECTION direction);
-        
-        IPObject Navigate(string path);
-        
-        IPObject GetObjectByDepth(int level);
-        
-        IPObject GetObjectById(int id);
-        
-        void SetNavigatorPointer(IPObject obj);
-        
-        IPObject GetNavigatorPointer();
-        
-        string FindAndFormat(string attrName);
-        
-        string Format(string templateName);
-        
-        void SaveAttr(string name);
+		bool FindAttr(string attrName, out IPObject obj, out string val);
+		void SetAttr(string name, string value);
+        void StorageUpdateAttr(string name);
+		bool IsChildOf(int objectId);
     }
 }

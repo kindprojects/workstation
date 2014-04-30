@@ -41,16 +41,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="IPHost.cs" />
+    <Compile Include="IPNavigator.cs" />
     <Compile Include="IPObject.cs" />
     <Compile Include="PCollection.cs" />
-    <Compile Include="PFb.cs" />
+    <Compile Include="PModel.cs" />
     <Compile Include="PNavigator.cs" />
     <Compile Include="PNavigatorPath.cs" />
     <Compile Include="PObject.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PTemplates.cs" />
-    <Compile Include="PXml.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ModuleConnect\ModuleConnect.csproj">

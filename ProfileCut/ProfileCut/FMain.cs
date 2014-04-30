@@ -5,6 +5,7 @@ using System.Data;
 using System.Drawing;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -13,68 +14,59 @@ using Awesomium.ComponentModel;
 using Awesomium.Core;
 using Awesomium.Web;
 using Awesomium.Windows;
-using System.Text.RegularExpressions;
 
 using ModuleConnect;
+using Repository;
 using Platform2;
 
 namespace ProfileCut
 {
-    public partial class FMain : Form, IPHost
+    public partial class FMain : Form, IMValueGetter
     {
         private JSObject _jsObject;
 
         private RAppConfig _conf;
 
-        private PFb _viewModel;
+        private PModel _data;
 
-        private IPObject _master;
+		protected IPObject master { set { master = setMaster(value); } get; }
+
+		protected IPNavigator navMaster;
 
         private int _previousId;
 
-        private RNavigatorPath _startNavigatorPath;
+        private PNavigatorPath _navigatorPath;
 
-        private List<string> _buttonNames;
-
-        private bool _domIsReady;
-
-        private RPrinterButton _printButtonPress = null;
+        private bool _domIsBusy;
 
         public FMain()
         {
             InitializeComponent();
-            _startNavigatorPath = new RNavigatorPath();
 
-            _buttonNames = new List<string>();
+			List<string> navButtonsCaptions;
 
-            _conf = new RAppConfig().Load();
-            _parseNavigation(_conf.Navigation);
-            _createButtons(_buttonNames);
+			_conf = RAppConfig.Load(Path.GetDirectoryName(Application.ExecutablePath) + "\\config.json");
 
-            _viewModel = new PFb(_conf.ConnectionString, _conf.ModelCode, true, this);
+            _data = new PModel(new SStorageFB(_conf.ConnectionString), _conf.ModelCode, true);
+			navMaster = new PNavigator(_data.Root);
+			master = navMaster.Navigate(0, NAV_DIRECTION.STAY);
 
-            _master = _viewModel.Root.Navigate(_conf.MasterCollectionPath + ":0");
+			IPNavigator.ParseNavigationSetup(_conf.Navigation, out _navigatorPath, out navButtonsCaptions);
 
-            _navButtonsDisable(panelNavigator);
-            _printButtonsDisable(panelPrinterButtons);
+			_createNavButtons(panelNavigator, navButtonsCaptions);
 
-            _domIsReady = true;
+            enableChildControls(panelNavigator, false);
+            enableChildControls(panelAppCommands, false);
+
+            _domIsBusy = false;
 
             this.Text = "Распил " + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
         }
 
-        public string QueryToHost(string text)
+        public bool QueryValue(string varName, bool caseSensitive, out string value)
         {
-            string ret = null;
-            if (text.ToLower() == "printername")
-            {
-                if (_printButtonPress != null)
-                {
-                    ret = _printButtonPress.TemplateOverloads.PrinterName;
-                }
-            }
-
-            return ret;
+			value = null;
+            return false;
         }
 
         private void FMain_Load(object sender, EventArgs e)
@@ -89,55 +81,36 @@ namespace ProfileCut
 
         private void listBoxOptimizations_SelectedIndexChanged(object sender, EventArgs e)
         {
-            ListBox list_box = (sender as ListBox);
-
             // нельзя грузить html в awesomium если загрузка уже идет
-            if (_domIsReady)
+            if (!_domIsBusy)
             {
-                _loadHtml();
+				RMasterItem item = listBoxOptimizations.SelectedItem as RMasterItem;
+				if (item != null && item != this.master)
+				{
+					this.master = item.Object;
+				}
             }
         }
 
-        // загружает в awesomium html выбранной оптимизации
-        private void _loadHtml()
-        {
-            if (listBoxOptimizations.SelectedItem != null)
-            {
-                IPObject obj = (listBoxOptimizations.SelectedItem as RMasterItem).Object;
-
-                if (obj != null)
-                {
-                    _domIsReady = false;
-
-                    _master = obj;
-                    string html = _master.Format(_conf.DetailTemplate);
-                    webControlDetails.LoadHTML(_addScriptsToBody(html));
-                }
-            }
-        }
+		protected IPObject setMaster(IPObject newMaster){
+			if (_domIsBusy)
+				throw new Exception(@"DOM занят!");
+			_domIsBusy = true;
+			_loadOptHtml(newMaster);
+			return newMaster;
+		}
 
         // загружает html только если выбранная оптимизация отлична от текущей
-        private void _reloadHtml()
-        {
-            if (listBoxOptimizations.SelectedItem != null)
-            {
-                IPObject obj = (listBoxOptimizations.SelectedItem as RMasterItem).Object;
+        private void _loadOptHtml(IPObject obj)
+		{
+			string template;
+			if (obj.GetAttr(_conf.DetailTemplate, true, out template))
+				throw new Exception(string.Format(@"Атрибут {0} не найден!", _conf.DetailTemplate));
+			string html = PTemplates.FormatObject(obj, template, this, null);
 
-                if (obj != null)
-                {
-                    if (obj.Id != _master.Id)
-                    {
-                        if (_domIsReady)
-                        {
-                            _domIsReady = false;
+			html = _addScriptsToBody(html);
 
-                            _master = obj;
-                            string html = _master.Format(_conf.DetailTemplate);
-                            webControlDetails.LoadHTML(_addScriptsToBody(html));
-                        }
-                    }
-                }
-            }
+			webControlDetails.LoadHTML(html);
         }
 
         private void _updateActiveHtmlElement(int deselectObjectId, int selectObjectId, bool doScroll)
@@ -236,15 +209,20 @@ namespace ProfileCut
         {
             if (args.Arguments.Count() > 0 && !args.Arguments[0].IsUndefined)
             {
-                string id = args.Arguments[0];
+				if (args.Arguments.Length <= 0)
+					throw new Exception(@"_jsBodyClickHandler(args.lenght == 0) должен быть id объекта");
+				string arg0 = args.Arguments[0];
+				int id = Convert.ToInt32(arg0);
                 //ABaseObject obj = _master.GetObjectById(Convert.ToInt32(id));
-                IPObject obj = _master.GetObjectById(Convert.ToInt32(id));
+				IPObject obj;
+				if (!_data.objectsIndex.TryGetValue(id, out obj))
+					throw new Exception(string.Format(@"Не удалось найти объект по ID={0}", id));
 
-                _master.SetNavigatorPointer(obj);
+				navMaster.Pointer = obj; // master.SetNavigatorPointer(obj);
                 _updateActiveHtmlElement(_previousId, obj.Id, false);
                 _previousId = obj.Id;
 
-                _printButtonsEnable(panelPrinterButtons);
+                updateAppCommandsAvailability(panelAppCommands);
             }
         }
 
@@ -253,82 +231,62 @@ namespace ProfileCut
             _jsObject = webControlDetails.CreateGlobalJavascriptObject("app");
             _jsBind();
 
-            var obj = _master.Navigate(_startNavigatorPath.GetStringPath());
+            var obj = master.Navigate(_navigatorPath.GetStringPath());
             _updateActiveHtmlElement(0, obj.Id, true);
             _previousId = obj.Id;
             _navButtonsEnable(panelNavigator);
 
-            _domIsReady = true;
+            _domIsBusy = false;
 
             // загрузим новую оптимизацию, если выбранная оптимизация отлична от текущей
             // такая ситуация возможна при быстром перемещении по списку оптимизаций          
             //_reloadHtml();
 
-            _printButtonsEnable(panelPrinterButtons);
+            updateAppCommandsAvailability(panelAppCommands);
         }
 
-        private void _parseNavigation(string path)
-        {
-            try
-            {
-                foreach (Match match in Regex.Matches(path, @"([^:/\\]+(?::[^:/\\]+)?)"))
-                {
-                    MatchCollection partMatches = Regex.Matches(match.Groups[1].ToString(), @"([^:]+)(?::([^:]+))?", RegexOptions.IgnoreCase);
-                    foreach (Match partMatch in partMatches)
-                    {
-                        _startNavigatorPath.Parts.Add(new RNavigatorPartPath(partMatch.Groups[1].Value.ToString(), 0));
-                        _buttonNames.Add(partMatch.Groups[2].Value.ToString());
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                throw new Exception("Не верный формат пути. " + ex.Message);
-            }
-        }
-
-        private void _createButtons(List<string> names)
+		private void _createNavButtons(Control owner, List<string> names)
         {
             int depth = 0;
             int x = 0;
             foreach (string name in names)
             {
-                x = _createDepthButtons(panelNavigator, depth, name, x);
+				x = _createLevelButtons(owner, depth, name, x);
                 depth++;
             }
-
-            if (_conf.Commands != null)
-            {
-                x = 0;
-                for (int ii = _conf.Commands.Buttons.Count() - 1; ii >= 0; ii--)
-                {
-                    x = _createPrintButton(panelPrinterButtons, _conf.Commands.Buttons[ii], x);
-                }
-            }
         }
-        private int _createPrintButton(Control owner, RAppButton config, int x)
+		private void _createAppCommandsButtons(Control owner, List<RAppCommand> cmdList)
+		{
+			int x = 0;
+			for (int ii = cmdList.Count() - 1; ii >= 0; ii--)
+			{
+				RAppCommand cmd = cmdList[ii];
+				RAppCommandButton b = new RAppCommandButton(cmd);
+				b.Text = cmd.Text;
+				b.AutoSize = true;
+				b.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+				b.Height = owner.Height;
+				b.Left = owner.Width - b.Width - x;
+				b.Click += new System.EventHandler(this._commandButtonClick);
+				owner.Controls.Add(b);
+				x += b.Width + 2;
+			}
+		}
+        private int _createCommandButton(Control owner, RAppCommand command, int x)
         {
-            RPrinterButton b = new RPrinterButton(config);
-            b.AutoSize = true;
-            b.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            b.Height = owner.Height;
-            b.Left = owner.Width - b.Width - x;
-            b.Click += new System.EventHandler(this._printButtonClick);
-
-            owner.Controls.Add(b);
 
             return b.Width + 2;
         }
 
-        private void _printButtonClick(object sender, EventArgs e)
+        private void _commandButtonClick(object sender, EventArgs e)
         {
-            RPrinterButton b = (RPrinterButton)sender;
+            RAppCommandButton b = (RAppCommandButton)sender;
             _printButtonPress = b;
 
-            if (_master != null)
+            if (master != null && b.AttrTemplate != "")
             {
-                IPObject pointer = _master.GetNavigatorPointer();
-                if (pointer != null && b.AttrTemplate != "")
+                IPObject pointer = master.GetNavigatorPointer();
+                if (pointer != null)
                 {
 					string commands = pointer.FindAndFormat(b.AttrTemplate);//, b.TemplateOverloads.GetTemplateOverloadsDictonary());
 					MScriptManager.Execute(Path.GetDirectoryName(Application.ExecutablePath),
@@ -342,7 +300,7 @@ namespace ProfileCut
 
         }
 
-        private int _createDepthButtons(Control owner, int depth, string text, int x)
+        private int _createLevelButtons(Control owner, int depthTag, string text, int x)
         {
             const int btnWidth = 40;
 
@@ -361,7 +319,7 @@ namespace ProfileCut
             l.Height = owner.Height;
             p.Width = labWidth + 2 * btnWidth + 1;
 
-            RNavigatorButton b = new RNavigatorButton(depth, NAV_DIRECTION.UP);
+            RNavigatorButton b = new RNavigatorButton(depthTag, NAV_DIRECTION.UP);
             p.Controls.Add(b);
             b.Width = btnWidth;
             b.Height = owner.Height;
@@ -372,7 +330,7 @@ namespace ProfileCut
             b.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
             b.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
 
-            b = new RNavigatorButton(depth, NAV_DIRECTION.DOWN);
+            b = new RNavigatorButton(depthTag, NAV_DIRECTION.DOWN);
             p.Controls.Add(b);
             b.Width = btnWidth;
             b.Height = owner.Height;
@@ -388,53 +346,41 @@ namespace ProfileCut
 
             return p.Width;
         }
-
-        private void _navButtonsEnable(Control owner)
+        protected void enableChildControls(Control owner, bool enabled)
         {
-            owner.Enabled = true;
-            foreach (Control button in owner.Controls)
+            owner.Enabled = enabled;
+            foreach (Control ctrl in owner.Controls)
             {
-                button.Enabled = true;
-            }
-        }
-        private void _navButtonsDisable(Control owner)
-        {
-            owner.Enabled = false;
-            foreach (Control button in owner.Controls)
-            {
-                button.Enabled = false;
+                ctrl.Enabled = enabled;
             }
         }
 
-        private void _printButtonsEnable(Control owner)
+        private void updateAppCommandsAvailability(Control owner)
         {
-            foreach (RPrinterButton button in owner.Controls)
+            foreach (Control ctrl in owner.Controls)
             {
-                IPObject o = _getObjectWihtAttrTempate(button.AttrTemplate);
-                if (o != null)
-                    button.Enabled = true;
-                else
-                    button.Enabled = false;
-            }
-        }
-
-        private void _printButtonsDisable(Control owner)
-        {
-            foreach (RPrinterButton button in owner.Controls)
-            {
-                button.Enabled = false;
+				if (ctrl is RAppCommandButton)
+				{
+					RAppCommandButton btn = (RAppCommandButton)ctrl;
+					IPObject obj;
+					string val;
+					if (this.master != null)
+						btn.Enabled = this.master.FindAttr(btn.appCommand.AttrTemplate, out obj, out val);
+					else
+						btn.Enabled = false;
+				}
             }
         }
 
         private void _navButtonClick(object sender, EventArgs e)
         {
             RNavigatorButton b = (RNavigatorButton)sender;
-            IPObject obj = _master.Navigate(b.Depth, b.Direction);
+            IPObject obj = master.Navigate(b.Depth, b.Direction);
 
             _updateActiveHtmlElement(_previousId, obj.Id, false);
             _previousId = obj.Id;
 
-            _printButtonsEnable(panelPrinterButtons);
+            updateAppCommandsAvailability(panelAppCommands);
         }
 
         private void buttonRefresh_Click(object sender, EventArgs e)
@@ -446,8 +392,8 @@ namespace ProfileCut
         {
             object selectedItem = this.listBoxOptimizations.SelectedItem;
 
-            _viewModel = new PFb(_conf.ConnectionString, _conf.ModelCode, true, this);
-            _viewModel.Root.Navigate(_conf.MasterCollectionPath + ":0");
+            _data = new PModel(_conf.ConnectionString, _conf.ModelCode, true, this);
+            _data.Root.Navigate(_conf.MasterCollectionPath + ":0");
             _refreshOptimizationList();
 
             if (selectedItem != null)
@@ -460,7 +406,7 @@ namespace ProfileCut
         private void _refreshOptimizationList()
         {
             listBoxOptimizations.Items.Clear();
-            IPObject root = _viewModel.Root;
+            IPObject root = _data.Root;
             IPObject obj;
             do
             {
@@ -502,9 +448,9 @@ namespace ProfileCut
         {
             IPObject ret = null;
 
-            for (int ii = _startNavigatorPath.Parts.Count() - 1; ii >= 0; ii--)
+            for (int ii = _navigatorPath.Parts.Count() - 1; ii >= 0; ii--)
             {
-                IPObject obj = _master.GetObjectByDepth(ii);
+                IPObject obj = master.GetObjectAtNavigatorPathLevel(ii);
                 string attrVal = "";
                 if (obj.GetAttr(attrTemplate, false, out attrVal))
                 {
@@ -521,11 +467,11 @@ namespace ProfileCut
             if (ret == null)
             {
                 string masterAttrVal = "";
-                if (_master.GetAttr(attrTemplate, false, out masterAttrVal))
+                if (master.GetAttr(attrTemplate, false, out masterAttrVal))
                 {
                     if (masterAttrVal != null && masterAttrVal != "")
                     {
-                        ret = _master;
+                        ret = master;
                     }
                 }
             }
@@ -538,17 +484,17 @@ namespace ProfileCut
             if (listBoxOptimizations.SelectedItem != null)
             {
                 string attr = "";
-                if (_master.GetAttr("CUTOPT", false, out attr))
+                if (master.GetAttr("CUTOPT", false, out attr))
                 {
                     if (attr == "")
-                        _master.SetAttr("CUTOPT", "#");
+                        master.SetAttr("CUTOPT", "#");
                     else
-                        _master.SetAttr("CUTOPT", "");
+                        master.SetAttr("CUTOPT", "");
                 }
                 else
-                    _master.SetAttr("CUTOPT", "#");
+                    master.SetAttr("CUTOPT", "#");
 
-                _master.SaveAttr("CUTOPT");
+                master.StorageUpdateAttr("CUTOPT");
 
                 int index = listBoxOptimizations.SelectedIndex;
                 listBoxOptimizations.SelectedIndexChanged -= new System.EventHandler(this.listBoxOptimizations_SelectedIndexChanged);

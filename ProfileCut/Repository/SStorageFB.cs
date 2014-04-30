@@ -11,7 +11,7 @@ using System.Data;
 
 namespace Repository
 {
-    class SStorageFB : ISRepository
+    public class SStorageFB : IStorage
     {        
         private FbConnection _db;
 
@@ -268,7 +268,7 @@ namespace Repository
             return ret;
         }
 
-        public void SaveAttribute(int objectId, string name, string value)
+        public void SetAttribute(int objectId, string name, string value)
         {
             string[] paramList = { "attributecode", name };
 
@@ -297,8 +297,8 @@ namespace Repository
                     "update or insert into object_attributes (attributeid, objectid, val) values (@attributeid, @objectid, @val) returning objectid",
                     insParamList);
             }
-        }      
+        }
 
-        #endregion        
+        #endregion
     }
 }
