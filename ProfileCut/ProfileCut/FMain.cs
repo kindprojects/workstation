@@ -29,9 +29,19 @@ namespace ProfileCut
 
         private PModel _data;
 
-		protected IPObject master { set { master = setMaster(value); } get; }
+		protected IPObject master {
+			set {
+				try{
+					master = setMaster(value);
+				}finally{
+					int i = listBoxOptimizations.Items.IndexOf(master);
+					if (i >= 0 && i != listBoxOptimizations.SelectedIndex)
+						listBoxOptimizations.SelectedIndex = i;
+				}
+			} get;
+		}
 
-		protected IPNavigator navMaster;
+		protected PNavigator navMaster;
 
         private int _previousId;
 
@@ -43,25 +53,34 @@ namespace ProfileCut
         {
             InitializeComponent();
 
-			List<string> navButtonsCaptions;
-
+			// инициализация внутренних переменных
+			_domIsBusy = false;
+			this.Text = "Распил " + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
+			
+			// загрузка конфигурации
 			_conf = RAppConfig.Load(Path.GetDirectoryName(Application.ExecutablePath) + "\\config.json");
 
-            _data = new PModel(new SStorageFB(_conf.ConnectionString), _conf.ModelCode, true);
-			navMaster = new PNavigator(_data.Root);
-			master = navMaster.Navigate(0, NAV_DIRECTION.STAY);
-
-			IPNavigator.ParseNavigationSetup(_conf.Navigation, out _navigatorPath, out navButtonsCaptions);
-
+			// навигация
+			List<string> navButtonsCaptions;
+			PNavigator.ParseNavigationSetup(_conf.Navigation, out _navigatorPath, out navButtonsCaptions);
 			_createNavButtons(panelNavigator, navButtonsCaptions);
+			enableChildControls(panelNavigator, false);
+			enableChildControls(panelAppCommands, false);
 
-            enableChildControls(panelNavigator, false);
-            enableChildControls(panelAppCommands, false);
+			// загрузка модели
+            _data = new PModel(new SStorageFB(_conf.ConnectionString), _conf.ModelCode, true);
+			// установка навигатора
+			navMaster = new PNavigator(_data.Root);
+			navMaster.OnNavigated += navMaster_OnNavigated;
 
-            _domIsBusy = false;
-
-            this.Text = "Распил " + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
+			// переходим к записи по-умолчанию
+			master = navMaster.Navigate(0, NAV_DIRECTION.STAY); // может не надо?
         }
+
+		void navMaster_OnNavigated(object sender, IPObject o)
+		{
+			this.master = o; // setter сделает остальную работу
+		}
 
         public bool QueryValue(string varName, bool caseSensitive, out string value)
         {
@@ -81,21 +100,14 @@ namespace ProfileCut
 
         private void listBoxOptimizations_SelectedIndexChanged(object sender, EventArgs e)
         {
-            // нельзя грузить html в awesomium если загрузка уже идет
-            if (!_domIsBusy)
-            {
-				RMasterItem item = listBoxOptimizations.SelectedItem as RMasterItem;
-				if (item != null && item != this.master)
-				{
-					this.master = item.Object;
-				}
-            }
+			RMasterItem item = listBoxOptimizations.SelectedItem as RMasterItem;
+			if (item != null && item != this.master)
+			{
+				this.master = item.Object;
+			}
         }
 
 		protected IPObject setMaster(IPObject newMaster){
-			if (_domIsBusy)
-				throw new Exception(@"DOM занят!");
-			_domIsBusy = true;
 			_loadOptHtml(newMaster);
 			return newMaster;
 		}
@@ -106,10 +118,14 @@ namespace ProfileCut
 			string template;
 			if (obj.GetAttr(_conf.DetailTemplate, true, out template))
 				throw new Exception(string.Format(@"Атрибут {0} не найден!", _conf.DetailTemplate));
+			
 			string html = PTemplates.FormatObject(obj, template, this, null);
 
 			html = _addScriptsToBody(html);
 
+			if (_domIsBusy)
+				throw new Exception(@"DOM занят!");
+			_domIsBusy = true;
 			webControlDetails.LoadHTML(html);
         }
 

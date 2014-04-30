@@ -7,7 +7,7 @@ using Repository;
 
 namespace Platform2
 {
-    internal class PCollection
+    public class PCollection : IPCollection
     {
         internal string Name { set; get; }
 
@@ -40,7 +40,7 @@ namespace Platform2
             return obj;
         }
 
-        internal PObject GetObject(int index)
+        public IPObject GetObject(int index)
         {
             _loadIfNotLoaded();
 

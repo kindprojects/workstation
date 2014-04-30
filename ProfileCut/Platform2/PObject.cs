@@ -89,29 +89,6 @@ namespace Platform2
             return false;
         }
 
-		// ToDo: выпилить в навигатор (?)
-        internal PNavigatorPath GetPathTo(PObject toObject)
-        {
-            PNavigatorPath path = new PNavigatorPath();
-
-            if (toObject.ownerCollection == null)
-                return null;
-
-            PObject obj = toObject;
-            while (obj.ownerCollection.OwnerObject != null)
-            {
-                path.Parts.Insert(0, new PNavigatorPart(obj.ownerCollection.Name, obj.ownerCollection.IndexOf(obj)));
-                if (obj.ownerCollection.OwnerObject == this)
-                {
-                    return path;
-                }
-
-                obj = obj.ownerCollection.OwnerObject;
-            }
-            
-            return null;
-        }
-
         internal PCollection GetCollection(string name, bool createIfNotFound)
         {
 			name = name.ToLower();
@@ -127,7 +104,7 @@ namespace Platform2
 				throw new Exception(string.Format("Коллекция {0} не найдена!", name));
 			}
         }
-		public PCollection GetCollection(string name)
+		public IPCollection GetCollection(string name)
 		{
 			return this.GetCollection(name, false);
 		}

@@ -22,13 +22,9 @@ namespace Platform2
         {
             set
             {
-                if (value != null && _base == null)
+				if (value.IsChildOf(this._base.Id))
                 {
-                    throw new Exception("Текущий объект не задан");
-                }
-                else if (value.IsChildOf(_base))
-                {
-                    PNavigatorPath path = this._base.GetPathTo(value);
+                    PNavigatorPath path = this.GetPathTo(value);
 
                     if (path.Parts.Count() > _path.Parts.Count())
                         throw new Exception("Попытка установить указатель навигатора за пределы описанного в нём пути");
@@ -38,7 +34,7 @@ namespace Platform2
                     {
                         if (path.Parts[ii].Level.ToLower() != _path.Parts[ii].Level.ToLower())
                             throw new Exception("Попытка установить указатель навигатора по неверному пути");
-
+						
                         positions[ii] = path.Parts[ii].PositionInLevel;
                     }
                     // все ок, можно заполнить индексы
@@ -51,7 +47,7 @@ namespace Platform2
                 }
                 else
                 {
-                    throw new Exception("Указанный объект не принадлежит текущему");
+                    throw new Exception("Указанный объект не принадлежит корневому объекту навигатора");
                 }
             }
             get
@@ -61,7 +57,7 @@ namespace Platform2
         }
 
         public delegate void NavigatedEventHandler(object sender, IPObject o);
-        //public event NavigatedEventHandler OnNavigated;
+        public event NavigatedEventHandler OnNavigated;
 
         public PNavigator(IPObject owner)
         {
@@ -78,7 +74,7 @@ namespace Platform2
             IPObject o = this._base;
             for (int ii = 0; ii <= depth; ii++)
             {
-                PCollection collection = o.GetCollection(_path.Parts[ii].Level, false);
+                IPCollection collection = o.GetCollection(_path.Parts[ii].Level, false);
                 if (collection != null)
                 {
                     o = collection.GetObject(_path.Parts[ii].PositionInLevel);
@@ -87,7 +83,7 @@ namespace Platform2
 
             return o;
         }
-		public void ParseNavigationSetup(string path, out PNavigatorPath navPath, out List<string> levelsAliases)
+		public static void ParseNavigationSetup(string path, out PNavigatorPath navPath, out List<string> levelsAliases)
 		{
 			levelsAliases = new List<string>();
 			navPath = new PNavigatorPath();
@@ -117,7 +113,8 @@ namespace Platform2
 
                 foreach (Match match in Regex.Matches(path, @"([^:/\\]+(?::\d+)?)"))
                 {
-                    MatchCollection partMatches = _parsePart(match.Groups[1].ToString());
+					string part = match.Groups[1].ToString();
+					MatchCollection partMatches = Regex.Matches(part, @"([^:]+)(?::([^:]+))?", RegexOptions.IgnoreCase); ;
 
                     foreach (Match partMatch in partMatches)
                     {
@@ -129,12 +126,6 @@ namespace Platform2
             {
                 throw new Exception("Не верный формат пути. " + ex.Message);
             }
-        }
-
-        // collection:index
-        private MatchCollection _parsePart(string partPath)
-        {
-            return Regex.Matches(partPath, @"([^:]+)(?::([^:]+))?", RegexOptions.IgnoreCase);
         }
 
         private void _updatePointer()
@@ -208,7 +199,7 @@ namespace Platform2
             }
         }    
 
-        public PObject Navigate(string path)
+        public IPObject Navigate(string path)
         {
             _parseToLevels(path);
             _updatePointer();

@@ -10,7 +10,7 @@ namespace Platform2
     public interface IPObject
     {
         int Id { set; get; }
-		PCollection GetCollection(string name);
+		IPCollection GetCollection(string name);
         bool GetAttr(string name, bool findInOwners, out string val);
 		bool FindAttr(string attrName, out IPObject obj, out string val);
 		void SetAttr(string name, string value);
