@@ -60,7 +60,7 @@ namespace ProfileCut
 			// загрузка конфигурации
 			_conf = RAppConfig.Load(Path.GetDirectoryName(Application.ExecutablePath) + "\\config.json");
 
-			// навигация
+			// навигация C3
 			List<string> navButtonsCaptions;
 			PNavigator.ParseNavigationSetup(_conf.Navigation, out _navigatorPath, out navButtonsCaptions);
 			_createNavButtons(panelNavigator, navButtonsCaptions);
