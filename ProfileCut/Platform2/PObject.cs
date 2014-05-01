@@ -11,7 +11,7 @@ namespace Platform2
     {
         public int Id { set; get; }
 		
-        internal PCollection ownerCollection;
+        internal PCollection _ownerCollection;
 
         internal IStorage storage;
 
@@ -22,16 +22,16 @@ namespace Platform2
         private Dictionary<string,PCollection> _collections;
 
 		private bool _deferredLoad;
-		
-        private PNavigator _navigator;
-		
+
+		public IPCollection onwerCollection { get {return _ownerCollection;} }
+
         internal PObject(IStorage repository, int id, Dictionary<int, IPObject> objectsIndex, bool deferredLoad)
         {
             if (repository == null)
                 throw new Exception("Хранилище данных не задано");
 
             Id = id;
-			ownerCollection = null;
+			_ownerCollection = null;
 
             this.storage = repository;
             this.objectsIndex = objectsIndex;
@@ -63,13 +63,13 @@ namespace Platform2
             }
             else if (findInOwners) // рекурсивно ищем во всех владельцах
             {
-				PCollection coll = this.ownerCollection;
+				PCollection coll = this._ownerCollection;
 				while (coll != null)
 				{
 					PObject o = coll.OwnerObject;
 					if (o._attrs.TryGetValue(lowerName, out val))
 						return true;
-					coll = o.ownerCollection;
+					coll = o._ownerCollection;
 				}
             }
 			return false;
@@ -79,12 +79,12 @@ namespace Platform2
         {
             if (objectId <= 0)
                 return false;
-            PCollection coll = this.ownerCollection;
+            PCollection coll = this._ownerCollection;
             while (coll != null)
             {
                 if (coll.OwnerObject.Id == objectId)
                     return true;
-                coll = coll.OwnerObject.ownerCollection;
+                coll = coll.OwnerObject._ownerCollection;
             }
             return false;
         }
@@ -128,7 +128,7 @@ namespace Platform2
 			obj = null;
 			while (!o.GetAttr(attrName, false, out val))
 			{
-				PCollection coll = o.ownerCollection;
+				PCollection coll = o._ownerCollection;
 				if (coll == null)
 					return false;
 				o = coll.OwnerObject;

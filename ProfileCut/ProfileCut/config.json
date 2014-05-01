@@ -1,6 +1,6 @@
 {
 	"Version": "1.0.0.0",
-	"ConnectionString": "charset=WIN1251;datasource=192.168.11.1;database=ms2;user=sysdba;password=mojobaby",
+	"ConnectionString": "charset=WIN1251;datasource=localhost;database=ProfileCut;user=sysdba;password=masterkey",
 	"ModelCode": "ALUM_TEST",
 	"MasterItemTemplate": "OptItem",
 	"MasterCollectionPath": "Optimizations",
@@ -14,12 +14,12 @@
 		"Buttons":
 		[
 			{
-				"Text": "Печать",
-				"AttrTemplate": "optStickers",
+				"Name": "Печать",
+				"TargetAttr": "optStickers",
 				"TemplateOverloads":
 				[
 					{
-						"Param" : "PrinterName",
+						"ParamName" : "PrinterName",
 						"Value" : "ZDesigner GK420d (копия 1)"
 					}
 				]
@@ -29,7 +29,7 @@
 	"HostVars":
 	[
 		{
-			"Param" : "test",
+			"ParamName" : "test",
 			"Value" : "test value"
 		}
 	]

@@ -2,11 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 
 using ServiceStack.Text;
 using System.IO;
 using System.Windows.Forms;
 using System.Reflection;
+using ModuleConnect;
 
 namespace ProfileCut
 {
@@ -76,18 +78,36 @@ namespace ProfileCut
             config.Debug = true;
 
 			RAppConfigVar printerName = new RAppConfigVar();
-			printerName.Param = "PrinterName";
+			printerName.ParamName = "PrinterName";
 			printerName.Value = "ZDesigner LP 2844";
 
 			RAppCommand print = new RAppCommand();
-			print.Text = "Печать";
-			print.AttrTemplate = "PRINT_STICKERS";
+			print.Name = "Печать";
+			print.TargetAttr = "PRINT_STICKERS";
 			print.TemplateOverloads.Add(printerName);
 
 			config.Commands.Buttons.Add(print);
 
             return config;
         }
+		public static void ParseNavigationSetup(string path, out List<string> navLevels, out List<string> levelsAliases)
+		{
+			navLevels = new List<string>();
+			levelsAliases = new List<string>();
+			try
+			{
+				MatchCollection matches = Regex.Matches(path, @"([^:/]+):([^:/]+)");
+				foreach (Match match in matches)
+				{
+					navLevels.Add(match.Groups[1].Value.ToLower());
+					levelsAliases.Add(match.Groups[2].Value);
+				}
+			}
+			catch (Exception ex)
+			{
+				throw new Exception("Неверный формат пути. " + ex.Message);
+			}
+		}
 	}
 
     public class RAppCommands
@@ -95,16 +115,31 @@ namespace ProfileCut
         public List<RAppCommand> Buttons { set; get; }
     }
 
-    public class RAppCommand
+    public class RAppCommand : IMValueGetter
     {
-        public string Text { set; get; }
-        public string AttrTemplate { set; get; }
+        public string Name { set; get; }
+        public string TargetAttr { set; get; }
         public List<RAppConfigVar> TemplateOverloads {set; get; }
-    }
+
+		bool IMValueGetter.QueryValue(string varName, bool caseSensitive, out string value)
+		{
+			string lowerName = varName.ToLower();
+			foreach (RAppConfigVar var in TemplateOverloads)
+			{
+				if (caseSensitive && var.ParamName == varName || var.ParamName.ToLower() == lowerName)
+				{
+					value = var.Value;
+					return true;
+				}
+			}
+			value = null;
+			return false;
+		}
+	}
 
 	public class RAppConfigVar
 	{
-		public string Param { set; get; }
+		public string ParamName { set; get; }
 		public string Value { set; get; }
 	}	
 }

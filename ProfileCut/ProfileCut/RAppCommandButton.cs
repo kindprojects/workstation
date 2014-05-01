@@ -15,7 +15,7 @@ namespace ProfileCut
 		public RAppCommand appCommand;
 		public RAppCommandButton(RAppCommand cmd)
 		{
-			Text = cmd.Text;
+			this.Text = cmd.Name;
 			this.appCommand = cmd;
 		}
 	}

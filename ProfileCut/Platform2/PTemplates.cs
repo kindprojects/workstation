@@ -61,13 +61,14 @@ namespace Platform2
 
             foreach (var fcollect in fcollects)
             {
-                PCollection coll = obj.GetCollection(fcollect.collectionName);
+                IPCollection coll = obj.GetCollection(fcollect.collectionName);
                 if (coll != null)
                 {
                     string val = "";
-                    for (int ii = 0; ii < coll.Count(); ii++)
+					int cnt = coll.Count;
+                    for (int i = 0; i < cnt; i++)
                     {
-                        PObject cobj = coll.GetObject(ii);
+                        IPObject cobj = coll.GetObject(i);
 
                         string tmp = "";
                         if (cobj.GetAttr(fcollect.templateName, true, out tmp))
@@ -147,27 +148,6 @@ namespace Platform2
             collectionName = match.Groups[1].Value;
             templateName = match.Groups[2].Value;
             endsWithNewLine = (match.Groups[3].Value == "+");
-        }
-    }
-
-    internal class PTagMarks
-    {
-        internal string Begin = "";
-        internal string End = "";
-    }
-
-    internal class PNotFoundMarks
-    {
-        static internal PTagMarks attrs;
-        static internal PTagMarks collections;
-
-        internal PNotFoundMarks()
-        {
-            attrs.Begin = "<";
-            attrs.End = ">";
-
-            collections.Begin = "<!";
-            collections.End = "!>";
         }
     }
 }

@@ -9,7 +9,7 @@ using Platform2;
 
 namespace ProfileCut
 {
-    class RNavigatorButton : Button
+    public class RNavigatorButton : Button
     {
         public int Depth { set; get; }
         public NAV_DIRECTION Direction { set; get; }

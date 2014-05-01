@@ -10,7 +10,7 @@ using ModuleConnect;
 
 namespace ModuleNamespace
 {
-    public class Printer
+    public class Printer :IDisposable
     {
         private string _printerName;
         private List<MPage> _pages;
@@ -26,6 +26,9 @@ namespace ModuleNamespace
             _pages = new List<MPage>();
             _currentFont = new Font("Arial", 12);
         }
+		public void Dispose(){
+			_sessionDoc.Dispose();
+		}
 
         public void SetFont(string name, float size)
         {

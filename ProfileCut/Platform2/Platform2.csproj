@@ -42,7 +42,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="IPCollection.cs" />
-    <Compile Include="IPNavigator.cs" />
     <Compile Include="IPObject.cs" />
     <Compile Include="PCollection.cs" />
     <Compile Include="PModel.cs" />

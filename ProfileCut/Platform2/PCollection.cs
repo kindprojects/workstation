@@ -7,7 +7,7 @@ using Repository;
 
 namespace Platform2
 {
-    public class PCollection : IPCollection
+    internal class PCollection : IPCollection
     {
         internal string Name { set; get; }
 
@@ -18,6 +18,10 @@ namespace Platform2
         private List<PObject> _items { set; get; }
 		
         private bool _loaded;
+
+		public IPObject ownerObject { get {return OwnerObject;} }
+
+		public string CollectionName { get { return Name; } }
 
         internal PCollection(PObject owner, string name, bool deferredLoad)
         {
@@ -36,7 +40,7 @@ namespace Platform2
         internal PObject InsertObject(PObject obj)
         {
             _items.Add(obj);
-			obj.ownerCollection = this;
+			obj._ownerCollection = this;
             return obj;
         }
 
@@ -51,12 +55,26 @@ namespace Platform2
 				throw new Exception(string.Format("Запрошен объект с несуществующим индексом ({0}), коллекция {1}", index, this.Name));
         }
 
-        internal int Count()
-        {
-            _loadIfNotLoaded();
+		public int IndexOf(IPObject obj){
+			int refId = obj.Id;
+			int cnt = this._items.Count();
+			for(int i = 0; i < cnt; i++)
+			{
+				if (this._items[i].Id == refId)
+					return i;
+			}
+			return -1;
+		}
 
-            return _items.Count();
-        }
+		public int Count
+		{
+			get
+			{
+				_loadIfNotLoaded();
+
+				return _items.Count();
+			}
+		}
 
         internal void _loadIfNotLoaded()
         {
@@ -97,14 +115,6 @@ namespace Platform2
             }
 
             return null;
-        }
-   
-        internal int IndexOf(PObject obj)
-        {
-            if (obj != null)
-                return _items.IndexOf(obj);
-            else
-                return -1;
         }
     }
 }

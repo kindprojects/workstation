@@ -50,7 +50,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="IPValueGetter.cs" />
+    <Compile Include="IMValueGetter.cs" />
     <Compile Include="MScriptManager.cs" />
     <Compile Include="MInterfaces.cs" />
     <Compile Include="MConnect.cs" />

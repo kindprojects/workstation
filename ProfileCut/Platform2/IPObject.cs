@@ -15,6 +15,7 @@ namespace Platform2
 		bool FindAttr(string attrName, out IPObject obj, out string val);
 		void SetAttr(string name, string value);
         void StorageUpdateAttr(string name);
+		IPCollection onwerCollection { get; }
 		bool IsChildOf(int objectId);
     }
 }

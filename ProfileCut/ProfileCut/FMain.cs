@@ -23,31 +23,52 @@ namespace ProfileCut
 {
     public partial class FMain : Form, IMValueGetter
     {
-        private JSObject _jsObject;
+		private RAppConfig _conf;
 
-        private RAppConfig _conf;
+		private IStorage _modelStorage;
 
         private PModel _data;
 
-		protected IPObject master {
-			set {
-				try{
-					master = setMaster(value);
-				}finally{
-					int i = listBoxOptimizations.Items.IndexOf(master);
-					if (i >= 0 && i != listBoxOptimizations.SelectedIndex)
-						listBoxOptimizations.SelectedIndex = i;
-				}
-			} get;
-		}
-
+		protected string masterItemTemplate;
+		protected PNavigatorPath navMasterPath;
 		protected PNavigator navMaster;
 
-        private int _previousId;
+		protected PNavigatorPath navDetailPath;
+		protected PNavigator navDetails;
 
-        private PNavigatorPath _navigatorPath;
+		private bool _domIsBusy;
+		private JSObject _jsObject;
+		private int _lastId;
 
-        private bool _domIsBusy;
+		protected IPObject master {
+			set
+			{
+				IPObject prev = master;
+				try{
+					// обновление контента
+					enableChildControls(panelNavigator, false);
+					enableChildControls(panelAppCommands, false);
+					_loadOptHtml(value);
+					master = value; // если обновление удалось, то можно сменить объект
+				}finally{
+					// обновление списка (если выбран другой элемент, в списке это должно быть видно)
+					if (master == null)
+						listBoxOptimizations.SelectedItem = null;
+					else if (master != prev)
+					{
+						foreach (RMasterItem item in listBoxOptimizations.Items)
+						{
+							if (item.Object == master)
+							{
+								listBoxOptimizations.SelectedItem = item;
+								break;
+							}
+						}
+					}
+				}
+			}
+			get { return master; }
+		}
 
         public FMain()
         {
@@ -59,33 +80,23 @@ namespace ProfileCut
 			
 			// загрузка конфигурации
 			_conf = RAppConfig.Load(Path.GetDirectoryName(Application.ExecutablePath) + "\\config.json");
-
-			// навигация C4
+			
+			// навигация
+			List<string> navDetailLevels;
 			List<string> navButtonsCaptions;
-			PNavigator.ParseNavigationSetup(_conf.Navigation, out _navigatorPath, out navButtonsCaptions);
+			RAppConfig.ParseNavigationSetup(_conf.Navigation, out navDetailLevels, out navButtonsCaptions);
+			// настройка навигации
+			this.navMasterPath = new PNavigatorPath(_conf.MasterCollectionPath);
+			for (int i = 0; i < navDetailLevels.Count; i++)
+				navDetailLevels[i] += ":0";
+			this.navDetailPath = new PNavigatorPath(string.Join("/", navDetailLevels.ToArray()));
+			// кнопки для навигации
 			_createNavButtons(panelNavigator, navButtonsCaptions);
 			enableChildControls(panelNavigator, false);
 			enableChildControls(panelAppCommands, false);
 
-			// загрузка модели
-            _data = new PModel(new SStorageFB(_conf.ConnectionString), _conf.ModelCode, true);
-			// установка навигатора
-			navMaster = new PNavigator(_data.Root);
-			navMaster.OnNavigated += navMaster_OnNavigated;
-
-			// переходим к записи по-умолчанию
-			master = navMaster.Navigate(0, NAV_DIRECTION.STAY); // может не надо?
-        }
-
-		void navMaster_OnNavigated(object sender, IPObject o)
-		{
-			this.master = o; // setter сделает остальную работу
-		}
-
-        public bool QueryValue(string varName, bool caseSensitive, out string value)
-        {
-			value = null;
-            return false;
+			// подключаем хранилище данных
+			this._modelStorage = new SStorageFB(_conf.ConnectionString);
         }
 
         private void FMain_Load(object sender, EventArgs e)
@@ -95,39 +106,70 @@ namespace ProfileCut
             listBoxOptimizations.DisplayMember = "Title";
             listBoxOptimizations.ValueMember = "Object";
 
-            _refreshOptimizationList();
+			_reloadModel(this._modelStorage, _conf.ModelCode, _conf.MasterItemTemplate, restorePosition:false);
         }
+
+		void navMaster_OnNavigated(object sender, IPObject o)
+		{
+			this.master = o; // setter сделает остальную работу
+		}
+
+		public bool QueryValue(string varName, bool caseSensitive, out string value)
+		{
+			value = null;
+			return false;
+		}
 
         private void listBoxOptimizations_SelectedIndexChanged(object sender, EventArgs e)
         {
 			RMasterItem item = listBoxOptimizations.SelectedItem as RMasterItem;
-			if (item != null && item != this.master)
+			if (item == null)
+			{
+				this.master = null;
+			}
+			else if (item.Object != this.master) // это важно
 			{
 				this.master = item.Object;
 			}
         }
 
-		protected IPObject setMaster(IPObject newMaster){
-			_loadOptHtml(newMaster);
-			return newMaster;
-		}
-
-        // загружает html только если выбранная оптимизация отлична от текущей
         private void _loadOptHtml(IPObject obj)
 		{
-			string template;
-			if (obj.GetAttr(_conf.DetailTemplate, true, out template))
-				throw new Exception(string.Format(@"Атрибут {0} не найден!", _conf.DetailTemplate));
+			if (obj != null)
+			{
+				string template;
+				if (obj.GetAttr(_conf.DetailTemplate, true, out template))
+					throw new Exception(string.Format(@"Атрибут {0} не найден!", _conf.DetailTemplate));
 			
-			string html = PTemplates.FormatObject(obj, template, this, null);
+				string html = PTemplates.FormatObject(obj, template, this, null);
 
-			html = _addScriptsToBody(html);
+				html = _addScriptsToBody(html);
 
-			if (_domIsBusy)
-				throw new Exception(@"DOM занят!");
-			_domIsBusy = true;
-			webControlDetails.LoadHTML(html);
+				if (_domIsBusy)
+					throw new Exception(@"DOM занят!");
+				_domIsBusy = true;
+				webControlDetails.LoadHTML(html);
+			}
         }
+
+		private void Awesomium_Windows_Forms_WebControl_DocumentReady(object sender, Awesomium.Core.UrlEventArgs e)
+		{
+			_jsObject = webControlDetails.CreateGlobalJavascriptObject("app");
+			_jsBind();
+
+			navDetailPath.resetPositions();
+			navDetails = new PNavigator(this.master, this.navDetailPath);
+			var obj = navDetails.Navigate(navDetailPath);
+
+			_updateActiveHtmlElement(0, obj.Id, doScroll: true);
+			_lastId = obj.Id;
+			enableChildControls(panelNavigator, true);
+			enableChildControls(panelAppCommands, true);
+
+			_domIsBusy = false;
+
+			updateAppCommandsAvailability(panelAppCommands);
+		}
 
         private void _updateActiveHtmlElement(int deselectObjectId, int selectObjectId, bool doScroll)
         {
@@ -234,31 +276,13 @@ namespace ProfileCut
 				if (!_data.objectsIndex.TryGetValue(id, out obj))
 					throw new Exception(string.Format(@"Не удалось найти объект по ID={0}", id));
 
-				navMaster.Pointer = obj; // master.SetNavigatorPointer(obj);
-                _updateActiveHtmlElement(_previousId, obj.Id, false);
-                _previousId = obj.Id;
+				PNavigatorPath path = navDetails.GetPathTo(obj);
+				navDetails.Navigate(path);
+                _updateActiveHtmlElement(_lastId, obj.Id, false);
+                _lastId = obj.Id;
 
                 updateAppCommandsAvailability(panelAppCommands);
             }
-        }
-
-        private void Awesomium_Windows_Forms_WebControl_DocumentReady(object sender, Awesomium.Core.UrlEventArgs e)
-        {
-            _jsObject = webControlDetails.CreateGlobalJavascriptObject("app");
-            _jsBind();
-
-            var obj = master.Navigate(_navigatorPath.GetStringPath());
-            _updateActiveHtmlElement(0, obj.Id, true);
-            _previousId = obj.Id;
-            _navButtonsEnable(panelNavigator);
-
-            _domIsBusy = false;
-
-            // загрузим новую оптимизацию, если выбранная оптимизация отлична от текущей
-            // такая ситуация возможна при быстром перемещении по списку оптимизаций          
-            //_reloadHtml();
-
-            updateAppCommandsAvailability(panelAppCommands);
         }
 
 		private void _createNavButtons(Control owner, List<string> names)
@@ -278,7 +302,7 @@ namespace ProfileCut
 			{
 				RAppCommand cmd = cmdList[ii];
 				RAppCommandButton b = new RAppCommandButton(cmd);
-				b.Text = cmd.Text;
+				b.Text = cmd.Name;
 				b.AutoSize = true;
 				b.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
 				b.Height = owner.Height;
@@ -288,26 +312,34 @@ namespace ProfileCut
 				x += b.Width + 2;
 			}
 		}
-        private int _createCommandButton(Control owner, RAppCommand command, int x)
-        {
-
-            return b.Width + 2;
-        }
 
         private void _commandButtonClick(object sender, EventArgs e)
         {
-            RAppCommandButton b = (RAppCommandButton)sender;
-            _printButtonPress = b;
+            RAppCommandButton b = sender as RAppCommandButton;
 
-            if (master != null && b.AttrTemplate != "")
+			IPObject pointer = navDetails.Pointer;
+			string targetAttr = b.appCommand.TargetAttr;
+            if (pointer != null && targetAttr != "")
             {
-                IPObject pointer = master.GetNavigatorPointer();
-                if (pointer != null)
-                {
-					string commands = pointer.FindAndFormat(b.AttrTemplate);//, b.TemplateOverloads.GetTemplateOverloadsDictonary());
-					MScriptManager.Execute(Path.GetDirectoryName(Application.ExecutablePath),
-						commands, new ModuleFinishedHandler(this._moduleFinishedCallback));
-                }
+				IPObject objTarget;
+				string scriptAttr;
+				if (pointer.FindAttr(targetAttr, out objTarget, out scriptAttr)){
+					string scriptTemplate;
+					if (objTarget.GetAttr(scriptAttr, true, out scriptTemplate))
+					{
+						string script = PTemplates.FormatObject(objTarget, scriptTemplate, this, b.appCommand);
+						MScriptManager.Execute(Path.GetDirectoryName(Application.ExecutablePath),
+							script, new ModuleFinishedHandler(this._moduleFinishedCallback));
+					}
+					else
+					{
+						throw new Exception(string.Format(@"Не найден атрибут '{0}', который должен содержать скрипт для команды {1}", scriptAttr, b.appCommand.Name));
+					}
+				}
+				else
+				{
+					throw new Exception(string.Format(@"Не найден объект, содержащий целевой атрибут '{0}'", targetAttr));
+				}
             }
         }
 
@@ -380,8 +412,8 @@ namespace ProfileCut
 					RAppCommandButton btn = (RAppCommandButton)ctrl;
 					IPObject obj;
 					string val;
-					if (this.master != null)
-						btn.Enabled = this.master.FindAttr(btn.appCommand.AttrTemplate, out obj, out val);
+					if (this.navDetails.Pointer != null)
+						btn.Enabled = this.navDetails.Pointer.FindAttr(btn.appCommand.TargetAttr, out obj, out val);
 					else
 						btn.Enabled = false;
 				}
@@ -390,56 +422,67 @@ namespace ProfileCut
 
         private void _navButtonClick(object sender, EventArgs e)
         {
-            RNavigatorButton b = (RNavigatorButton)sender;
-            IPObject obj = master.Navigate(b.Depth, b.Direction);
+            RNavigatorButton b = sender as RNavigatorButton;
+            IPObject obj = navDetails.Navigate(b.Depth, b.Direction, overStep:true);
 
-            _updateActiveHtmlElement(_previousId, obj.Id, false);
-            _previousId = obj.Id;
+            _updateActiveHtmlElement(_lastId, obj.Id, false);
+            _lastId = obj.Id;
 
             updateAppCommandsAvailability(panelAppCommands);
         }
 
         private void buttonRefresh_Click(object sender, EventArgs e)
         {
-            _refreshOptimization();
+			if (this._modelStorage != null)
+				_reloadModel(this._modelStorage, _conf.ModelCode, _conf.MasterItemTemplate, restorePosition:true);
+			else
+				throw new Exception(@"Хранилище модели не загружено");
         }
 
-        private void _refreshOptimization()
+        private void _reloadModel(IStorage storage, string modelCode, string masterItemTemplateName, bool restorePosition)
         {
-            object selectedItem = this.listBoxOptimizations.SelectedItem;
+			int currentId = 0;
+			if (restorePosition)
+				currentId = (this.listBoxOptimizations.SelectedItem as RMasterItem).Object.Id;
 
-            _data = new PModel(_conf.ConnectionString, _conf.ModelCode, true, this);
-            _data.Root.Navigate(_conf.MasterCollectionPath + ":0");
-            _refreshOptimizationList();
+			// загрузка модели
+			_data = new PModel(storage, modelCode, deferredLoad: true);
 
-            if (selectedItem != null)
-            {
-                int id = (selectedItem as RMasterItem).Object.Id;
-                _selectListItemById(id);
-            }
+			// установка навигатора
+			navMaster = new PNavigator(_data.Root, this.navMasterPath);
+			navMaster.OnNavigated += navMaster_OnNavigated;
+
+			if (!_data.Root.GetAttr(masterItemTemplateName, true, out this.masterItemTemplate))
+				throw new Exception(string.Format(@"Шаблон (атрибут) с именем {0} не найден!", masterItemTemplateName));
+			
+			_refreshOptimizationList(currentId);
         }
 
-        private void _refreshOptimizationList()
+        private void _refreshOptimizationList(int selectObjectWithId)
         {
             listBoxOptimizations.Items.Clear();
-            IPObject root = _data.Root;
-            IPObject obj;
-            do
-            {
-                obj = root.GetNavigatorPointer();
-				string ready;
-				obj.GetAttr("READY", false, out ready);
 
-				//if (ready == "1")
-				//{
-					RMasterItem item = new RMasterItem();
-					item.Title = obj.Format(_conf.MasterItemTemplate);
-					item.Object = obj;
-					listBoxOptimizations.Items.Add(item);
-				//}
-                
-            } while (obj.Id != root.Navigate(0, NAV_DIRECTION.DOWN).Id);
+			PNavigator navMasterItems = new PNavigator(_data.Root, navMasterPath);
+
+			int selectIndex = -1;
+			while (navMasterItems.Navigate(0, NAV_DIRECTION.DOWN, false) != null)
+            {
+                IPObject obj = navMasterItems.Pointer;
+
+				RMasterItem item = new RMasterItem();
+				item.Title = formatMasterItem(obj);
+				item.Object = obj;
+				int index = listBoxOptimizations.Items.Add(item);
+				if (obj.Id == selectObjectWithId)
+					selectIndex = index;
+            }
+			if (selectIndex >= 0)
+				listBoxOptimizations.SelectedIndex = selectIndex;
         }
+
+		protected string formatMasterItem(IPObject obj){
+			return PTemplates.FormatObject(obj, this.masterItemTemplate, this, null);
+		}
 
         private void _selectListItemById(int id)
         {
@@ -460,69 +503,18 @@ namespace ProfileCut
             }
         }
 
-        private IPObject _getObjectWihtAttrTempate(string attrTemplate)
-        {
-            IPObject ret = null;
-
-            for (int ii = _navigatorPath.Parts.Count() - 1; ii >= 0; ii--)
-            {
-                IPObject obj = master.GetObjectAtNavigatorPathLevel(ii);
-                string attrVal = "";
-                if (obj.GetAttr(attrTemplate, false, out attrVal))
-                {
-                    if (attrVal != null && attrVal != "")
-                    {
-                        ret = obj;
-
-                        break;
-                    }
-                }
-            }
-
-            // поищем в мастере
-            if (ret == null)
-            {
-                string masterAttrVal = "";
-                if (master.GetAttr(attrTemplate, false, out masterAttrVal))
-                {
-                    if (masterAttrVal != null && masterAttrVal != "")
-                    {
-                        ret = master;
-                    }
-                }
-            }
-
-            return ret;
-        }
-
-        private void buttonCut_Click(object sender, EventArgs e)
+        private void buttonMarkOptimization_Click(object sender, EventArgs e)
         {
             if (listBoxOptimizations.SelectedItem != null)
             {
                 string attr = "";
-                if (master.GetAttr("CUTOPT", false, out attr))
-                {
-                    if (attr == "")
-                        master.SetAttr("CUTOPT", "#");
-                    else
-                        master.SetAttr("CUTOPT", "");
-                }
-                else
-                    master.SetAttr("CUTOPT", "#");
-
+                if (!master.GetAttr("CUTOPT", false, out attr))
+					attr = "";
+				master.SetAttr("CUTOPT", attr==""?"#":"");
                 master.StorageUpdateAttr("CUTOPT");
-
-                int index = listBoxOptimizations.SelectedIndex;
-                listBoxOptimizations.SelectedIndexChanged -= new System.EventHandler(this.listBoxOptimizations_SelectedIndexChanged);
-                try
-                {
-                    _refreshOptimization();
-                }
-                finally
-                {
-                    listBoxOptimizations.SelectedIndexChanged += new System.EventHandler(this.listBoxOptimizations_SelectedIndexChanged);
-                    listBoxOptimizations.SelectedIndex = index;
-                }
+				RMasterItem item = listBoxOptimizations.SelectedItem as RMasterItem;
+				if (item != null)
+					item.Title = formatMasterItem(item.Object);
             }
         }
     }
