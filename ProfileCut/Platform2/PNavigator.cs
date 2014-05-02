@@ -17,22 +17,28 @@ namespace Platform2
 
         private IPObject _base;
         
+		private IPObject _pointer;
+
         public IPObject Pointer {
 			internal set{
-				Pointer = value; 
+				IPObject prev = _pointer;
+				_pointer = value;
 				if (this.OnNavigated != null)
-					OnNavigated(this, value); 
+				{
+					OnNavigated(this, new NavigatedEventArgs(prev, value));
+				}
 			}
-			get { return Pointer; }
+			get { return this._pointer; }
 		}
 
-        public delegate void NavigatedEventHandler(object sender, IPObject o);
+        public delegate void NavigatedEventHandler(object sender, NavigatedEventArgs e);
 		public event NavigatedEventHandler OnNavigated;
 
         public PNavigator(IPObject owner, PNavigatorPath path)
         {
             _base = owner;
 			_path = path!=null?path:new PNavigatorPath(null);
+			// ToDo: navigate! (update pointer)
         }
 		public PNavigatorPath GetPathTo(IPObject child){
 			IPObject o = child;
@@ -168,4 +174,15 @@ namespace Platform2
             return true;
         }
     }
+	public class NavigatedEventArgs : EventArgs
+	{
+		public IPObject prevObject {get; internal set;}
+		public IPObject newObject { get; internal set; }
+
+		public NavigatedEventArgs(IPObject prevObject, IPObject newObject)
+		{
+			this.prevObject = prevObject;
+			this.newObject = newObject;
+		}
+	}
 }

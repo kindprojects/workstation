@@ -28,8 +28,6 @@ namespace ProfileCut
 		private IStorage _modelStorage;
 
         private PModel _data;
-
-		protected string masterItemTemplate;
 		protected PNavigatorPath navMasterPath;
 		protected PNavigator navMaster;
 
@@ -72,7 +70,10 @@ namespace ProfileCut
 
         public FMain()
         {
+			// инициализация компонентов
             InitializeComponent();
+			listBoxOptimizations.DisplayMember = "Title";
+			listBoxOptimizations.ValueMember = "Object";
 
 			// инициализация внутренних переменных
 			_domIsBusy = false;
@@ -86,7 +87,7 @@ namespace ProfileCut
 			List<string> navButtonsCaptions;
 			RAppConfig.ParseNavigationSetup(_conf.Navigation, out navDetailLevels, out navButtonsCaptions);
 			// настройка навигации
-			this.navMasterPath = new PNavigatorPath(_conf.MasterCollectionPath);
+			this.navMasterPath = new PNavigatorPath(_conf.MasterCollectionPath+":0");
 			for (int i = 0; i < navDetailLevels.Count; i++)
 				navDetailLevels[i] += ":0";
 			this.navDetailPath = new PNavigatorPath(string.Join("/", navDetailLevels.ToArray()));
@@ -97,21 +98,18 @@ namespace ProfileCut
 
 			// подключаем хранилище данных
 			this._modelStorage = new SStorageFB(_conf.ConnectionString);
+
+			_reloadModel(this._modelStorage, _conf.ModelCode, _conf.MasterItemTemplate, restorePosition: false);
         }
 
         private void FMain_Load(object sender, EventArgs e)
         {
-            WindowState = FormWindowState.Maximized;
-
-            listBoxOptimizations.DisplayMember = "Title";
-            listBoxOptimizations.ValueMember = "Object";
-
-			_reloadModel(this._modelStorage, _conf.ModelCode, _conf.MasterItemTemplate, restorePosition:false);
+			WindowState = FormWindowState.Maximized;
         }
 
-		void navMaster_OnNavigated(object sender, IPObject o)
+		void navMaster_OnNavigated(object sender, NavigatedEventArgs e)
 		{
-			this.master = o; // setter сделает остальную работу
+			this.master = e.newObject; // setter сделает остальную работу
 		}
 
 		public bool QueryValue(string varName, bool caseSensitive, out string value)
@@ -452,9 +450,6 @@ namespace ProfileCut
 			navMaster = new PNavigator(_data.Root, this.navMasterPath);
 			navMaster.OnNavigated += navMaster_OnNavigated;
 
-			if (!_data.Root.GetAttr(masterItemTemplateName, true, out this.masterItemTemplate))
-				throw new Exception(string.Format(@"Шаблон (атрибут) с именем {0} не найден!", masterItemTemplateName));
-			
 			_refreshOptimizationList(currentId);
         }
 
@@ -481,7 +476,11 @@ namespace ProfileCut
         }
 
 		protected string formatMasterItem(IPObject obj){
-			return PTemplates.FormatObject(obj, this.masterItemTemplate, this, null);
+			string template;
+			if (!obj.GetAttr(_conf.MasterItemTemplate, true, out template))
+				throw new Exception(string.Format(@"Шаблон наименования оптимизации (атрибут {0}) не найден!", _conf.MasterItemTemplate));
+			
+			return PTemplates.FormatObject(obj, template, this, null);
 		}
 
         private void _selectListItemById(int id)

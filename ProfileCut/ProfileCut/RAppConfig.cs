@@ -121,7 +121,7 @@ namespace ProfileCut
         public string TargetAttr { set; get; }
         public List<RAppConfigVar> TemplateOverloads {set; get; }
 
-		bool IMValueGetter.QueryValue(string varName, bool caseSensitive, out string value)
+		public bool QueryValue(string varName, bool caseSensitive, out string value)
 		{
 			string lowerName = varName.ToLower();
 			foreach (RAppConfigVar var in TemplateOverloads)

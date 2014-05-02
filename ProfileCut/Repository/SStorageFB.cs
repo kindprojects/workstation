@@ -11,7 +11,7 @@ using System.Data;
 
 namespace Repository
 {
-    public class SStorageFB : IStorage
+    public class SStorageFB : IStorage, IDisposable
     {        
         private FbConnection _db;
 
@@ -23,6 +23,14 @@ namespace Repository
         }
 
         #region Service
+		public void Dispose()
+		{
+			this.Dispose(false);
+		}
+		protected virtual void Dispose(bool ceanManaged)
+		{
+			this._db.Dispose();
+		}
         private bool _isOpen()
         {
             return (_db.State == System.Data.ConnectionState.Open);

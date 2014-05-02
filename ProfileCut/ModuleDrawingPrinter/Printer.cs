@@ -26,8 +26,13 @@ namespace ModuleNamespace
             _pages = new List<MPage>();
             _currentFont = new Font("Arial", 12);
         }
-		public void Dispose(){
+		public void Dispose()
+		{
+			this.Dispose(false);
+		}
+		protected virtual void Dispose(bool cleanManaged){
 			_sessionDoc.Dispose();
+			_currentFont.Dispose();
 		}
 
         public void SetFont(string name, float size)

@@ -12,7 +12,7 @@ using ModuleConnect;
 
 namespace ModuleNamespace
 {
-    public class ModuleClass : IModule
+    public class ModuleClass : IModule, IDisposable
     {
         List<string> _problems = new List<string>();
         Printer _printer;
@@ -25,6 +25,14 @@ namespace ModuleNamespace
             else
                 _printer = new Printer(printerName);
         }
+		public void Dispose()
+		{
+			this.Dispose(false);
+		}
+		protected virtual void Dispose(bool cleanManaged)
+		{
+			_printer.Dispose();
+		}
 
         public bool Execute(string commands)
         {

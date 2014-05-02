@@ -1,7 +1,7 @@
 {
 	"Version": "1.0.0.0",
 	"ConnectionString": "charset=WIN1251;datasource=localhost;database=ProfileCut;user=sysdba;password=masterkey",
-	"ModelCode": "ALUM_TEST",
+	"ModelCode": "ALUM",
 	"MasterItemTemplate": "OptItem",
 	"MasterCollectionPath": "Optimizations",
 	"DetailTemplate": "OptView",

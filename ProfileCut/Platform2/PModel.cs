@@ -17,7 +17,7 @@ namespace Platform2
         {
 			int objectId = rep.RootObjectId(model, -1);
 			if (objectId == -1)
-				throw new Exception(string.Format("Модель с кодом \"{1}\" не найдена", model));
+				throw new Exception(string.Format("Модель с кодом \"{0}\" не найдена", model));
 			Root = new PObject(rep, objectId, objectsIndex, deferredLoad);
             //Root = new PObject(new SRepositoryLinq(connectionString), model, deferredLoad, host);
         }

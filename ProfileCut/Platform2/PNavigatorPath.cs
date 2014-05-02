@@ -52,22 +52,17 @@ namespace Platform2
 		}
 		protected void parse(string path)
 		{
-			try
-			{
-				Parts.Clear();
+			Parts.Clear();
 
-				MatchCollection levels = Regex.Matches(path, @"([^:/]+):(\d+)");
-				foreach (Match level in levels)
-				{
-					string collection = level.Groups[1].Value;
-					int index = Convert.ToInt32(level.Groups[2].Value);
-
-					Parts.Add(new PNavigatorPathPart(collection, index));
-				}
-			}
-			catch (Exception ex)
+			MatchCollection levels = Regex.Matches(path, @"([^:/]+):(\d+)");
+			if (levels.Count == 0)
+				throw new Exception("Неверный формат пути: '"+path+"'");
+			foreach (Match level in levels)
 			{
-				throw new Exception("Не верный формат пути. " + ex.Message);
+				string collection = level.Groups[1].Value;
+				int index = Convert.ToInt32(level.Groups[2].Value);
+
+				Parts.Add(new PNavigatorPathPart(collection, index));
 			}
 		}
     }

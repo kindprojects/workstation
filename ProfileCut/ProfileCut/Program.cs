@@ -18,10 +18,10 @@ namespace ProfileCut
                 Application.Run(new FMain());
 
             }
-            catch (Exception e)
-            {
-                MessageBox.Show(e.GetType().ToString() + ":\n" + e.Message, Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
+			catch (Exception e)
+			{
+				MessageBox.Show(e.GetType().ToString() + ":\n" + e.Message, Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error);
+			}
         }
     }
 }
