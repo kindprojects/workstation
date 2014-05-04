@@ -1,4 +1,5 @@
-﻿using System;
+﻿// ToDo: нужно победить LoadHTML, кнопки действия (печать и т.д. - нет их), подсветку активного хлыста и навигацию кнопками (вверх до упора - валится)
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -29,7 +30,6 @@ namespace ProfileCut
 
         private PModel _data;
 		protected PNavigatorPath navMasterPath;
-		protected PNavigator navMaster;
 
 		protected PNavigatorPath navDetailPath;
 		protected PNavigator navDetails;
@@ -37,26 +37,28 @@ namespace ProfileCut
 		private bool _domIsBusy;
 		private JSObject _jsObject;
 		private int _lastId;
+		private IPObject _master;
 
 		protected IPObject master {
 			set
 			{
-				IPObject prev = master;
+				IPObject prev = _master;
 				try{
 					// обновление контента
 					enableChildControls(panelNavigator, false);
 					enableChildControls(panelAppCommands, false);
 					_loadOptHtml(value);
-					master = value; // если обновление удалось, то можно сменить объект
+					_master = value; // если обновление удалось, то можно сменить объект
 				}finally{
 					// обновление списка (если выбран другой элемент, в списке это должно быть видно)
-					if (master == null)
+					if (_master == null)
 						listBoxOptimizations.SelectedItem = null;
-					else if (master != prev)
+					else if (_master != prev)
 					{
+						int masterId = _master.Id;
 						foreach (RMasterItem item in listBoxOptimizations.Items)
 						{
-							if (item.Object == master)
+							if (item.Object.Id == masterId)
 							{
 								listBoxOptimizations.SelectedItem = item;
 								break;
@@ -65,7 +67,7 @@ namespace ProfileCut
 					}
 				}
 			}
-			get { return master; }
+			get { return _master; }
 		}
 
         public FMain()
@@ -74,6 +76,7 @@ namespace ProfileCut
             InitializeComponent();
 			listBoxOptimizations.DisplayMember = "Title";
 			listBoxOptimizations.ValueMember = "Object";
+			webControlDetails.Crashed += webControlDetails_Crashed;
 
 			// инициализация внутренних переменных
 			_domIsBusy = false;
@@ -107,11 +110,6 @@ namespace ProfileCut
 			WindowState = FormWindowState.Maximized;
         }
 
-		void navMaster_OnNavigated(object sender, NavigatedEventArgs e)
-		{
-			this.master = e.newObject; // setter сделает остальную работу
-		}
-
 		public bool QueryValue(string varName, bool caseSensitive, out string value)
 		{
 			value = null;
@@ -136,37 +134,69 @@ namespace ProfileCut
 			if (obj != null)
 			{
 				string template;
-				if (obj.GetAttr(_conf.DetailTemplate, true, out template))
-					throw new Exception(string.Format(@"Атрибут {0} не найден!", _conf.DetailTemplate));
-			
-				string html = PTemplates.FormatObject(obj, template, this, null);
+				if (!obj.GetAttr(_conf.DetailTemplate, true, out template))
+					throw new Exception(string.Format(@"Шаблон просмотра деталей (атрибут {0}) не найден!", _conf.DetailTemplate));
 
+				//string html = PTemplates.FormatObject(obj, template, this, null);
+
+				StreamReader streamReader = new StreamReader("C:\\Users\\Роман\\Desktop\\test.htm");
+				string html = streamReader.ReadToEnd();
+				streamReader.Close();
 				html = _addScriptsToBody(html);
+
+				StreamWriter wr = new StreamWriter("C:\\Users\\Роман\\Desktop\\test2.htm");
+				try {
+					wr.Write(html);
+				}
+				finally
+				{
+					wr.Close();
+				}
 
 				if (_domIsBusy)
 					throw new Exception(@"DOM занят!");
-				_domIsBusy = true;
-				webControlDetails.LoadHTML(html);
+				if (!webControlDetails.IsLive)
+					throw new Exception("Not live");
+				webControlDetails.Source = new Uri("file:///C:/Users/%D0%A0%D0%BE%D0%BC%D0%B0%D0%BD/Desktop/test2.htm");
+				/*if (webControlDetails.LoadHTML(html)){
+					_domIsBusy = true;
+					webControlDetails.Update();
+				}
+				else
+				{
+					//throw new Exception("Awesomium.LoadHTML вернул false");
+				}*/
 			}
         }
 
+		void webControlDetails_Crashed(object sender, CrashedEventArgs e)
+		{
+			throw new Exception("Awesomium crashed\r\n"+e.ToString());
+		}
+
 		private void Awesomium_Windows_Forms_WebControl_DocumentReady(object sender, Awesomium.Core.UrlEventArgs e)
 		{
-			_jsObject = webControlDetails.CreateGlobalJavascriptObject("app");
-			_jsBind();
+			try {
+				_jsObject = webControlDetails.CreateGlobalJavascriptObject("app");
+				_jsBind();
 
-			navDetailPath.resetPositions();
-			navDetails = new PNavigator(this.master, this.navDetailPath);
-			var obj = navDetails.Navigate(navDetailPath);
+				navDetailPath.resetPositions();
+				navDetails = new PNavigator(this.master, this.navDetailPath);
+				var obj = navDetails.Navigate(navDetailPath);
 
-			_updateActiveHtmlElement(0, obj.Id, doScroll: true);
-			_lastId = obj.Id;
-			enableChildControls(panelNavigator, true);
-			enableChildControls(panelAppCommands, true);
+				_updateActiveHtmlElement(0, obj.Id, doScroll: true);
+				_lastId = obj.Id;
+				enableChildControls(panelNavigator, true);
+				enableChildControls(panelAppCommands, true);
 
-			_domIsBusy = false;
+				_domIsBusy = false;
 
-			updateAppCommandsAvailability(panelAppCommands);
+				updateAppCommandsAvailability(panelAppCommands);
+			}
+			catch (Exception ex)
+			{
+				MessageBox.Show("Document Ready handler exception:\r\n"+ex.Message, "Ошибка в обработчике", MessageBoxButtons.OK, MessageBoxIcon.Error);
+			}
 		}
 
         private void _updateActiveHtmlElement(int deselectObjectId, int selectObjectId, bool doScroll)
@@ -263,24 +293,30 @@ namespace ProfileCut
 
         private void _jsBodyClickHandler(object sender, JavascriptMethodEventArgs args)
         {
-            if (args.Arguments.Count() > 0 && !args.Arguments[0].IsUndefined)
-            {
-				if (args.Arguments.Length <= 0)
-					throw new Exception(@"_jsBodyClickHandler(args.lenght == 0) должен быть id объекта");
-				string arg0 = args.Arguments[0];
-				int id = Convert.ToInt32(arg0);
-                //ABaseObject obj = _master.GetObjectById(Convert.ToInt32(id));
-				IPObject obj;
-				if (!_data.objectsIndex.TryGetValue(id, out obj))
-					throw new Exception(string.Format(@"Не удалось найти объект по ID={0}", id));
+			try {
+				if (args.Arguments.Count() > 0 && !args.Arguments[0].IsUndefined)
+				{
+					if (args.Arguments.Length <= 0)
+						throw new Exception(@"_jsBodyClickHandler(args.lenght == 0) должен быть id объекта");
+					string arg0 = args.Arguments[0];
+					int id = Convert.ToInt32(arg0);
+					//ABaseObject obj = _master.GetObjectById(Convert.ToInt32(id));
+					IPObject obj;
+					if (!_data.objectsIndex.TryGetValue(id, out obj))
+						throw new Exception(string.Format(@"Не удалось найти объект по ID={0}", id));
 
-				PNavigatorPath path = navDetails.GetPathTo(obj);
-				navDetails.Navigate(path);
-                _updateActiveHtmlElement(_lastId, obj.Id, false);
-                _lastId = obj.Id;
+					PNavigatorPath path = navDetails.GetPathTo(obj);
+					navDetails.Navigate(path);
+					_updateActiveHtmlElement(_lastId, obj.Id, false);
+					_lastId = obj.Id;
 
-                updateAppCommandsAvailability(panelAppCommands);
-            }
+					updateAppCommandsAvailability(panelAppCommands);
+				}
+			}
+			catch (Exception ex)
+			{
+				MessageBox.Show("jsBodyClick handler exception:\r\n" + ex.Message, "Ошибка в обработчике", MessageBoxButtons.OK, MessageBoxIcon.Error);
+			}
         }
 
 		private void _createNavButtons(Control owner, List<string> names)
@@ -421,10 +457,12 @@ namespace ProfileCut
         private void _navButtonClick(object sender, EventArgs e)
         {
             RNavigatorButton b = sender as RNavigatorButton;
-            IPObject obj = navDetails.Navigate(b.Depth, b.Direction, overStep:true);
+            navDetails.Navigate(b.Depth, b.Direction, overStep:true);
 
-            _updateActiveHtmlElement(_lastId, obj.Id, false);
-            _lastId = obj.Id;
+			if (navDetails.Pointer != null){
+				_updateActiveHtmlElement(_lastId, navDetails.Pointer.Id, false);
+				_lastId = navDetails.Pointer.Id;
+			}
 
             updateAppCommandsAvailability(panelAppCommands);
         }
@@ -440,15 +478,11 @@ namespace ProfileCut
         private void _reloadModel(IStorage storage, string modelCode, string masterItemTemplateName, bool restorePosition)
         {
 			int currentId = 0;
-			if (restorePosition)
+			if (restorePosition && (listBoxOptimizations.SelectedItem != null))
 				currentId = (this.listBoxOptimizations.SelectedItem as RMasterItem).Object.Id;
 
 			// загрузка модели
 			_data = new PModel(storage, modelCode, deferredLoad: true);
-
-			// установка навигатора
-			navMaster = new PNavigator(_data.Root, this.navMasterPath);
-			navMaster.OnNavigated += navMaster_OnNavigated;
 
 			_refreshOptimizationList(currentId);
         }
@@ -457,6 +491,7 @@ namespace ProfileCut
         {
             listBoxOptimizations.Items.Clear();
 
+			navMasterPath.resetPositions();
 			PNavigator navMasterItems = new PNavigator(_data.Root, navMasterPath);
 
 			int selectIndex = -1;

@@ -49,7 +49,8 @@ namespace Platform2
 			List<string> collectsNames = storage.ListCollections(Id);
 			foreach (string name in collectsNames)
 			{
-				_collections.Add(name, new PCollection(this, name, deferredLoad));
+				string lowName = name.ToLower();
+				_collections.Add(lowName, new PCollection(this, lowName, deferredLoad));
 			}
         }
 
@@ -112,13 +113,14 @@ namespace Platform2
 		public void SetAttr(string name, string value)
         {
             string val = "";
-            if (!_attrs.TryGetValue(name.ToLower(), out val))
+			string lowerName = name.ToLower();
+            if (!_attrs.TryGetValue(lowerName, out val))
             {
-                _attrs.Add(name.ToLower(), value);
+                _attrs.Add(lowerName, value);
             }
             else
             {
-                _attrs[name.ToLower()] = value;
+                _attrs[lowerName] = value;
             }            
         }
 

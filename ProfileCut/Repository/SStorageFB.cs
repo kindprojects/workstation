@@ -209,7 +209,7 @@ namespace Repository
                 string collCode = "";
                 if (row.TryGetValue("collectioncode", out collCode))
                 {
-                    ret.Add(collCode);
+                    ret.Add(collCode.ToLower());
                 }
             }
 
@@ -230,7 +230,7 @@ namespace Repository
 
             string[] paramList = { "objectid", objectId.ToString() };
             List<Dictionary<string, string>> q = _sqlSelect(
-                "select a.attributecode, oa.val as val "
+                "select a.attributecode, coalesce(oa.val, oa.blobval) as val "
                 + " from object_attributes oa"
                 + " left join attributes a on a.attributeid = oa.attributeid"
                 + " where oa.objectid = @objectid"
@@ -243,7 +243,7 @@ namespace Repository
 
                 if (row.TryGetValue("attributecode", out attributeCode) && row.TryGetValue("val", out val))
                 {
-                    ret.Add(attributeCode, val);
+                    ret.Add(attributeCode.ToLower(), val);
                 }
             }
 
@@ -281,7 +281,7 @@ namespace Repository
             string[] paramList = { "attributecode", name };
 
             List<Dictionary<string, string>> q = _sqlSelect(
-                "select attributeid from attributes a where attributecode = @attributecode",
+                "select attributeid from attributes a where upper(attributecode) = upper(@attributecode)",
                 paramList
             );
 
@@ -289,7 +289,7 @@ namespace Repository
             if (q.Count() == 0)
             {
                 int? retId = _sqlInsert(
-                    "insert into attributes (attributecode) values (@attributecode) returning attributeid",
+                    "insert into attributes (attributecode) values (upper(@attributecode)) returning attributeid",
                     paramList);
 
                 if (retId != null)

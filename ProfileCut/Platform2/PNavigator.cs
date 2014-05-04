@@ -38,8 +38,9 @@ namespace Platform2
         {
             _base = owner;
 			_path = path!=null?path:new PNavigatorPath(null);
-			// ToDo: navigate! (update pointer)
+			_pointer = NavigateFromObject(_base, _path, true);
         }
+		
 		public PNavigatorPath GetPathTo(IPObject child){
 			IPObject o = child;
 			if (child.Id == this._base.Id)
@@ -56,6 +57,31 @@ namespace Platform2
 					return retPath;
 			}
 			throw new Exception(string.Format(@"Объект id={0} не принадлежит объекту id={1}", child.Id, this._base.Id));
+		}
+
+		protected static IPObject NavigateFromObject(IPObject baseObj, PNavigatorPath path, bool partialReturn)
+		{
+			IPObject o = baseObj;
+			int cnt = path.Parts.Count;
+			for (int ii = 0; ii < cnt; ii++)
+			{
+				PNavigatorPathPart level = path.Parts[ii];
+				IPCollection collection = o.GetCollection(level.LevelName);
+				if (collection == null)
+					throw new Exception(string.Format(@"Коллекция {0} не найдена на уровне {1}", level.LevelName, ii));
+				try
+				{
+					o = collection.GetObject(level.PositionInLevel);
+				}
+				catch
+				{
+					if (partialReturn)
+						return o; // если объект с запрашиваемым индексом не найден - вернём тот, что был найден последний раз
+					else
+						throw;
+				}
+			}
+			return o;
 		}
         
         public IPObject GetObjectAtPathLevel(int depth, bool partialReturn)

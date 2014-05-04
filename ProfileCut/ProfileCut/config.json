@@ -6,7 +6,7 @@
 	"MasterCollectionPath": "Optimizations",
 	"DetailTemplate": "OptView",
 	"SelectedHtmlElementClass": "selectedObject",
-	"Navigation": "profiles:профиль/canes:хлыст",
+	"Navigation": "prof_groups:группы/profiles:профиль/canes:хлыст",
 	"MasterItemsUpdateIntervalMs": 10000,
 	"Debug": true,
     "Commands":

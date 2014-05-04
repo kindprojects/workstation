@@ -15,6 +15,7 @@ namespace ProfileCut
             {
                 Application.EnableVisualStyles();
                 Application.SetCompatibleTextRenderingDefault(false);
+				Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
                 Application.Run(new FMain());
 
             }

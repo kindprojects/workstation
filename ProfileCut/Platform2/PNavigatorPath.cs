@@ -16,6 +16,21 @@ namespace Platform2
 			if (init != null)
 				parse(init);
         }
+		public string ToString(int maxLevels=-1)
+		{
+			StringBuilder b = new StringBuilder();
+			if (maxLevels > this.Parts.Count)
+				throw new Exception(string.Format("Запрошенное количество уровней({0}) превышает доступное({1})", maxLevels, this.Parts.Count));
+			int cnt = maxLevels<=0?this.Parts.Count:maxLevels;
+			for (int i = 0; i < cnt; i++)
+			{
+				if (i > 0)
+					b.Append("/");
+				PNavigatorPathPart part = this.Parts[i];
+				b.AppendFormat("{0}:{1}", part.LevelName, part.PositionInLevel);
+			}
+			return b.ToString();
+		}
 
 		public bool isInPath(PNavigatorPath refPath){
 			int refCnt = refPath.Parts.Count;
@@ -43,6 +58,8 @@ namespace Platform2
 				throw new Exception(@"Длина пути для копирования превышает длину пути для замены");
 			for (int i = 0; i < cnt; i++)
 			{
+				if (this.Parts[i].LevelName != from.Parts[i].LevelName)
+					throw new Exception(string.Format(@"Имена коллекций в путях не совпадают ({0}:{1}<>{2})", i, this.Parts[i].LevelName, from.Parts[i].LevelName));
 				if (i < cntFrom)
 					Parts[i].PositionInLevel = from.Parts[i].PositionInLevel;
 				else

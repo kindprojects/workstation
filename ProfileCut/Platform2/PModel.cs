@@ -15,6 +15,7 @@ namespace Platform2
 
         public PModel(IStorage rep, string model, bool deferredLoad)
         {
+			this.objectsIndex = new Dictionary<int,IPObject>();
 			int objectId = rep.RootObjectId(model, -1);
 			if (objectId == -1)
 				throw new Exception(string.Format("Модель с кодом \"{0}\" не найдена", model));
