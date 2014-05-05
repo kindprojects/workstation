@@ -146,7 +146,9 @@
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="test.htm" />
+    <None Include="test.htm">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="Resources\check23.png" />
     <None Include="Resources\check2.png" />
     <Content Include="Resources\circular.ico" />

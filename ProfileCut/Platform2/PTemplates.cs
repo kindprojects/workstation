@@ -23,7 +23,7 @@ namespace Platform2
             return module.QueryValue(varName, true, out value);
         }
 
-        public static string FormatObject(IPObject obj, string template, IMValueGetter host, IMValueGetter overloads)
+        public static string FormatObject(IPObject obj, string template, IMHost host, IMValueGetter overloads)
         {
             List<PTemplateAttr> attrs;
             List<PTemplateCollection> fcollects;

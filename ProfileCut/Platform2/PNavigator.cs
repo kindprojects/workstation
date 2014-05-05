@@ -110,27 +110,27 @@ namespace Platform2
 
         public IPObject Navigate(int depth, NAV_DIRECTION dir, bool overStep)
         {
-            if (_base == null)
+            if (this._base == null)
                 throw new Exception("Текущий объект не задан");
 			
-            int cnt = depth + 1;
-
-            if (cnt > _path.Parts.Count())
+			if (depth >= this._path.Parts.Count())
                 throw new Exception("Задана глубина больше чем уровней в навигаторе");
 
             List<int> newPath = new List<int>();
-            for (int ii = 0; ii < cnt; ii++)
+            for (int ii = 0; ii <= depth; ii++)
             {
-                newPath.Add(_path.Parts[ii].PositionInLevel);
+                newPath.Add(this._path.Parts[ii].PositionInLevel);
             }
 
             if (_tryGetNewPath(ref newPath, dir, overStep))
             {
-                for (int ii = 0; ii < _path.Parts.Count; ii++)
+				int cnt = this._path.Parts.Count;
+				for (int ii = 0; ii < cnt; ii++)
                 {
-					_path.Parts[ii].PositionInLevel = (ii < cnt) ? newPath[ii] : 0;
+					_path.Parts[ii].PositionInLevel = (ii <= depth) ? newPath[ii] : 0;
                 }
-				this.Pointer = this.GetObjectAtPathLevel(depth, false);
+				this._path.Normalize(this._base);
+				this.Pointer = this.GetObjectAtPathLevel(_path.Parts.Count-1, false);
                 return Pointer;
             }
             else
@@ -177,15 +177,14 @@ namespace Platform2
             if (path.Count() > _path.Parts.Count())
                 throw new Exception(string.Format("Неправильный путь (path: {0} > levels: {1})", path.Count, _path.Parts.Count));
 
-            int index = path[toIndex];
-            for (int ii = 0; ii <= toIndex; ii++)
+			for (int ii = 0; ii <= toIndex; ii++)
             {
                 string collName = _path.Parts[ii].LevelName;
                 IPCollection coll = o.GetCollection(collName);
                 if (coll == null)
                     throw new Exception("Указанный в конфигурации путь не соответствует модели (коллекция " + collName + " не найдена)");
 
-                index = path[ii];
+                int index = path[ii];
                 if (index < 0 || index >= coll.Count)
                     return false;
 

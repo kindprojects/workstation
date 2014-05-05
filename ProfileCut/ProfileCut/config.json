@@ -5,7 +5,7 @@
 	"MasterItemTemplate": "OptItem",
 	"MasterCollectionPath": "Optimizations",
 	"DetailTemplate": "OptView",
-	"SelectedHtmlElementClass": "selectedObject",
+	"SelectedHtmlElementClass": "selected",
 	"Navigation": "prof_groups:группы/profiles:профиль/canes:хлыст",
 	"MasterItemsUpdateIntervalMs": 10000,
 	"Debug": true,
@@ -15,7 +15,7 @@
 		[
 			{
 				"Name": "Печать",
-				"TargetAttr": "optStickers",
+				"TargetAttr": "print_stickers",
 				"TemplateOverloads":
 				[
 					{
