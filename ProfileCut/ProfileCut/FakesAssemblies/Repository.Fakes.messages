@@ -1,0 +1,5 @@
+D:\RomycH\Github\workstation2\ProfileCut\ProfileCut\Fakes\Repository.fakes : warning : Cannot generate stub for Repository.SStorageFB: type is not visible to exported or assembly(Repository.Fakes).
+D:\RomycH\Github\workstation2\ProfileCut\ProfileCut\Fakes\Repository.fakes : warning : Cannot generate stub for Repository.SStorageXml: type is not visible to exported or assembly(Repository.Fakes).
+D:\RomycH\Github\workstation2\ProfileCut\ProfileCut\Fakes\Repository.fakes : warning : Cannot generate shim for Repository.ISRepository: type is an interface.
+D:\RomycH\Github\workstation2\ProfileCut\ProfileCut\Fakes\Repository.fakes : warning : Cannot generate shim for Repository.SStorageFB: type is not visible to exported or assembly(Repository.Fakes).
+D:\RomycH\Github\workstation2\ProfileCut\ProfileCut\Fakes\Repository.fakes : warning : Cannot generate shim for Repository.SStorageXml: type is not visible to exported or assembly(Repository.Fakes).

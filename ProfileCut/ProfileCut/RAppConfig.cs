@@ -2,69 +2,66 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 
 using ServiceStack.Text;
 using System.IO;
 using System.Windows.Forms;
 using System.Reflection;
+using ModuleConnect;
 
 namespace ProfileCut
 {
     public class RAppConfig
     {
+		protected string fileName;
         public string Version { set; get; }
         public string ConnectionString { set; get; }
         public string ModelCode { set; get; }
         public string MasterItemTemplate { set; get; }
-        public string MasterCollectionPath { set; get; } //collect1:index/collect2:index/collect31 -->
+        public string MasterCollectionPath { set; get; }
         public string DetailTemplate { set; get; }
         public string SelectedHtmlElementClass { set; get; }
         public string Navigation  { set; get; }
         public int MasterItemsUpdateIntervalMs { set; get; }
         public bool Debug { set; get; }
         public RAppCommands Commands { set; get; }
-
-        private string _fileName;
-
-        public RAppConfig()
-        {
-            _fileName = Path.GetDirectoryName(Application.ExecutablePath) + "\\config.json";
-        }
-
+		public List<RAppConfigVar> HostVars {set; get;}
+	
         private void Save()
         {
             string json = JsonSerializer.SerializeToString<RAppConfig>(this);
 
-            using (System.IO.StreamWriter file = new System.IO.StreamWriter(_fileName))
+            using (System.IO.StreamWriter file = new System.IO.StreamWriter(this.fileName))
             {
                 file.Write(json);
             }
         }
 
-        public RAppConfig Load()
+        static public RAppConfig Load(string fileName)
         {
             string json = "";
             try
             {
-                json = System.IO.File.ReadAllText(_fileName);
+                json = System.IO.File.ReadAllText(fileName);
             }
             catch(Exception ex)
             {
-                throw new Exception(String.Format("Неудалось открыть файл {0}. {1}", _fileName, ex.Message));
+                throw new Exception(String.Format("Неудалось открыть файл {0}. {1}", fileName, ex.Message));
             }
 
             RAppConfig conf = JsonSerializer.DeserializeFromString<RAppConfig>(json);
 
             if (conf == null || conf.Version == null)            
-                throw new Exception(String.Format("Неудалось загрузить конфигурацию из файла {0}\nНеверный формат", _fileName));
+                throw new Exception(String.Format("Неудалось загрузить конфигурацию из файла {0}\nНеверный формат", fileName));
             
             string version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
             if (conf.Version != version)
                 throw new Exception(String.Format(
                     "Версия указаная в конфигурационном файле {0} не совпадает с версией приложения {1}", 
                     conf.Version, version));
-            
-            return JsonSerializer.DeserializeFromString<RAppConfig>(json);
+            conf.fileName = fileName;
+            return conf;
         }
 
         private RAppConfig CreateDefault()
@@ -79,34 +76,69 @@ namespace ProfileCut
             config.MasterItemsUpdateIntervalMs = 10000;
             config.Debug = true;
 
-            config.Commands.Buttons.Add(new RAppButton()
-            {
-                Text = "Печать",
-                AttrTemplate = "PRINT_STICKERS",
-                TemplateOverloads = new RAppTemplateOverloads()
-                {
-                    PrinterName = "ZDesigner LP 2844"
-                }
-            });
+			RAppConfigVar printerName = new RAppConfigVar();
+			printerName.ParamName = "PrinterName";
+			printerName.Value = "ZDesigner LP 2844";
+
+			RAppCommand print = new RAppCommand();
+			print.Name = "Печать";
+			print.TargetAttr = "PRINT_STICKERS";
+			print.TemplateOverloads.Add(printerName);
+
+			config.Commands.Buttons.Add(print);
 
             return config;
         }
-    }
+		public static void ParseNavigationSetup(string path, out List<string> navLevels, out List<string> levelsAliases)
+		{
+			navLevels = new List<string>();
+			levelsAliases = new List<string>();
+			try
+			{
+				MatchCollection matches = Regex.Matches(path, @"([^:/]+):([^:/]+)");
+				foreach (Match match in matches)
+				{
+					navLevels.Add(match.Groups[1].Value.ToLower());
+					levelsAliases.Add(match.Groups[2].Value);
+				}
+			}
+			catch (Exception ex)
+			{
+				throw new Exception("Неверный формат пути. " + ex.Message);
+			}
+		}
+	}
 
     public class RAppCommands
     {
-        public List<RAppButton> Buttons { set; get; }
+        public List<RAppCommand> Buttons { set; get; }
     }
 
-    public class RAppButton
+    public class RAppCommand : IMValueGetter
     {
-        public string Text { set; get; }
-        public string AttrTemplate { set; get; }
-        public RAppTemplateOverloads TemplateOverloads {set; get; }
-    }
+        public string Name { set; get; }
+        public string TargetAttr { set; get; }
+        public List<RAppConfigVar> TemplateOverloads {set; get; }
 
-    public class RAppTemplateOverloads
-    {
-        public string PrinterName { set; get; }
-    }
+		public bool QueryValue(string varName, bool caseSensitive, out string value)
+		{
+			string lowerName = varName.ToLower();
+			foreach (RAppConfigVar var in TemplateOverloads)
+			{
+				if (var.ParamName == varName || (!caseSensitive && var.ParamName.ToLower() == lowerName))
+				{
+					value = var.Value;
+					return true;
+				}
+			}
+			value = null;
+			return false;
+		}
+	}
+
+	public class RAppConfigVar
+	{
+		public string ParamName { set; get; }
+		public string Value { set; get; }
+	}	
 }

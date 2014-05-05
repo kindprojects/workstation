@@ -9,9 +9,18 @@ namespace Platform2
 {
     public class PModel
     {
-        public IPObject GetRoot(SRepository repository, string model, bool deferredLoad, IPHost host)
+        public IPObject Root { set; get; }
+
+		public Dictionary<int,IPObject> objectsIndex;
+
+        public PModel(IStorage rep, string model, bool deferredLoad)
         {
-            return new PObject(repository, model, deferredLoad, host);
+			this.objectsIndex = new Dictionary<int,IPObject>();
+			int objectId = rep.RootObjectId(model, -1);
+			if (objectId == -1)
+				throw new Exception(string.Format("Модель с кодом \"{0}\" не найдена", model));
+			Root = new PObject(rep, objectId, objectsIndex, deferredLoad);
+            //Root = new PObject(new SRepositoryLinq(connectionString), model, deferredLoad, host);
         }
     }
 }

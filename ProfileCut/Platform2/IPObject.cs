@@ -2,36 +2,23 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Xml.Linq;
 
 using Repository;
-using System.ComponentModel;
 
 namespace Platform2
 {
     public interface IPObject
     {
         int Id { set; get; }
-
+		IPCollection GetCollection(string name);
         bool GetAttr(string name, bool findInOwners, out string val);
+		bool FindAttr(string attrName, out IPObject obj, out string val);
+		void SetAttr(string name, string value);
+        void StorageUpdateAttr(string name);
+		IPCollection onwerCollection { get; }
+		bool IsChildOf(int objectId);
 
-        void SetAttr(string name, string value);
-
-        IPObject Navigate(int depth, NAV_DIRECTION direction);
-        
-        IPObject Navigate(string path);
-        
-        IPObject GetObjectByDepth(int level);
-        
-        IPObject GetObjectById(int id);
-        
-        void SetNavigatorPointer(IPObject obj);
-        
-        IPObject GetNavigatorPointer();
-        
-        string FindAndFormat(string attrName, BackgroundWorker worker);
-        
-        string Format(string templateName, BackgroundWorker worker);
-        
-        void SaveAttr(string name);
+		XElement ToXElement();
     }
 }

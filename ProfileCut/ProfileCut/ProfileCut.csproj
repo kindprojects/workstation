@@ -115,11 +115,10 @@
       <AutoGen>True</AutoGen>
     </Compile>
     <Compile Include="RMasterItem.cs" />
-    <Compile Include="RNavigatorPath.cs" />
     <Compile Include="RNavigatorButton.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="RPrinterButton.cs">
+    <Compile Include="RAppCommandButton.cs">
       <SubType>Component</SubType>
     </Compile>
     <EmbeddedResource Include="FMain.resx">
@@ -143,7 +142,7 @@
     <None Include="config.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <Fakes Include="DB.FDB" />
+    <None Include="DB.FDB" />
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -159,6 +158,9 @@
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="test.htm">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="Resources\check23.png" />
     <None Include="Resources\check2.png" />
     <Content Include="Resources\arrows.png" />

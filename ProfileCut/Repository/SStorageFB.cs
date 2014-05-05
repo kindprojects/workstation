@@ -11,7 +11,7 @@ using System.Data;
 
 namespace Repository
 {
-    class SStorageFB : ISRepository
+    public class SStorageFB : IStorage, IDisposable
     {        
         private FbConnection _db;
 
@@ -19,10 +19,18 @@ namespace Repository
         {
 			string modified = this._genLocalDBPathIfLocalDB(connectionString);
 
-			_db = new FbConnection(modified); // отказались от использования модифицированного пути, слишком много нюансов. Алиас на сервере надежнее и правильнее.
+			_db = new FbConnection(connectionString); // отказались от использования модифицированного пути, слишком много нюансов. Алиас на сервере надежнее и правильнее.
         }
 
         #region Service
+		public void Dispose()
+		{
+			this.Dispose(false);
+		}
+		protected virtual void Dispose(bool ceanManaged)
+		{
+			this._db.Dispose();
+		}
         private bool _isOpen()
         {
             return (_db.State == System.Data.ConnectionState.Open);
@@ -201,7 +209,7 @@ namespace Repository
                 string collCode = "";
                 if (row.TryGetValue("collectioncode", out collCode))
                 {
-                    ret.Add(collCode);
+                    ret.Add(collCode.ToLower());
                 }
             }
 
@@ -212,21 +220,21 @@ namespace Repository
         {
             Dictionary<string, string> ret = new Dictionary<string, string>();
 
-            string[] paramList = { "objectid", objectId.ToString() };
-            List<Dictionary<string, string>> q = _sqlSelect(
-                "select a.attributecode, coalesce(oa.blobval, oa.val) as val "
-                + " from object_attributes oa"
-                + " left join attributes a on a.attributeid = oa.attributeid"
-                + " where oa.objectid = @objectid"
-                , paramList);
-
             //string[] paramList = { "objectid", objectId.ToString() };
             //List<Dictionary<string, string>> q = _sqlSelect(
-            //    "select a.attributecode, oa.val as val "
+            //    "select a.attributecode, coalesce(oa.blobval, oa.val) as val "
             //    + " from object_attributes oa"
             //    + " left join attributes a on a.attributeid = oa.attributeid"
             //    + " where oa.objectid = @objectid"
             //    , paramList);
+
+            string[] paramList = { "objectid", objectId.ToString() };
+            List<Dictionary<string, string>> q = _sqlSelect(
+                "select a.attributecode, coalesce(oa.val, oa.blobval) as val "
+                + " from object_attributes oa"
+                + " left join attributes a on a.attributeid = oa.attributeid"
+                + " where oa.objectid = @objectid"
+                , paramList);
 
             foreach (Dictionary<string, string> row in q)
             {
@@ -235,7 +243,7 @@ namespace Repository
 
                 if (row.TryGetValue("attributecode", out attributeCode) && row.TryGetValue("val", out val))
                 {
-                    ret.Add(attributeCode, val);
+                    ret.Add(attributeCode.ToLower(), val);
                 }
             }
 
@@ -268,12 +276,12 @@ namespace Repository
             return ret;
         }
 
-        public void SaveAttribute(int objectId, string name, string value)
+        public void SetAttribute(int objectId, string name, string value)
         {
             string[] paramList = { "attributecode", name };
 
             List<Dictionary<string, string>> q = _sqlSelect(
-                "select attributeid from attributes a where attributecode = @attributecode",
+                "select attributeid from attributes a where upper(attributecode) = upper(@attributecode)",
                 paramList
             );
 
@@ -281,7 +289,7 @@ namespace Repository
             if (q.Count() == 0)
             {
                 int? retId = _sqlInsert(
-                    "insert into attributes (attributecode) values (@attributecode) returning attributeid",
+                    "insert into attributes (attributecode) values (upper(@attributecode)) returning attributeid",
                     paramList);
 
                 if (retId != null)
@@ -297,8 +305,8 @@ namespace Repository
                     "update or insert into object_attributes (attributeid, objectid, val) values (@attributeid, @objectid, @val) returning objectid",
                     insParamList);
             }
-        }      
+        }
 
-        #endregion        
+        #endregion
     }
 }

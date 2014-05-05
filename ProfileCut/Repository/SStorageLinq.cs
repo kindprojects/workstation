@@ -10,7 +10,7 @@ using System.Data;
 
 namespace Repository
 {
-    class SStorageLinq : ISRepository
+    class SStorageLinq : IStorage, IDisposable
     {
         private FbConnection _db;
         private DataSet _ds;
@@ -24,7 +24,15 @@ namespace Repository
             _ds = new DataSet();
             _loadTables();
         }
-
+		public void Dispose()
+		{
+			this.Dispose(false);
+		}
+		protected virtual void Dispose(bool cleanManaged)
+		{
+			_ds.Dispose();
+			_db.Dispose();
+		}
         private bool _isOpen()
         {
             return (_db.State == System.Data.ConnectionState.Open);
@@ -170,7 +178,7 @@ namespace Repository
             return ret;
         }
 
-        public void SaveAttribute(int objectId, string name, string value)
+        public void SetAttribute(int objectId, string name, string value)
         {
             string[] paramList = { "attributecode", name };
 

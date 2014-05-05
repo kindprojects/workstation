@@ -5,169 +5,219 @@ using System.Data;
 using System.Drawing;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
 using System.IO;
 using Awesomium.ComponentModel;
 using Awesomium.Core;
-using Awesomium.Core.Data;
 using Awesomium.Web;
 using Awesomium.Windows;
-using System.Text.RegularExpressions;
 
 using ModuleConnect;
+using Repository;
 using Platform2;
 
 namespace ProfileCut
 {
-    public partial class FMain : Form, IPHost
+    public partial class FMain : Form, IMHost
     {
-        //private JSObject _jsObject;
+		private RAppConfig _conf;
 
-        private RAppConfig _conf;
+		private IStorage _modelStorage;
 
-        private PFb _viewModel;
+        private PModel _data;
+		protected PNavigatorPath navMasterPath;
 
-        private IPObject _master;
+		protected PNavigatorPath navDetailPath;
+		protected PNavigator navDetails;
+		protected bool scrollDetailViewOnNavigate;
 
-        private int _previousId;
+		private bool _domIsBusy;
+		private JSObject _jsObject;
+		private IPObject _master;
 
-        private RNavigatorPath _startNavigatorPath;
-
-        private List<string> _buttonNames;
-
-        //private bool _domIsReady;
-
-        private RPrinterButton _printButtonPress = null;
+		protected IPObject master {
+			set
+			{
+				IPObject prev = _master;
+				try{
+					// обновление контента
+					enableChildControls(panelNavigator, false);
+					enableChildControls(panelAppCommands, false);
+					_loadOptHtml(value);
+					_master = value; // если обновление удалось, то можно сменить объект
+				}finally{
+					// обновление списка (если выбран другой элемент, в списке это должно быть видно)
+					if (_master == null)
+						listBoxOptimizations.SelectedItem = null;
+					else if (_master != prev)
+					{
+						int masterId = _master.Id;
+						foreach (RMasterItem item in listBoxOptimizations.Items)
+						{
+							if (item.Object.Id == masterId)
+							{
+								listBoxOptimizations.SelectedItem = item;
+								break;
+							}
+						}
+					}
+				}
+			}
+			get { return _master; }
+		}
 
         public FMain()
         {
+			// инициализация компонентов
             InitializeComponent();
-            _startNavigatorPath = new RNavigatorPath();
+			listBoxOptimizations.DisplayMember = "Title";
+			listBoxOptimizations.ValueMember = "Object";
+			webControlDetails.Crashed += webControlDetails_Crashed;
 
-            _buttonNames = new List<string>();
+			// инициализация внутренних переменных
+			_domIsBusy = false;
+			this.Text = "Распил " + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
+			
+			// загрузка конфигурации
+			_conf = RAppConfig.Load(Path.GetDirectoryName(Application.ExecutablePath) + "\\config.json");
+			
+			// навигация
+			List<string> navDetailLevels;
+			List<string> navButtonsCaptions;
+			RAppConfig.ParseNavigationSetup(_conf.Navigation, out navDetailLevels, out navButtonsCaptions);
+			// настройка навигации
+			this.navMasterPath = new PNavigatorPath(_conf.MasterCollectionPath+":0");
+			for (int i = 0; i < navDetailLevels.Count; i++)
+				navDetailLevels[i] += ":0";
+			this.navDetailPath = new PNavigatorPath(string.Join("/", navDetailLevels.ToArray()));
+			// кнопки для навигации
+			_createNavButtons(panelNavigator, navButtonsCaptions);
+			_createAppCommandsButtons(panelAppCommands, _conf.Commands.Buttons);
+			enableChildControls(panelNavigator, false);
+			enableChildControls(panelAppCommands, false);
 
-            _conf = new RAppConfig().Load();
-            _parseNavigation(_conf.Navigation);
-            _createButtons(_buttonNames);
+			// подключаем хранилище данных
+			this._modelStorage = new SStorageFB(_conf.ConnectionString);
 
-            _viewModel = new PFb(_conf.ConnectionString, _conf.ModelCode, true, this);
-
-            _master = _viewModel.Root.Navigate(_conf.MasterCollectionPath + ":0");
-
-            _navButtonsDisable(panelNavigator);
-            _printButtonsDisable(panelPrinterButtons);
-
-            //_domIsReady = true;
-
-            this.Text = "Распил " + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
-        }
-
-        public string QueryToHost(string text)
-        {
-            string ret = null;
-            if (text.ToLower() == "printername")
-            {
-                if (_printButtonPress != null)
-                {
-                    ret = _printButtonPress.TemplateOverloads.PrinterName;
-                }
-            }
-
-            return ret;
+			_reloadModel(this._modelStorage, _conf.ModelCode, _conf.MasterItemTemplate, restorePosition: false);
         }
 
         private void FMain_Load(object sender, EventArgs e)
         {
-            WindowState = FormWindowState.Maximized;
-
-            listBoxOptimizations.DisplayMember = "Title";
-            listBoxOptimizations.ValueMember = "Object";
-
-            _refreshOptimizationList();
+			WindowState = FormWindowState.Maximized;
         }
+
+		public bool QueryValue(string varName, bool caseSensitive, out string value)
+		{
+			value = null;
+			string lowerName = varName.ToLower();
+			foreach (RAppConfigVar var in _conf.HostVars)
+			{
+				if (var.ParamName == varName || (!caseSensitive && var.ParamName.ToLower() == lowerName))
+				{
+					value = var.Value;
+					return true;
+				}
+			}
+			return false;
+		}
 
         private void listBoxOptimizations_SelectedIndexChanged(object sender, EventArgs e)
         {
-            ListBox list_box = (sender as ListBox);
-
-            // нельзя грузить html в awesomium если загрузка уже идет
-            //if (_domIsReady)
-            //{
-                _loadHtml();
-            //}
+			RMasterItem item = listBoxOptimizations.SelectedItem as RMasterItem;
+			if (item == null)
+			{
+				this.master = null;
+			}
+			else if (item.Object != this.master) // это важно
+			{
+				this.master = item.Object;
+				//Clipboard.SetText(this.master.ToXElement().ToString());
+			}
         }
 
-        // загружает в awesomium html выбранной оптимизации
-        private void _loadHtml()
-        {
-            if (listBoxOptimizations.SelectedItem != null)
-            {
-                IPObject obj = (listBoxOptimizations.SelectedItem as RMasterItem).Object;
+        private void _loadOptHtml(IPObject obj)
+		{
+			if (obj != null)
+			{
+				string template;
+				if (!obj.GetAttr(_conf.DetailTemplate, true, out template))
+					throw new Exception(string.Format(@"Шаблон просмотра деталей (атрибут {0}) не найден!", _conf.DetailTemplate));
 
-                if (obj != null)
-                {
-                    //_domIsReady = false;
+				string html = PTemplates.FormatObject(obj, template, this, null);
 
-                    _master = obj;
+				StreamReader streamReader = new StreamReader(Application.StartupPath+"\\test.htm");
+				//string html = streamReader.ReadToEnd();
+				streamReader.Close();
+				html = _addScriptsToBody(html);
 
-                    using (FFormat form = new FFormat(this.Width / 2 - 150, this.Height / 2 - 81, _master, _conf.DetailTemplate))
-                    {
-                        form.ShowDialog();
+				StreamWriter wr = new StreamWriter(Application.StartupPath+"\\test2.htm");
+				try {
+					wr.Write(html);
+				}
+				finally
+				{
+					wr.Close();
+				}
 
-                        if (form.Result != "")
-                        {
-                            string fileName = Application.StartupPath + @"//detail.html";
-                            _saveHtml(fileName, _addScriptsToBody(form.Result));
-
-                            webControlAwesomium.Source = new Uri(@"file:///" + fileName);
-                            webControlAwesomium.Update();                                
-                        }
-                        else
-                            webControlAwesomium.LoadHTML(_getEmptyHtml());
-                    }
-                }
-            }
+				if (_domIsBusy)
+					throw new Exception(@"DOM занят!");
+				if (!webControlDetails.IsLive)
+					throw new Exception("Not live");
+				_domIsBusy = true;
+				webControlDetails.Source = new Uri("file:///"+Application.StartupPath.Replace('\\', '/')+"/test2.htm");
+				webControlDetails.Update();
+			}
         }
 
-        private void _saveHtml(string fileName, string content)
-        {
-            using (StreamWriter file = new StreamWriter(fileName))
-            {
-                file.WriteLine(content);
-            }
-        }
-        
-        // загружает html только если выбранная оптимизация отлична от текущей
-        //private void _reloadHtml()
-        //{
-        //    if (listBoxOptimizations.SelectedItem != null)
-        //    {
-        //        IPObject obj = (listBoxOptimizations.SelectedItem as RMasterItem).Object;
+		void webControlDetails_Crashed(object sender, CrashedEventArgs e)
+		{
+			throw new Exception("Awesomium crashed\r\n"+e.ToString());
+		}
 
-        //        if (obj != null)
-        //        {
-        //            if (obj.Id != _master.Id)
-        //            {
-        //                if (_domIsReady)
-        //                {
-        //                    _domIsReady = false;
+		private void Awesomium_Windows_Forms_WebControl_DocumentReady(object sender, Awesomium.Core.UrlEventArgs e)
+		{
+			try {
+				_jsObject = webControlDetails.CreateGlobalJavascriptObject("app");
+				_jsBind();
 
-        //                    _master = obj;
-        //                    string html = _master.Format(_conf.DetailTemplate);
-        //                    webControlDetails.LoadHTML(_addScriptsToBody(html));
-        //                }
-        //            }
-        //        }
-        //    }
-        //}
+				enableChildControls(panelNavigator, true);
+				enableChildControls(panelAppCommands, true);
+
+				navDetailPath.resetPositions();
+				navDetails = new PNavigator(this.master, this.navDetailPath);
+				navDetails.OnNavigated += navDetails_OnNavigated;
+				this.scrollDetailViewOnNavigate = true;
+				navDetails.Navigate(navDetailPath);
+
+				_domIsBusy = false;
+
+			}
+			catch (Exception ex)
+			{
+				MessageBox.Show("Document Ready handler exception:\r\n"+ex.Message, "Ошибка в обработчике", MessageBoxButtons.OK, MessageBoxIcon.Error);
+			}
+		}
+
+		void navDetails_OnNavigated(object sender, NavigatedEventArgs e)
+		{
+			int prevId = e.prevObject != null ? e.prevObject.Id : 0;
+			int newId = e.newObject != null ? e.newObject.Id : 0;
+			_updateActiveHtmlElement(prevId, newId, doScroll: this.scrollDetailViewOnNavigate);
+
+			_domIsBusy = false;
+
+			updateAppCommandsAvailability(panelAppCommands);
+		}
 
         private void _updateActiveHtmlElement(int deselectObjectId, int selectObjectId, bool doScroll)
         {
             if (deselectObjectId > 0)
             {
-                _removeClass(deselectObjectId.ToString(), _conf.SelectedHtmlElementClass);
+                _removeClass(deselectObjectId.ToString(), _conf.SelectedHtmlElementClass);                
             }
             if (selectObjectId > 0)
             {
@@ -175,7 +225,7 @@ namespace ProfileCut
 
                 if (doScroll)
                 {
-                    _scrollTo(selectObjectId.ToString(), 60);
+                    _scrollTo(selectObjectId.ToString(), 120);
                 }
             }
         }
@@ -207,7 +257,7 @@ namespace ProfileCut
             + " if (o.className.indexOf(c) == -1) o.className = o.className + ' ' + c + ' ';}"
             + " f(document.getElementById('" + id + "'), '" + className + "');";
 
-            webControlAwesomium.ExecuteJavascript(js);
+            webControlDetails.ExecuteJavascript(js);
         }
 
         private void _scrollTo(string id, int yOffset)
@@ -224,7 +274,7 @@ namespace ProfileCut
                 + " window.scrollTo(left, top - yOffset);}}"
                 + " f('" + id + "', " + yOffset.ToString() + ");";
 
-            webControlAwesomium.ExecuteJavascript(str);
+            webControlDetails.ExecuteJavascript(str);
         }
 
         private void _removeClass(string id, string className)
@@ -233,7 +283,7 @@ namespace ProfileCut
             + " o.className = o.className.replace(c, '');}"
             + " f(document.getElementById('" + id + "'), ' " + className + "');";
 
-            webControlAwesomium.ExecuteJavascript(js);
+            webControlDetails.ExecuteJavascript(js);
         }
 
         private void _addOrRemoveClass(string id, string className)
@@ -247,124 +297,106 @@ namespace ProfileCut
                 + " e.className = c;}}"
                 + " f(" + id + ", '" + className + "');";
 
-            webControlAwesomium.ExecuteJavascript(js);
+            webControlDetails.ExecuteJavascript(js);
         }
 
         private void _jsBind()
         {
-            JSObject jsObject = webControlAwesomium.CreateGlobalJavascriptObject("app");
-            jsObject.Bind("bodyOnClick", true, _jsBodyClickHandler);
+            _jsObject.Bind("bodyOnClick", true, _jsBodyClickHandler);
         }
 
         private void _jsBodyClickHandler(object sender, JavascriptMethodEventArgs args)
         {
-            try
-            {
-                if (args.Arguments.Count() > 0 && !args.Arguments[0].IsUndefined)
-                {
-                    string id = args.Arguments[0];
-                    //ABaseObject obj = _master.GetObjectById(Convert.ToInt32(id));
-                    IPObject obj = _master.GetObjectById(Convert.ToInt32(id));
+			try {
+				if (this._domIsBusy)
+					throw new Exception("DOM занят");
+				if (args.Arguments.Count() > 0 && !args.Arguments[0].IsUndefined)
+				{
+					if (args.Arguments.Length <= 0)
+						throw new Exception(@"_jsBodyClickHandler(args.lenght == 0) должен быть id объекта");
+					string arg0 = args.Arguments[0];
+					int id = Convert.ToInt32(arg0);
+					//ABaseObject obj = _master.GetObjectById(Convert.ToInt32(id));
+					IPObject obj;
+					if (!_data.objectsIndex.TryGetValue(id, out obj))
+						throw new Exception(string.Format(@"Не удалось найти объект по ID={0}", id));
 
-                    _master.SetNavigatorPointer(obj);
-                    _updateActiveHtmlElement(_previousId, obj.Id, false);
-                    _previousId = obj.Id;
-
-                    _printButtonsEnable(panelPrinterButtons);
-                }
-            }
-            catch(Exception ex)
-            {
-                MessageBox.Show(ex.GetType().ToString() + ":\n" + ex.Message, Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
+					if (navDetails != null)
+					{
+						PNavigatorPath path = navDetails.GetPathTo(obj);
+						this.scrollDetailViewOnNavigate = false;
+						navDetails.Navigate(path);
+					}
+					else
+					{
+						throw new Exception("navDetails не создан!");
+					}
+				}
+			}
+			catch (Exception ex)
+			{
+				MessageBox.Show("jsBodyClick handler exception:\r\n" + ex.Message, "Ошибка в обработчике", MessageBoxButtons.OK, MessageBoxIcon.Error);
+			}
         }
 
-        private void Awesomium_Windows_Forms_WebControl_DocumentReady(object sender, Awesomium.Core.UrlEventArgs e)
-        {
-            try
-            {
-                _jsBind();
-
-                var obj = _master.Navigate(_startNavigatorPath.GetStringPath());
-                _updateActiveHtmlElement(0, obj.Id, true);
-                _previousId = obj.Id;
-                _navButtonsEnable(panelNavigator);
-
-                _printButtonsEnable(panelPrinterButtons);
-            }
-            catch(Exception ex)
-            {
-                MessageBox.Show(ex.GetType().ToString() + ":\n" + ex.Message, Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-        }
-
-        private void _parseNavigation(string path)
-        {
-            try
-            {
-                foreach (Match match in Regex.Matches(path, @"([^:/\\]+(?::[^:/\\]+)?)"))
-                {
-                    MatchCollection partMatches = Regex.Matches(match.Groups[1].ToString(), @"([^:]+)(?::([^:]+))?", RegexOptions.IgnoreCase);
-                    foreach (Match partMatch in partMatches)
-                    {
-                        _startNavigatorPath.Parts.Add(new RNavigatorPartPath(partMatch.Groups[1].Value.ToString(), 0));
-                        _buttonNames.Add(partMatch.Groups[2].Value.ToString());
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                throw new Exception("Не верный формат пути. " + ex.Message);
-            }
-        }
-
-        private void _createButtons(List<string> names)
+		private void _createNavButtons(Control owner, List<string> names)
         {
             int depth = 0;
             int x = 0;
             foreach (string name in names)
             {
-                x = _createDepthButtons(panelNavigator, depth, name, x);
+				x = _createLevelButtons(owner, depth, name, x);
                 depth++;
             }
-
-            if (_conf.Commands != null)
-            {
-                x = 0;
-                for (int ii = _conf.Commands.Buttons.Count() - 1; ii >= 0; ii--)
-                {
-                    x = _createPrintButton(panelPrinterButtons, _conf.Commands.Buttons[ii], x);
-                }
-            }
         }
-        private int _createPrintButton(Control owner, RAppButton config, int x)
+		private void _createAppCommandsButtons(Control owner, List<RAppCommand> cmdList)
+		{
+			int x = 0;
+			for (int ii = cmdList.Count() - 1; ii >= 0; ii--)
+			{
+				RAppCommand cmd = cmdList[ii];
+				RAppCommandButton b = new RAppCommandButton(cmd);
+				b.Text = cmd.Name;
+				b.AutoSize = true;
+				b.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+				b.Height = owner.Height;
+				b.Left = owner.Width - b.Width - x;
+				b.Click += new System.EventHandler(this._commandButtonClick);
+				owner.Controls.Add(b);
+				x += b.Width + 2;
+			}
+		}
+
+        private void _commandButtonClick(object sender, EventArgs e)
         {
-            RPrinterButton b = new RPrinterButton(config);
-            b.AutoSize = true;
-            b.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            b.Height = owner.Height;
-            b.Left = owner.Width - b.Width - x;
-            b.Click += new System.EventHandler(this._printButtonClick);
+            RAppCommandButton b = sender as RAppCommandButton;
 
-            owner.Controls.Add(b);
-
-            return b.Width + 2;
-        }
-
-        private void _printButtonClick(object sender, EventArgs e)
-        {
-            RPrinterButton b = (RPrinterButton)sender;
-            _printButtonPress = b;
-
-            if (_master != null)
+			IPObject pointer = navDetails.Pointer;
+			string targetAttr = b.appCommand.TargetAttr;
+            if (pointer != null && targetAttr != "")
             {
-                IPObject pointer = _master.GetNavigatorPointer();
-                if (pointer != null && b.AttrTemplate != "")
-                {
-                    string commands = pointer.FindAndFormat(b.AttrTemplate, null);//, b.TemplateOverloads.GetTemplateOverloadsDictonary());
-                    MScriptManager.Execute(Path.GetDirectoryName(Application.ExecutablePath),
-                        commands, new ModuleFinishedHandler(this._moduleFinishedCallback));
-                }
+				IPObject objTarget;
+				string scriptAttr;
+				if (pointer.FindAttr(targetAttr, out objTarget, out scriptAttr)){
+					string scriptTemplate;
+					if (objTarget.GetAttr(scriptAttr, true, out scriptTemplate))
+					{
+						string script = PTemplates.FormatObject(objTarget, scriptTemplate, this, b.appCommand);
+						MScriptManager.Execute(Path.GetDirectoryName(Application.ExecutablePath)
+							, this
+							, script
+							, new ModuleFinishedHandler(this._moduleFinishedCallback)
+						);
+					}
+					else
+					{
+						throw new Exception(string.Format(@"Не найден атрибут '{0}', который должен содержать скрипт для команды {1}", scriptAttr, b.appCommand.Name));
+					}
+				}
+				else
+				{
+					throw new Exception(string.Format(@"Не найден объект, содержащий целевой атрибут '{0}'", targetAttr));
+				}
             }
         }
 
@@ -373,7 +405,7 @@ namespace ProfileCut
 
         }
 
-        private int _createDepthButtons(Control owner, int depth, string text, int x)
+        private int _createLevelButtons(Control owner, int depthTag, string text, int x)
         {
             const int btnWidth = 40;
 
@@ -384,8 +416,7 @@ namespace ProfileCut
             p.Controls.Add(l);
             l.Text = text;
             l.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            l.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, 
-                System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            l.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             l.AutoSize = true;
             int labWidth = l.Width;
             l.AutoSize = false;
@@ -393,7 +424,7 @@ namespace ProfileCut
             l.Height = owner.Height;
             p.Width = labWidth + 2 * btnWidth + 1;
 
-            RNavigatorButton b = new RNavigatorButton(depth, NAV_DIRECTION.UP);
+            RNavigatorButton b = new RNavigatorButton(depthTag, NAV_DIRECTION.UP);
             p.Controls.Add(b);
             b.Width = btnWidth;
             b.Height = owner.Height;
@@ -404,7 +435,7 @@ namespace ProfileCut
             b.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
             b.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
 
-            b = new RNavigatorButton(depth, NAV_DIRECTION.DOWN);
+            b = new RNavigatorButton(depthTag, NAV_DIRECTION.DOWN);
             p.Controls.Add(b);
             b.Width = btnWidth;
             b.Height = owner.Height;
@@ -418,98 +449,91 @@ namespace ProfileCut
             owner.Controls.Add(p);
             p.Parent = owner;
 
-            return p.Width + x;
+            return p.Width+x;
         }
-
-        private void _navButtonsEnable(Control owner)
+        protected void enableChildControls(Control owner, bool enabled)
         {
-            owner.Enabled = true;
-            foreach (Control button in owner.Controls)
+            owner.Enabled = enabled;
+            foreach (Control ctrl in owner.Controls)
             {
-                button.Enabled = true;
-            }
-        }
-        private void _navButtonsDisable(Control owner)
-        {
-            owner.Enabled = false;
-            foreach (Control button in owner.Controls)
-            {
-                button.Enabled = false;
+                ctrl.Enabled = enabled;
             }
         }
 
-        private void _printButtonsEnable(Control owner)
+        private void updateAppCommandsAvailability(Control owner)
         {
-            foreach (RPrinterButton button in owner.Controls)
+            foreach (Control ctrl in owner.Controls)
             {
-                IPObject o = _getObjectWihtAttrTempate(button.AttrTemplate);
-                if (o != null)
-                    button.Enabled = true;
-                else
-                    button.Enabled = false;
-            }
-        }
-
-        private void _printButtonsDisable(Control owner)
-        {
-            foreach (RPrinterButton button in owner.Controls)
-            {
-                button.Enabled = false;
+				if (ctrl is RAppCommandButton)
+				{
+					RAppCommandButton btn = (RAppCommandButton)ctrl;
+					IPObject obj;
+					string val;
+					if (this.navDetails.Pointer != null)
+						btn.Enabled = this.navDetails.Pointer.FindAttr(btn.appCommand.TargetAttr, out obj, out val);
+					else
+						btn.Enabled = false;
+				}
             }
         }
 
         private void _navButtonClick(object sender, EventArgs e)
         {
-            RNavigatorButton b = (RNavigatorButton)sender;
-            IPObject obj = _master.Navigate(b.Depth, b.Direction);
-
-            _updateActiveHtmlElement(_previousId, obj.Id, false);
-            _previousId = obj.Id;
-
-            _printButtonsEnable(panelPrinterButtons);
+            RNavigatorButton b = sender as RNavigatorButton;
+			this.scrollDetailViewOnNavigate = true;
+            navDetails.Navigate(b.Depth, b.Direction, overStep:true);
         }
 
         private void buttonRefresh_Click(object sender, EventArgs e)
         {
-            _refreshOptimization();
+			if (this._modelStorage != null)
+				_reloadModel(this._modelStorage, _conf.ModelCode, _conf.MasterItemTemplate, restorePosition:true);
+			else
+				throw new Exception(@"Хранилище модели не загружено");
         }
 
-        private void _refreshOptimization()
+        private void _reloadModel(IStorage storage, string modelCode, string masterItemTemplateName, bool restorePosition)
         {
-            object selectedItem = this.listBoxOptimizations.SelectedItem;
+			int currentId = 0;
+			if (restorePosition && (listBoxOptimizations.SelectedItem != null))
+				currentId = (this.listBoxOptimizations.SelectedItem as RMasterItem).Object.Id;
 
-            _viewModel = new PFb(_conf.ConnectionString, _conf.ModelCode, true, this);
-            _viewModel.Root.Navigate(_conf.MasterCollectionPath + ":0");
-            _refreshOptimizationList();
+			// загрузка модели
+			_data = new PModel(storage, modelCode, deferredLoad: true);
 
-            if (selectedItem != null)
-            {
-                int id = (selectedItem as RMasterItem).Object.Id;
-                _selectListItemById(id);
-            }
+			_refreshOptimizationList(currentId);
         }
 
-        private void _refreshOptimizationList()
+        private void _refreshOptimizationList(int selectObjectWithId)
         {
             listBoxOptimizations.Items.Clear();
-            IPObject root = _viewModel.Root;
-            IPObject obj;
-            do
+
+			navMasterPath.resetPositions();
+			PNavigator navMasterItems = new PNavigator(_data.Root, navMasterPath);
+
+			int selectIndex = -1;
+			while (navMasterItems.Navigate(0, NAV_DIRECTION.DOWN, false) != null)
             {
-                obj = root.GetNavigatorPointer();
-                string ready;
-                obj.GetAttr("READY", false, out ready);
+                IPObject obj = navMasterItems.Pointer;
 
-                //if (ready == "1")
-                //{
-                RMasterItem item = new RMasterItem();
-                item.Title = obj.Format(_conf.MasterItemTemplate, null);
-                item.Object = obj;
-                listBoxOptimizations.Items.Add(item);
-                //}
-
-            } while (obj.Id != root.Navigate(0, NAV_DIRECTION.DOWN).Id);
+				RMasterItem item = new RMasterItem();
+				item.Title = formatMasterItem(obj);
+				item.Object = obj;
+				int index = listBoxOptimizations.Items.Add(item);
+				if (obj.Id == selectObjectWithId)
+					selectIndex = index;
+            }
+			if (selectIndex >= 0)
+				listBoxOptimizations.SelectedIndex = selectIndex;
         }
+
+		protected string formatMasterItem(IPObject obj){
+			string template;
+			if (!obj.GetAttr(_conf.MasterItemTemplate, true, out template))
+				throw new Exception(string.Format(@"Шаблон наименования оптимизации (атрибут {0}) не найден!", _conf.MasterItemTemplate));
+			
+			return PTemplates.FormatObject(obj, template, this, null);
+		}
 
         private void _selectListItemById(int id)
         {
@@ -530,82 +554,19 @@ namespace ProfileCut
             }
         }
 
-        private IPObject _getObjectWihtAttrTempate(string attrTemplate)
-        {
-            IPObject ret = null;
-
-            for (int ii = _startNavigatorPath.Parts.Count() - 1; ii >= 0; ii--)
-            {
-                IPObject obj = _master.GetObjectByDepth(ii);
-                string attrVal = "";
-                if (obj.GetAttr(attrTemplate, false, out attrVal))
-                {
-                    if (attrVal != null && attrVal != "")
-                    {
-                        ret = obj;
-
-                        break;
-                    }
-                }
-            }
-
-            // поищем в мастере
-            if (ret == null)
-            {
-                string masterAttrVal = "";
-                if (_master.GetAttr(attrTemplate, false, out masterAttrVal))
-                {
-                    if (masterAttrVal != null && masterAttrVal != "")
-                    {
-                        ret = _master;
-                    }
-                }
-            }
-
-            return ret;
-        }
-
-        private void buttonCut_Click(object sender, EventArgs e)
+        private void buttonMarkOptimization_Click(object sender, EventArgs e)
         {
             if (listBoxOptimizations.SelectedItem != null)
             {
                 string attr = "";
-                if (_master.GetAttr("CUTOPT", false, out attr))
-                {
-                    if (attr == "")
-                        _master.SetAttr("CUTOPT", "#");
-                    else
-                        _master.SetAttr("CUTOPT", "");
-                }
-                else
-                    _master.SetAttr("CUTOPT", "#");
-
-                _master.SaveAttr("CUTOPT");
-
-                int index = listBoxOptimizations.SelectedIndex;
-                listBoxOptimizations.SelectedIndexChanged -= new System.EventHandler(this.listBoxOptimizations_SelectedIndexChanged);
-                try
-                {
-                    _refreshOptimization();
-                }
-                finally
-                {
-                    listBoxOptimizations.SelectedIndexChanged += new System.EventHandler(this.listBoxOptimizations_SelectedIndexChanged);
-                    listBoxOptimizations.SelectedIndex = index;
-                }
+                if (!master.GetAttr("CUTOPT", false, out attr))
+					attr = "";
+				master.SetAttr("CUTOPT", attr==""?"#":"");
+                master.StorageUpdateAttr("CUTOPT");
+				RMasterItem item = listBoxOptimizations.SelectedItem as RMasterItem;
+				if (item != null)
+					item.Title = formatMasterItem(item.Object);
             }
         }
-        private string _getEmptyHtml()
-        {
-            return "<!DOCTYPE html><html><head></head><body></body>";
-        }
-
-        private void buttonHideOptimizationsList_Click(object sender, EventArgs e)
-        {
-            if (splitContainer.Panel1Collapsed)
-                splitContainer.Panel1Collapsed = false;
-            else
-                splitContainer.Panel1Collapsed = true;
-        }     
     }
 }

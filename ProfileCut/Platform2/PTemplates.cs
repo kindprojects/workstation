@@ -6,144 +6,90 @@ using System.Threading.Tasks;
 
 using System.IO;
 using System.Text.RegularExpressions;
+
 using ModuleConnect;
 using System.Windows.Forms;
-using System.ComponentModel;
 
 namespace Platform2
 {
-    internal class PTemplates
+    static public class PTemplates
     {
-        public PNotFoundMarks NotFoundMarks;
-        public PObject OwnerObject { set; get; }
-
-        public PTemplates(PObject ownerObject)
+        private static bool _queryToModule(string moduleName, string varName, out string value)
         {
-            NotFoundMarks = new PNotFoundMarks();
-            OwnerObject = ownerObject;            
-        }
-        
-        private string _queryToOutside(string module, string text)
-        {
-            if (module.ToLower().Trim() == "host")
-                return _queryToHost(text);
-            else
-                return _queryToModule(module, text);
-        }
-
-        private string _queryToHost(string text)
-        {
-            string response = this.OwnerObject.Host.QueryToHost(text);
-            if (response != null)
-                return response;
-            else
-                return NotFoundMarks.attrs.Begin + text + NotFoundMarks.attrs.End;
-        }
-
-        private string _queryToModule(string moduleName, string text)
-        {
-            string response = null;
             string modulesDir = Path.GetDirectoryName(Application.ExecutablePath);
             MConnect connect = new MConnect(Path.Combine(modulesDir, moduleName));
             IModule module = connect.GetModuleInterface(null);
 
-            response = module.ModuleQuery(text);
-            if (response != null)
-                return response;
-            else
-                return NotFoundMarks.attrs.Begin + text + NotFoundMarks.attrs.End;
+            return module.QueryValue(varName, false, out value);
         }
 
-        public string Format(string template, BackgroundWorker worker)
-        {           
+        public static string FormatObject(IPObject obj, string template, IMHost host, IMValueGetter overloads)
+        {
             List<PTemplateAttr> attrs;
             List<PTemplateCollection> fcollects;
 
             _parse(template, out attrs, out fcollects);
 
-            template = template.Replace("%id%", OwnerObject.Id.ToString());
+            template = template.Replace("%id%", obj.Id.ToString());
             foreach (var attr in attrs)
             {
                 string val = "";
-                if (attr.Module == "")
+				string moduleName = attr.Module.Trim().ToLower();
+				string attrName = attr.Name;
+
+				bool valFound = false;
+                
+				if (moduleName == "")
                 {
-                    if (!OwnerObject.GetAttr(attr.Name, true, out val))
-                    {
-                        val = NotFoundMarks.attrs.Begin + attr.Name + NotFoundMarks.attrs.End;
-                    }
+					if (overloads != null)
+						valFound = overloads.QueryValue(attrName, false, out val);
+					if (!valFound)
+						valFound = obj.GetAttr(attr.Name, true, out val);
                 }
-                else
+                else if (moduleName == "host")
                 {
-                    val = _queryToOutside(attr.Module, attr.Name);
-                }
+					if (host != null)
+						valFound = host.QueryValue(attr.Name, false, out val);
+				}
+				else
+				{
+					valFound = _queryToModule(moduleName, attrName, out val);
+				}
+				if (!valFound)
+					val = "<" + attr.ToString() + ">";
 
                 template = template.Replace(attr.OperatorText, val);
             }
 
             foreach (var fcollect in fcollects)
             {
-                PCollection coll = OwnerObject.GetCollection(fcollect.collectionName, false);
+                IPCollection coll = obj.GetCollection(fcollect.collectionName);
                 if (coll != null)
                 {
                     string val = "";
-                    for (int ii = 0; ii < coll.Count(); ii++)
+					int cnt = coll.Count;
+                    for (int i = 0; i < cnt; i++)
                     {
-                        PObject cobj = coll.GetObject(ii);
+                        IPObject cobj = coll.GetObject(i);
 
                         string tmp = "";
                         if (cobj.GetAttr(fcollect.templateName, true, out tmp))
-                        {
-                            string carret = "";
-
-                            if (worker != null && worker.CancellationPending)
-                                return "";                            
-
-                            string format = cobj.Templates.Format(tmp, worker);
-                            if (fcollect.endsWithNewLine)
-                            {
-                                carret = "\n";
-                            }
-                            else
-                            {
-                                // г.к. выпилить при следующем диплое
-                                if (format.IndexOf("PAGE") >= 0)
-                                    carret = "\n";
-                            }
-                            val += (format + carret);
-                        }
+                            val += FormatObject(cobj, tmp, host, overloads);
                         else
-                        {
-                            val += NotFoundMarks.attrs.Begin + fcollect.templateName + NotFoundMarks.attrs.End;
-                        }
+							val += "<!" + fcollect.templateName + "!>";
+						val += (fcollect.endsWithNewLine ? "\n" : "");
                     }
                     template = template.Replace(fcollect.OperatorText, val);
                 }
-            }
+            } // ToDo: может надо else что-нибудь вывести? Коллекция не найдена
 
             return template;
         }
-
-        public string TransformText(string templateName, BackgroundWorker worker)
-        {       
-            string template = "";
-            if (OwnerObject.GetAttr(templateName, true, out template))
-            {
-                if (worker != null && worker.CancellationPending)
-                    return "";
-                
-                return Format(template, worker);
-            }
-            else
-            {
-                return NotFoundMarks.attrs.Begin + templateName + NotFoundMarks.attrs.End; 
-            }   
-        }
-
-        private void _parse(string template, out List<PTemplateAttr> attrs, out List<PTemplateCollection> fcollects)
+		
+        static private void _parse(string template, out List<PTemplateAttr> attrs, out List<PTemplateCollection> fcollects)
         {
             attrs = new List<PTemplateAttr>();
             fcollects = new List<PTemplateCollection>();
-
 
             foreach (Match match in Regex.Matches(template, @"(%[^%\s\[\]<>']+%)"))
             {
@@ -188,6 +134,10 @@ namespace Platform2
                 Name = text;
             }
         }
+		public string ToString()
+		{
+			return (Module != "" ? Module + ":" : "") + Name;
+		}
     }
 
     internal class PTemplateCollection : PTemplateOperator
@@ -204,29 +154,6 @@ namespace Platform2
             collectionName = match.Groups[1].Value;
             templateName = match.Groups[2].Value;
             endsWithNewLine = (match.Groups[3].Value == "+");
-        }
-    }
-
-    internal class PTagMarks
-    {
-        internal string Begin = "";
-        internal string End = "";
-    }
-
-    internal class PNotFoundMarks
-    {
-        internal PTagMarks attrs;
-        internal PTagMarks collections;
-
-        internal PNotFoundMarks()
-        {
-            attrs = new PTagMarks();
-            attrs.Begin = "<";
-            attrs.End = ">";
-
-            collections = new PTagMarks();
-            collections.Begin = "<!";
-            collections.End = "!>";
         }
     }
 }

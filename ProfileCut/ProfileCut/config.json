@@ -1,6 +1,6 @@
 {
 	"Version": "1.0.0.0",
-	"ConnectionString": "charset=WIN1251;datasource=localhost;database=db.fdb;user=sysdba;password=masterkey",
+	"ConnectionString": "charset=WIN1251;datasource=localhost;database=ProfileCut;user=sysdba;password=masterkey",
 	"ModelCode": "ALUM",
 	"MasterItemTemplate": "OptItem",
 	"MasterCollectionPath": "Optimizations",
@@ -14,13 +14,23 @@
 		"Buttons":
 		[
 			{
-				"Text": "Печать",
-				"AttrTemplate": "PRINT_STICKERS",
+				"Name": "Печать",
+				"TargetAttr": "print_stickers",
 				"TemplateOverloads":
-				{
-					"PrinterName": "ZDesigner GK420d"
-				}
+				[
+					{
+						"ParamName" : "PrinterName",
+						"Value" : "ZDesigner GK420d (копия 1)"
+					}
+				]
 			}
 		]
-	}
+	},
+	"HostVars":
+	[
+		{
+			"ParamName" : "test",
+			"Value" : "test value"
+		}
+	]
 }

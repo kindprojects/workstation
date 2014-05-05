@@ -50,8 +50,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="IMHost.cs" />
+    <Compile Include="IMValueGetter.cs" />
     <Compile Include="MScriptManager.cs" />
-    <Compile Include="MInterfaces.cs" />
+    <Compile Include="IModule.cs" />
     <Compile Include="MConnect.cs" />
     <Compile Include="MCallData.cs" />
     <Compile Include="MResult.cs" />

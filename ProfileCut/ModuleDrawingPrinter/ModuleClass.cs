@@ -12,12 +12,10 @@ using ModuleConnect;
 
 namespace ModuleNamespace
 {
-    public class ModuleClass : IModule
+    public class ModuleClass : IModule, IDisposable
     {
         List<string> _problems = new List<string>();
         Printer _printer;
-        private PrintDocument _pd;
-        private MPage _page;
         
         public ModuleClass(Dictionary<string,string>moduleParams)
         {
@@ -27,8 +25,16 @@ namespace ModuleNamespace
             else
                 _printer = new Printer(printerName);
         }
+		public void Dispose()
+		{
+			this.Dispose(false);
+		}
+		protected virtual void Dispose(bool cleanManaged)
+		{
+			_printer.Dispose();
+		}
 
-        public bool Execute(string commands)
+        public bool Execute(string commands, IMHost host)
         {
             try
             {
@@ -173,9 +179,10 @@ namespace ModuleNamespace
             return s.TrimEnd();
         }
 
-        public string ModuleQuery(string text)
+        public bool QueryValue(string paramName, bool caseSensitive, out string result)
         {
-            return "%Not implement%";
+			result = null;
+			return false;
         }
     }
 }

@@ -3,60 +3,100 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Repository;
 
 namespace Platform2
 {
-    internal class PCollection
-    {        
+    internal class PCollection : IPCollection
+    {
         internal string Name { set; get; }
 
         internal PObject OwnerObject;
 
-        private List<PObject> _items { set; get; }
-        
-        private bool _deferredLoad;
+		private bool _deferredLoad;
+
+        internal List<PObject> _items { set; get; }
+		
         private bool _loaded;
+
+		public IPObject ownerObject { get {return OwnerObject;} }
+
+		public string CollectionName { get { return Name; } }
 
         internal PCollection(PObject owner, string name, bool deferredLoad)
         {
             _items = new List<PObject>();
             OwnerObject = owner;
             Name = name;
-            _deferredLoad = deferredLoad;
             _loaded = false;
+			_deferredLoad = deferredLoad;
+
+			if (!deferredLoad)
+			{
+				this.FillWithObjects(deferredLoad);
+			}
         }
 
         internal PObject InsertObject(PObject obj)
         {
             _items.Add(obj);
+			obj._ownerCollection = this;
             return obj;
         }
 
-        internal PObject GetObject(int index)
+        public IPObject GetObject(int index)
         {
             _loadIfNotLoaded();
 
-            if (_items.Count() > 0)
+			int cnt = _items.Count();
+            if (index >= 0 && index < cnt)
                 return _items[index];
-            else 
-                return null;
+            else
+				throw new Exception(string.Format("Запрошен объект с несуществующим индексом ({0}), коллекция {1}", index, this.Name));
         }
 
-        internal int Count()
-        {
-            _loadIfNotLoaded();
+		public int IndexOf(IPObject obj){
+			int refId = obj.Id;
+			int cnt = this._items.Count();
+			for(int i = 0; i < cnt; i++)
+			{
+				if (this._items[i].Id == refId)
+					return i;
+			}
+			return -1;
+		}
 
-            return _items.Count();
-        }
+		public int Count
+		{
+			get
+			{
+				_loadIfNotLoaded();
+
+				return _items.Count();
+			}
+		}
 
         internal void _loadIfNotLoaded()
         {
-            if (_deferredLoad && !_loaded)
+            if (!_loaded)
             {
-                if (this.OwnerObject.FillCollection(this))
-                    _loaded = true;
+				this.FillWithObjects(this._deferredLoad);
+				_loaded = true;
             }
         }
+
+		internal void FillWithObjects(bool deferredLoad)
+		{
+			if (!_loaded)
+			{
+				List<int> lst = OwnerObject.storage.ListCollectionObjects(OwnerObject.Id, this.Name);
+				foreach (int id in lst)
+				{
+					this.InsertObject(new PObject(OwnerObject.storage, id, OwnerObject.objectsIndex, deferredLoad));
+				}
+				_loaded = true;
+			}
+		}
 
         internal PObject FindObjectByAttrValue(string name, string value)
         {
@@ -75,14 +115,6 @@ namespace Platform2
             }
 
             return null;
-        }
-   
-        internal int IndexOf(PObject obj)
-        {
-            if (obj != null)
-                return _items.IndexOf(obj);
-            else
-                return -1;
         }
     }
 }

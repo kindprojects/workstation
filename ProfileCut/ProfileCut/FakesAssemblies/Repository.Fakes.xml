@@ -1,0 +1,182 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Repository.Fakes</name>
+    </assembly>
+    <members>
+        <member name="T:Repository.Fakes.ShimSRepository">
+            <summary>Shim type of Repository.SRepository</summary>
+        </member>
+        <member name="M:Repository.Fakes.ShimSRepository.#ctor">
+            <summary>Initializes a new shim instance</summary>
+        </member>
+        <member name="M:Repository.Fakes.ShimSRepository.#ctor(Repository.SRepository)">
+            <summary>Initializes a new shim for the given instance</summary>
+        </member>
+        <member name="M:Repository.Fakes.ShimSRepository.BehaveAsCurrent">
+            <summary>Assigns the &apos;Current&apos; behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="M:Repository.Fakes.ShimSRepository.BehaveAsNotImplemented">
+            <summary>Assigns the &apos;NotImplemented&apos; behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="P:Repository.Fakes.ShimSRepository.Behavior">
+            <summary>Assigns the behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="P:Repository.Fakes.ShimSRepository.ConstructorISRepository">
+            <summary>Sets the shim of SRepository.SRepository(ISRepository storage)</summary>
+        </member>
+        <member name="P:Repository.Fakes.ShimSRepository.StorageGet">
+            <summary>Sets the shim of SRepository.get_Storage()</summary>
+        </member>
+        <member name="P:Repository.Fakes.ShimSRepository.StorageSetISRepository">
+            <summary>Sets the shim of SRepository.set_Storage(ISRepository value)</summary>
+        </member>
+        <member name="T:Repository.Fakes.ShimSRepository.AllInstances">
+            <summary>Define shims for all instances members</summary>
+        </member>
+        <member name="P:Repository.Fakes.ShimSRepository.AllInstances.StorageGet">
+            <summary>Sets the shim of SRepository.get_Storage()</summary>
+        </member>
+        <member name="P:Repository.Fakes.ShimSRepository.AllInstances.StorageSetISRepository">
+            <summary>Sets the shim of SRepository.set_Storage(ISRepository value)</summary>
+        </member>
+        <member name="T:Repository.Fakes.ShimSRepositoryFb">
+            <summary>Shim type of Repository.SRepositoryFb</summary>
+        </member>
+        <member name="M:Repository.Fakes.ShimSRepositoryFb.#ctor">
+            <summary>Initializes a new shim instance</summary>
+        </member>
+        <member name="M:Repository.Fakes.ShimSRepositoryFb.#ctor(Repository.SRepositoryFb)">
+            <summary>Initializes a new shim for the given instance</summary>
+        </member>
+        <member name="M:Repository.Fakes.ShimSRepositoryFb.BehaveAsCurrent">
+            <summary>Assigns the &apos;Current&apos; behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="M:Repository.Fakes.ShimSRepositoryFb.BehaveAsNotImplemented">
+            <summary>Assigns the &apos;NotImplemented&apos; behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="P:Repository.Fakes.ShimSRepositoryFb.Behavior">
+            <summary>Assigns the behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="P:Repository.Fakes.ShimSRepositoryFb.ConstructorString">
+            <summary>Sets the shim of SRepositoryFb.SRepositoryFb(String connectionString)</summary>
+        </member>
+        <member name="T:Repository.Fakes.ShimSRepositoryFb.AllInstances">
+            <summary>Define shims for all instances members</summary>
+        </member>
+        <member name="T:Repository.Fakes.ShimSRepositoryXml">
+            <summary>Shim type of Repository.SRepositoryXml</summary>
+        </member>
+        <member name="M:Repository.Fakes.ShimSRepositoryXml.#ctor">
+            <summary>Initializes a new shim instance</summary>
+        </member>
+        <member name="M:Repository.Fakes.ShimSRepositoryXml.#ctor(Repository.SRepositoryXml)">
+            <summary>Initializes a new shim for the given instance</summary>
+        </member>
+        <member name="M:Repository.Fakes.ShimSRepositoryXml.BehaveAsCurrent">
+            <summary>Assigns the &apos;Current&apos; behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="M:Repository.Fakes.ShimSRepositoryXml.BehaveAsNotImplemented">
+            <summary>Assigns the &apos;NotImplemented&apos; behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="P:Repository.Fakes.ShimSRepositoryXml.Behavior">
+            <summary>Assigns the behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="P:Repository.Fakes.ShimSRepositoryXml.ConstructorString">
+            <summary>Sets the shim of SRepositoryXml.SRepositoryXml(String fileName)</summary>
+        </member>
+        <member name="T:Repository.Fakes.ShimSRepositoryXml.AllInstances">
+            <summary>Define shims for all instances members</summary>
+        </member>
+        <member name="T:Repository.Fakes.StubISRepository">
+            <summary>Stub type of Repository.ISRepository</summary>
+        </member>
+        <member name="M:Repository.Fakes.StubISRepository.#ctor">
+            <summary>Initializes a new instance of type StubISRepository</summary>
+        </member>
+        <member name="F:Repository.Fakes.StubISRepository.ListAttributesInt32">
+            <summary>Sets the stub of ISRepository.ListAttributes(Int32 objectId)</summary>
+        </member>
+        <member name="F:Repository.Fakes.StubISRepository.ListCollectionObjectsInt32String">
+            <summary>Sets the stub of ISRepository.ListCollectionObjects(Int32 objectId, String collName)</summary>
+        </member>
+        <member name="F:Repository.Fakes.StubISRepository.ListCollectionsInt32">
+            <summary>Sets the stub of ISRepository.ListCollections(Int32 objectId)</summary>
+        </member>
+        <member name="M:Repository.Fakes.StubISRepository.r::Repository#ISRepository#ListAttributes(System.Int32)">
+            <summary>Sets the stub of ISRepository.ListAttributes(Int32 objectId)</summary>
+        </member>
+        <member name="M:Repository.Fakes.StubISRepository.r::Repository#ISRepository#ListCollectionObjects(System.Int32,System.String)">
+            <summary>Sets the stub of ISRepository.ListCollectionObjects(Int32 objectId, String collName)</summary>
+        </member>
+        <member name="M:Repository.Fakes.StubISRepository.r::Repository#ISRepository#ListCollections(System.Int32)">
+            <summary>Sets the stub of ISRepository.ListCollections(Int32 objectId)</summary>
+        </member>
+        <member name="M:Repository.Fakes.StubISRepository.r::Repository#ISRepository#RootObjectId(System.String,System.Int32)">
+            <summary>Sets the stub of ISRepository.RootObjectId(String modelCode, Int32 ifNotFound)</summary>
+        </member>
+        <member name="M:Repository.Fakes.StubISRepository.r::Repository#ISRepository#SaveAttribute(System.Int32,System.String,System.String)">
+            <summary>Sets the stub of ISRepository.SaveAttribute(Int32 objectId, String name, String value)</summary>
+        </member>
+        <member name="F:Repository.Fakes.StubISRepository.RootObjectIdStringInt32">
+            <summary>Sets the stub of ISRepository.RootObjectId(String modelCode, Int32 ifNotFound)</summary>
+        </member>
+        <member name="F:Repository.Fakes.StubISRepository.SaveAttributeInt32StringString">
+            <summary>Sets the stub of ISRepository.SaveAttribute(Int32 objectId, String name, String value)</summary>
+        </member>
+        <member name="T:Repository.Fakes.StubSRepository">
+            <summary>Stub type of Repository.SRepository</summary>
+        </member>
+        <member name="M:Repository.Fakes.StubSRepository.#ctor(Repository.ISRepository)">
+            <summary>Initializes a new instance</summary>
+        </member>
+        <member name="M:Repository.Fakes.StubSRepository.InitializeStub">
+            <summary>Initializes a new instance of type StubSRepository</summary>
+        </member>
+        <member name="P:Repository.Fakes.StubSRepository.CallBase">
+            <summary>Gets or sets a value that indicates if the base method should be called instead of the fallback behavior</summary>
+        </member>
+        <member name="P:Repository.Fakes.StubSRepository.InstanceBehavior">
+            <summary>Gets or sets the instance behavior.</summary>
+        </member>
+        <member name="P:Repository.Fakes.StubSRepository.InstanceObserver">
+            <summary>Gets or sets the instance observer.</summary>
+        </member>
+        <member name="T:Repository.Fakes.StubSRepositoryFb">
+            <summary>Stub type of Repository.SRepositoryFb</summary>
+        </member>
+        <member name="M:Repository.Fakes.StubSRepositoryFb.#ctor(System.String)">
+            <summary>Initializes a new instance</summary>
+        </member>
+        <member name="M:Repository.Fakes.StubSRepositoryFb.InitializeStub">
+            <summary>Initializes a new instance of type StubSRepositoryFb</summary>
+        </member>
+        <member name="P:Repository.Fakes.StubSRepositoryFb.CallBase">
+            <summary>Gets or sets a value that indicates if the base method should be called instead of the fallback behavior</summary>
+        </member>
+        <member name="P:Repository.Fakes.StubSRepositoryFb.InstanceBehavior">
+            <summary>Gets or sets the instance behavior.</summary>
+        </member>
+        <member name="P:Repository.Fakes.StubSRepositoryFb.InstanceObserver">
+            <summary>Gets or sets the instance observer.</summary>
+        </member>
+        <member name="T:Repository.Fakes.StubSRepositoryXml">
+            <summary>Stub type of Repository.SRepositoryXml</summary>
+        </member>
+        <member name="M:Repository.Fakes.StubSRepositoryXml.#ctor(System.String)">
+            <summary>Initializes a new instance</summary>
+        </member>
+        <member name="M:Repository.Fakes.StubSRepositoryXml.InitializeStub">
+            <summary>Initializes a new instance of type StubSRepositoryXml</summary>
+        </member>
+        <member name="P:Repository.Fakes.StubSRepositoryXml.CallBase">
+            <summary>Gets or sets a value that indicates if the base method should be called instead of the fallback behavior</summary>
+        </member>
+        <member name="P:Repository.Fakes.StubSRepositoryXml.InstanceBehavior">
+            <summary>Gets or sets the instance behavior.</summary>
+        </member>
+        <member name="P:Repository.Fakes.StubSRepositoryXml.InstanceObserver">
+            <summary>Gets or sets the instance observer.</summary>
+        </member>
+    </members>
+</doc>

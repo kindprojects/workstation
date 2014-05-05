@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Repository
 {
-    class SStorageXml : ISRepository
+    class SStorageXml : IStorage
     {
         private string _fileName;
 
@@ -36,7 +36,7 @@ namespace Repository
             throw new NotImplementedException();
         }
 
-        public void SaveAttribute(int objectId, string name, string value)
+        public void SetAttribute(int objectId, string name, string value)
         {
             throw new NotImplementedException();
         }
