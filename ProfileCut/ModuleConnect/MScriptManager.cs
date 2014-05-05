@@ -30,13 +30,13 @@ namespace ModuleConnect
             return ret;
         }
 
-        public static void Execute(string modulesDir, string script, ModuleFinishedHandler callBack)
+        public static void Execute(string modulesDir, IMHost host, string script, ModuleFinishedHandler callBack)
         {
             List<MCallData> lst = Parse(script);
             foreach(MCallData m in lst)
             {
-                m.Execute(modulesDir, callBack);
+                m.Execute(modulesDir, host, callBack);
             }
-        }       
+        }
     }
 }

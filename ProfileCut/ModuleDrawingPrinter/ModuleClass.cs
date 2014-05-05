@@ -34,7 +34,7 @@ namespace ModuleNamespace
 			_printer.Dispose();
 		}
 
-        public bool Execute(string commands)
+        public bool Execute(string commands, IMHost host)
         {
             try
             {

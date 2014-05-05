@@ -19,7 +19,7 @@ namespace ProfileCut
         public string ConnectionString { set; get; }
         public string ModelCode { set; get; }
         public string MasterItemTemplate { set; get; }
-        public string MasterCollectionPath { set; get; } //collect1:index/collect2:index/collect31 -->
+        public string MasterCollectionPath { set; get; }
         public string DetailTemplate { set; get; }
         public string SelectedHtmlElementClass { set; get; }
         public string Navigation  { set; get; }

@@ -51,6 +51,23 @@ namespace Platform2
 				part.PositionInLevel = 0;
 			}
 		}
+		// прогоняет весь путь, заменяя индекс -1 на индекс последнего элемента
+		public void Normalize(IPObject withObject){
+			int cnt = this.Parts.Count;
+			IPObject o = withObject;
+			for (int i = 0; i < cnt; i++)
+			{
+				PNavigatorPathPart part = this.Parts[i];
+				IPCollection coll = o.GetCollection(part.LevelName);
+				int index = part.PositionInLevel;
+				if (index == -1)
+				{
+					index = coll.Count - 1;
+					part.PositionInLevel = index;
+				}
+				o = coll.GetObject(index);
+			}
+		}
 		public int copyPositions(PNavigatorPath from){
 			int cnt = Parts.Count;
 			int cntFrom = from.Parts.Count;

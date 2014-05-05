@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Xml.Linq;
 
 using Repository;
 
@@ -168,5 +169,38 @@ namespace Platform2
                 throw new Exception(String.Format("Атрибут {0} у объекта {1} не найден", name, this.Id.ToString()));
             }
         }
+
+		public XElement ToXElement()
+		{
+			return ObjToXElement(this);
+		}
+		public static XElement ObjToXElement(PObject obj)
+		{
+			XElement x = new XElement("obj");
+			
+			XElement xAttrs = new XElement("attrs");
+			foreach (string attr in obj._attrs.Keys)
+			{
+				xAttrs.SetElementValue(attr, obj._attrs[attr]);
+			}
+			x.Add(xAttrs);
+
+			XElement xColls = new XElement("colls");
+			x.Add(xColls);
+			foreach (PCollection coll in obj._collections.Values)
+			{
+				XElement xColl = new XElement("coll");
+				xColl.SetAttributeValue("name", coll.Name);
+				xColls.Add(xColl);
+				int cnt = coll.Count;
+				for (int i = 0; i < cnt; i++)
+				{
+					XElement xi = ObjToXElement(coll._items[i]);
+					xi.SetAttributeValue("num", i);
+					xColl.Add(xi);
+				}
+			}
+			return x;
+		}
     }
 }

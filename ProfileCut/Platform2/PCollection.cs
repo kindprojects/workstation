@@ -15,7 +15,7 @@ namespace Platform2
 
 		private bool _deferredLoad;
 
-        private List<PObject> _items { set; get; }
+        internal List<PObject> _items { set; get; }
 		
         private bool _loaded;
 

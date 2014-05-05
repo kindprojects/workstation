@@ -1,5 +1,4 @@
-﻿// ToDo: нужно победить LoadHTML, кнопки действия (печать и т.д. - нет их), подсветку активного хлыста и навигацию кнопками (вверх до упора - валится)
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -22,7 +21,7 @@ using Platform2;
 
 namespace ProfileCut
 {
-    public partial class FMain : Form, IMValueGetter
+    public partial class FMain : Form, IMHost
     {
 		private RAppConfig _conf;
 
@@ -33,10 +32,10 @@ namespace ProfileCut
 
 		protected PNavigatorPath navDetailPath;
 		protected PNavigator navDetails;
+		protected bool scrollDetailViewOnNavigate;
 
 		private bool _domIsBusy;
 		private JSObject _jsObject;
-		private int _lastId;
 		private IPObject _master;
 
 		protected IPObject master {
@@ -96,6 +95,7 @@ namespace ProfileCut
 			this.navDetailPath = new PNavigatorPath(string.Join("/", navDetailLevels.ToArray()));
 			// кнопки для навигации
 			_createNavButtons(panelNavigator, navButtonsCaptions);
+			_createAppCommandsButtons(panelAppCommands, _conf.Commands.Buttons);
 			enableChildControls(panelNavigator, false);
 			enableChildControls(panelAppCommands, false);
 
@@ -126,6 +126,7 @@ namespace ProfileCut
 			else if (item.Object != this.master) // это важно
 			{
 				this.master = item.Object;
+				//Clipboard.SetText(this.master.ToXElement().ToString());
 			}
         }
 
@@ -137,14 +138,14 @@ namespace ProfileCut
 				if (!obj.GetAttr(_conf.DetailTemplate, true, out template))
 					throw new Exception(string.Format(@"Шаблон просмотра деталей (атрибут {0}) не найден!", _conf.DetailTemplate));
 
-				//string html = PTemplates.FormatObject(obj, template, this, null);
+				string html = PTemplates.FormatObject(obj, template, this, null);
 
-				StreamReader streamReader = new StreamReader("C:\\Users\\Роман\\Desktop\\test.htm");
-				string html = streamReader.ReadToEnd();
+				StreamReader streamReader = new StreamReader(Application.StartupPath+"\\test.htm");
+				//string html = streamReader.ReadToEnd();
 				streamReader.Close();
 				html = _addScriptsToBody(html);
 
-				StreamWriter wr = new StreamWriter("C:\\Users\\Роман\\Desktop\\test2.htm");
+				StreamWriter wr = new StreamWriter(Application.StartupPath+"\\test2.htm");
 				try {
 					wr.Write(html);
 				}
@@ -157,15 +158,9 @@ namespace ProfileCut
 					throw new Exception(@"DOM занят!");
 				if (!webControlDetails.IsLive)
 					throw new Exception("Not live");
-				webControlDetails.Source = new Uri("file:///C:/Users/%D0%A0%D0%BE%D0%BC%D0%B0%D0%BD/Desktop/test2.htm");
-				/*if (webControlDetails.LoadHTML(html)){
-					_domIsBusy = true;
-					webControlDetails.Update();
-				}
-				else
-				{
-					//throw new Exception("Awesomium.LoadHTML вернул false");
-				}*/
+				_domIsBusy = true;
+				webControlDetails.Source = new Uri("file:///"+Application.StartupPath.Replace('\\', '/')+"/test2.htm");
+				webControlDetails.Update();
 			}
         }
 
@@ -180,23 +175,33 @@ namespace ProfileCut
 				_jsObject = webControlDetails.CreateGlobalJavascriptObject("app");
 				_jsBind();
 
-				navDetailPath.resetPositions();
-				navDetails = new PNavigator(this.master, this.navDetailPath);
-				var obj = navDetails.Navigate(navDetailPath);
-
-				_updateActiveHtmlElement(0, obj.Id, doScroll: true);
-				_lastId = obj.Id;
 				enableChildControls(panelNavigator, true);
 				enableChildControls(panelAppCommands, true);
 
+				navDetailPath.resetPositions();
+				navDetails = new PNavigator(this.master, this.navDetailPath);
+				navDetails.OnNavigated += navDetails_OnNavigated;
+				this.scrollDetailViewOnNavigate = true;
+				navDetails.Navigate(navDetailPath);
+
 				_domIsBusy = false;
 
-				updateAppCommandsAvailability(panelAppCommands);
 			}
 			catch (Exception ex)
 			{
 				MessageBox.Show("Document Ready handler exception:\r\n"+ex.Message, "Ошибка в обработчике", MessageBoxButtons.OK, MessageBoxIcon.Error);
 			}
+		}
+
+		void navDetails_OnNavigated(object sender, NavigatedEventArgs e)
+		{
+			int prevId = e.prevObject != null ? e.prevObject.Id : 0;
+			int newId = e.newObject != null ? e.newObject.Id : 0;
+			_updateActiveHtmlElement(prevId, newId, doScroll: this.scrollDetailViewOnNavigate);
+
+			_domIsBusy = false;
+
+			updateAppCommandsAvailability(panelAppCommands);
 		}
 
         private void _updateActiveHtmlElement(int deselectObjectId, int selectObjectId, bool doScroll)
@@ -211,7 +216,7 @@ namespace ProfileCut
 
                 if (doScroll)
                 {
-                    _scrollTo(selectObjectId.ToString(), 60);
+                    _scrollTo(selectObjectId.ToString(), 120);
                 }
             }
         }
@@ -294,6 +299,8 @@ namespace ProfileCut
         private void _jsBodyClickHandler(object sender, JavascriptMethodEventArgs args)
         {
 			try {
+				if (this._domIsBusy)
+					throw new Exception("DOM занят");
 				if (args.Arguments.Count() > 0 && !args.Arguments[0].IsUndefined)
 				{
 					if (args.Arguments.Length <= 0)
@@ -305,12 +312,16 @@ namespace ProfileCut
 					if (!_data.objectsIndex.TryGetValue(id, out obj))
 						throw new Exception(string.Format(@"Не удалось найти объект по ID={0}", id));
 
-					PNavigatorPath path = navDetails.GetPathTo(obj);
-					navDetails.Navigate(path);
-					_updateActiveHtmlElement(_lastId, obj.Id, false);
-					_lastId = obj.Id;
-
-					updateAppCommandsAvailability(panelAppCommands);
+					if (navDetails != null)
+					{
+						PNavigatorPath path = navDetails.GetPathTo(obj);
+						this.scrollDetailViewOnNavigate = false;
+						navDetails.Navigate(path);
+					}
+					else
+					{
+						throw new Exception("navDetails не создан!");
+					}
 				}
 			}
 			catch (Exception ex)
@@ -362,8 +373,11 @@ namespace ProfileCut
 					if (objTarget.GetAttr(scriptAttr, true, out scriptTemplate))
 					{
 						string script = PTemplates.FormatObject(objTarget, scriptTemplate, this, b.appCommand);
-						MScriptManager.Execute(Path.GetDirectoryName(Application.ExecutablePath),
-							script, new ModuleFinishedHandler(this._moduleFinishedCallback));
+						MScriptManager.Execute(Path.GetDirectoryName(Application.ExecutablePath)
+							, this
+							, script
+							, new ModuleFinishedHandler(this._moduleFinishedCallback)
+						);
 					}
 					else
 					{
@@ -426,7 +440,7 @@ namespace ProfileCut
             owner.Controls.Add(p);
             p.Parent = owner;
 
-            return p.Width;
+            return p.Width+x;
         }
         protected void enableChildControls(Control owner, bool enabled)
         {
@@ -457,14 +471,8 @@ namespace ProfileCut
         private void _navButtonClick(object sender, EventArgs e)
         {
             RNavigatorButton b = sender as RNavigatorButton;
+			this.scrollDetailViewOnNavigate = true;
             navDetails.Navigate(b.Depth, b.Direction, overStep:true);
-
-			if (navDetails.Pointer != null){
-				_updateActiveHtmlElement(_lastId, navDetails.Pointer.Id, false);
-				_lastId = navDetails.Pointer.Id;
-			}
-
-            updateAppCommandsAvailability(panelAppCommands);
         }
 
         private void buttonRefresh_Click(object sender, EventArgs e)

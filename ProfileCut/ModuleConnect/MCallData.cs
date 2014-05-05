@@ -53,13 +53,13 @@ namespace ModuleConnect
             }
         }
 
-        public void Execute(string modulesDir, ModuleFinishedHandler callBack)
+        public void Execute(string modulesDir, IMHost host, ModuleFinishedHandler callBack)
         {
             if (modulesDir == "")
                 throw new Exception("Путь к хранилищу модулей не задан!");
             MConnect connect = new MConnect(Path.Combine(modulesDir, this.ModuleName));
             IModule module = connect.GetModuleInterface(this.ModuleParams);
-            module.Execute(this.Commands);
+            module.Execute(this.Commands, host);
             
             callBack(module);
         }        

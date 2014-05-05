@@ -9,7 +9,7 @@ namespace ModuleConnect
 {
     public interface IModule : IMValueGetter
     {
-        bool Execute(string commands);
+        bool Execute(string commands, IMHost host);
         void AddProblem(string description);
 		string CheckProblems();
     }
