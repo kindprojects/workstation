@@ -113,6 +113,15 @@ namespace ProfileCut
 		public bool QueryValue(string varName, bool caseSensitive, out string value)
 		{
 			value = null;
+			string lowerName = varName.ToLower();
+			foreach (RAppConfigVar var in _conf.HostVars)
+			{
+				if (var.ParamName == varName || (!caseSensitive && var.ParamName.ToLower() == lowerName))
+				{
+					value = var.Value;
+					return true;
+				}
+			}
 			return false;
 		}
 

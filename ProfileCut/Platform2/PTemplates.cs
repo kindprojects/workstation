@@ -20,7 +20,7 @@ namespace Platform2
             MConnect connect = new MConnect(Path.Combine(modulesDir, moduleName));
             IModule module = connect.GetModuleInterface(null);
 
-            return module.QueryValue(varName, true, out value);
+            return module.QueryValue(varName, false, out value);
         }
 
         public static string FormatObject(IPObject obj, string template, IMHost host, IMValueGetter overloads)
@@ -41,7 +41,9 @@ namespace Platform2
                 
 				if (moduleName == "")
                 {
-					if (overloads == null || !overloads.QueryValue(attrName, true, out val))
+					if (overloads != null)
+						valFound = overloads.QueryValue(attrName, false, out val);
+					if (!valFound)
 						valFound = obj.GetAttr(attr.Name, true, out val);
                 }
                 else if (moduleName == "host")
@@ -54,7 +56,7 @@ namespace Platform2
 					valFound = _queryToModule(moduleName, attrName, out val);
 				}
 				if (!valFound)
-					val = "<" + attrName + ">";
+					val = "<" + attr.ToString() + ">";
 
                 template = template.Replace(attr.OperatorText, val);
             }
@@ -132,6 +134,10 @@ namespace Platform2
                 Name = text;
             }
         }
+		public string ToString()
+		{
+			return (Module != "" ? Module + ":" : "") + Name;
+		}
     }
 
     internal class PTemplateCollection : PTemplateOperator

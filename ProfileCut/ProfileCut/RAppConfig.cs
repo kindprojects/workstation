@@ -26,8 +26,7 @@ namespace ProfileCut
         public int MasterItemsUpdateIntervalMs { set; get; }
         public bool Debug { set; get; }
         public RAppCommands Commands { set; get; }
-
-		public List<RAppConfigVar> HostVars;
+		public List<RAppConfigVar> HostVars {set; get;}
 	
         private void Save()
         {
@@ -126,7 +125,7 @@ namespace ProfileCut
 			string lowerName = varName.ToLower();
 			foreach (RAppConfigVar var in TemplateOverloads)
 			{
-				if (caseSensitive && var.ParamName == varName || var.ParamName.ToLower() == lowerName)
+				if (var.ParamName == varName || (!caseSensitive && var.ParamName.ToLower() == lowerName))
 				{
 					value = var.Value;
 					return true;
