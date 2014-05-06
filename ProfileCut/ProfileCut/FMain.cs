@@ -568,18 +568,14 @@ namespace ProfileCut
 
         private void buttonMarkOptimization_Click(object sender, EventArgs e)
         {
-            if (listBoxOptimizations.SelectedItem != null)
-            {
+			if (this.master != null){
                 string attr = "";
                 if (!master.GetAttr("CUTOPT", false, out attr))
                     attr = "";
                 master.SetAttr("CUTOPT", attr == "" ? "#" : "");
                 master.StorageUpdateAttr("CUTOPT");
-                RMasterItem item = listBoxOptimizations.SelectedItem as RMasterItem;
-				if (item != null)
-				{
-					item.Title = formatMasterItem(item.Object);
-				}
+				// обновить текст отдельной строчки listBox'а не получается - не реагирует. Приходится формировать список целиком
+				_refreshOptimizationList(master.Id);
             }
         }
 
