@@ -76,7 +76,7 @@ namespace Platform2
                         string tmp = "";
                         if (cobj.GetAttr(fcollect.templateName, true, out tmp))
                         {
-                            if (worker.CancellationPending)
+                            if (worker != null && worker.CancellationPending)
                                 return "";
 
                             val += FormatObject(cobj, tmp, host, overloads, worker);
