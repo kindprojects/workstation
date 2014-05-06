@@ -576,8 +576,10 @@ namespace ProfileCut
                 master.SetAttr("CUTOPT", attr == "" ? "#" : "");
                 master.StorageUpdateAttr("CUTOPT");
                 RMasterItem item = listBoxOptimizations.SelectedItem as RMasterItem;
-                if (item != null)
-                    item.Title = formatMasterItem(item.Object);
+				if (item != null)
+				{
+					item.Title = formatMasterItem(item.Object);
+				}
             }
         }
 

@@ -140,7 +140,7 @@ namespace Platform2
                 Name = text;
             }
         }
-		public string ToString()
+		public override string ToString()
 		{
 			return (Module != "" ? Module + ":" : "") + Name;
 		}
