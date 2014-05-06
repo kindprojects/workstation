@@ -60,16 +60,16 @@
     <NoWin32Manifest>true</NoWin32Manifest>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestCertificateThumbprint>F2DE55D0A440E7F5F94B87F9E9608FC83134D6FD</ManifestCertificateThumbprint>
+    <ManifestCertificateThumbprint>33ED2E983BE0C6179D93E9864D82CC1AAD2B602C</ManifestCertificateThumbprint>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestKeyFile>ProfileCut_TemporaryKey.pfx</ManifestKeyFile>
+    <ManifestKeyFile>ProfileCut_1_TemporaryKey.pfx</ManifestKeyFile>
   </PropertyGroup>
   <PropertyGroup>
     <GenerateManifests>true</GenerateManifests>
   </PropertyGroup>
   <PropertyGroup>
-    <SignManifests>true</SignManifests>
+    <SignManifests>false</SignManifests>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Awesomium.Core, Version=1.7.4.2, Culture=neutral, PublicKeyToken=e1a0d7c8071a5214, processorArchitecture=x86" />
@@ -170,6 +170,7 @@
     </None>
     <None Include="Resources\check23.png" />
     <None Include="Resources\check2.png" />
+    <Content Include="dll.dll" />
     <Content Include="Resources\arrows.png" />
     <Content Include="Resources\circular.ico" />
     <Content Include="Resources\circular_black.ico" />

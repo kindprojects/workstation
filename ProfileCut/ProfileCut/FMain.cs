@@ -523,19 +523,37 @@ namespace ProfileCut
             PNavigator navMasterItems = new PNavigator(_data.Root, navMasterPath);
 
             int selectIndex = -1;
-            while (navMasterItems.Navigate(0, NAV_DIRECTION.DOWN, false) != null)
+
+            do
             {
                 IPObject obj = navMasterItems.Pointer;
-
-                RMasterItem item = new RMasterItem();
-                item.Title = formatMasterItem(obj);
-                item.Object = obj;
-                int index = listBoxOptimizations.Items.Add(item);
-                if (obj.Id == selectObjectWithId)
-                    selectIndex = index;
+                if (obj != null)
+                {
+                    RMasterItem item = new RMasterItem();
+                    item.Title = formatMasterItem(obj);
+                    item.Object = obj;
+                    int index = listBoxOptimizations.Items.Add(item);
+                    if (obj.Id == selectObjectWithId)
+                        selectIndex = index;
+                }
+                if (selectIndex >= 0)
+                    listBoxOptimizations.SelectedIndex = selectIndex;
             }
-            if (selectIndex >= 0)
-                listBoxOptimizations.SelectedIndex = selectIndex;
+            while (navMasterItems.Navigate(0, NAV_DIRECTION.DOWN, false) != null);
+
+            //while (navMasterItems.Navigate(0, NAV_DIRECTION.DOWN, false) != null)
+            //{
+            //    IPObject obj = navMasterItems.Pointer;
+
+            //    RMasterItem item = new RMasterItem();
+            //    item.Title = formatMasterItem(obj);
+            //    item.Object = obj;
+            //    int index = listBoxOptimizations.Items.Add(item);
+            //    if (obj.Id == selectObjectWithId)
+            //        selectIndex = index;
+            //}
+            //if (selectIndex >= 0)
+            //    listBoxOptimizations.SelectedIndex = selectIndex;
         }
 
         protected string formatMasterItem(IPObject obj)
