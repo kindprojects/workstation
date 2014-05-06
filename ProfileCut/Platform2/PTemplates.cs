@@ -9,6 +9,7 @@ using System.Text.RegularExpressions;
 
 using ModuleConnect;
 using System.Windows.Forms;
+using System.ComponentModel;
 
 namespace Platform2
 {
@@ -23,7 +24,7 @@ namespace Platform2
             return module.QueryValue(varName, false, out value);
         }
 
-        public static string FormatObject(IPObject obj, string template, IMHost host, IMValueGetter overloads)
+        public static string FormatObject(IPObject obj, string template, IMHost host, IMValueGetter overloads, BackgroundWorker worker)
         {
             List<PTemplateAttr> attrs;
             List<PTemplateCollection> fcollects;
@@ -74,9 +75,14 @@ namespace Platform2
 
                         string tmp = "";
                         if (cobj.GetAttr(fcollect.templateName, true, out tmp))
-                            val += FormatObject(cobj, tmp, host, overloads);
+                        {
+                            if (worker.CancellationPending)
+                                return "";
+
+                            val += FormatObject(cobj, tmp, host, overloads, worker);
+                        }
                         else
-							val += "<!" + fcollect.templateName + "!>";
+                            val += "<!" + fcollect.templateName + "!>";
 						val += (fcollect.endsWithNewLine ? "\n" : "");
                     }
                     template = template.Replace(fcollect.OperatorText, val);

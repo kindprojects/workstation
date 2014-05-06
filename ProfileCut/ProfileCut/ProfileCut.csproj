@@ -90,9 +90,6 @@
     <Compile Include="FFormat.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="FFormat.Designer.cs">
-      <DependentUpon>FFormat.cs</DependentUpon>
-    </Compile>
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -121,11 +118,11 @@
     <Compile Include="RAppCommandButton.cs">
       <SubType>Component</SubType>
     </Compile>
-    <EmbeddedResource Include="FMain.resx">
-      <DependentUpon>FMain.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="FFormat.resx">
       <DependentUpon>FFormat.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FMain.resx">
+      <DependentUpon>FMain.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
@@ -142,7 +139,9 @@
     <None Include="config.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="DB.FDB" />
+    <None Include="DB.FDB">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
