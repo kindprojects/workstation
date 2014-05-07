@@ -1,12 +1,11 @@
 {
 	"Version": "1.0.0.0",
-	"ConnectionString": "charset=WIN1251;datasource=localhost;database=profilecut;user=sysdba;password=masterkey",
-	"ModelCode": "ALUM",
+	"ConnectionString": "charset=WIN1251;datasource=192.168.11.1;database=ms2;user=sysdba;password=mojobaby",
+	"ModelCode": "PMS",
 	"MasterItemTemplate": "OptItem",
 	"MasterCollectionPath": "Optimizations",
 	"DetailTemplate": "OptView",
 	"SelectedHtmlElementClass": "selected",
-	"Navigation": "prof_groups:группы/profiles:профиль/canes:хлыст",
 	"MasterItemsUpdateIntervalMs": 10000,
 	"Debug": true,
     "Commands":
@@ -15,12 +14,12 @@
 		[
 			{
 				"Name": "Печать",
-				"TargetAttr": "print_stickers",
+				"TargetAttr": "print_target",
 				"TemplateOverloads":
 				[
 					{
 						"ParamName" : "PrinterName",
-						"Value" : "ZDesigner GK420d"
+						"Value" : "ZDesigner GK420d (копия 1)"
 					}
 				]
 			}
