@@ -68,18 +68,19 @@ namespace Platform2
 				o = coll.GetObject(index);
 			}
 		}
-		public int copyPositions(PNavigatorPath from){
+		public int copyPositions(PNavigatorPath from, bool partial){
 			int cnt = Parts.Count;
 			int cntFrom = from.Parts.Count;
-			if (cntFrom > cnt)
+			if (cntFrom > cnt && !partial)
 				throw new Exception(@"Длина пути для копирования превышает длину пути для замены");
 			for (int i = 0; i < cnt; i++)
 			{
-				if (this.Parts[i].LevelName != from.Parts[i].LevelName)
-					throw new Exception(string.Format(@"Имена коллекций в путях не совпадают ({0}:{1}<>{2})", i, this.Parts[i].LevelName, from.Parts[i].LevelName));
 				if (i < cntFrom)
+				{
+					if (this.Parts[i].LevelName != from.Parts[i].LevelName)
+						throw new Exception(string.Format(@"Имена коллекций в путях не совпадают ({0}:{1}<>{2})", i, this.Parts[i].LevelName, from.Parts[i].LevelName));
 					Parts[i].PositionInLevel = from.Parts[i].PositionInLevel;
-				else
+				}else
 					Parts[i].PositionInLevel = 0;
 			}
 			return cntFrom;
@@ -90,7 +91,7 @@ namespace Platform2
 
 			MatchCollection levels = Regex.Matches(path, @"([^:/]+):(\d+)");
 			if (levels.Count == 0)
-				throw new Exception("Неверный формат пути: '"+path+"'");
+				throw new Exception("Неверный формат пути навигатора: '"+path+"'");
 			foreach (Match level in levels)
 			{
 				string collection = level.Groups[1].Value;

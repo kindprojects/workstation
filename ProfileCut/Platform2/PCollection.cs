@@ -89,6 +89,8 @@ namespace Platform2
 		{
 			if (!_loaded)
 			{
+				if (deferredLoad && !OwnerObject.storage.ObjectExists(OwnerObject.Id))
+					throw new PObjectNotExistsException(OwnerObject.Id, "Объект с указанным ID не существует. Вероятно данные устарели и требуют обновления.");
 				List<int> lst = OwnerObject.storage.ListCollectionObjects(OwnerObject.Id, this.Name);
 				foreach (int id in lst)
 				{
@@ -116,5 +118,20 @@ namespace Platform2
 
             return null;
         }
+
+		class PObjectNotExistsException : Exception
+		{
+			public int ObjectID;
+			public PObjectNotExistsException(int ObjectId, string Message, Exception innerException)
+				: base(Message)
+			{
+				this.ObjectID = ObjectId;
+			}
+			public PObjectNotExistsException(int ObjectId, string Message)
+				: this(ObjectId, Message, null)
+			{
+
+			}
+		}
     }
 }

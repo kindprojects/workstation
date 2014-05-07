@@ -223,9 +223,9 @@
       <Project>{09126158-cbb3-4b8a-a888-2d440bc871f3}</Project>
       <Name>Platform2</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Repository\Repository.csproj">
+    <ProjectReference Include="..\Repository\Storage.csproj">
       <Project>{eb591448-1385-4b25-8008-6575bb872294}</Project>
-      <Name>Repository</Name>
+      <Name>Storage</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

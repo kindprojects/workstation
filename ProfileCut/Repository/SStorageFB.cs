@@ -168,7 +168,7 @@ namespace Repository
         }
         #endregion
 
-        #region Implementation IRepository
+        #region Implementation IStorage
         private int _sqlIntField(string sqlQuery, string[] paramList, int ifEmpty)
         {
             List<Dictionary<string, string>> q = _sqlSelect(sqlQuery, paramList);
@@ -306,6 +306,12 @@ namespace Repository
                     insParamList);
             }
         }
+
+		public bool ObjectExists(int ObjectID)
+		{
+			string[] paramList = {"id", ObjectID.ToString()};
+			return (this._sqlIntField(@"select first 1 1 from objects where objectid = @id", paramList, 0) == 1);
+		}
 
         #endregion
     }

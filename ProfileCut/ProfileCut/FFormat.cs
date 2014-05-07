@@ -14,8 +14,8 @@ namespace ProfileCut
 {
     public partial class FFormat : Form
     {
-        public string Result { set; get; }
-        
+        public string GeneratedHtml { set; get; }
+		public string ExceptionMessage;
         private int _left;
         private int _top;
         private IPObject _formatObject;
@@ -26,6 +26,10 @@ namespace ProfileCut
         private string _template;
         private IMHost _host;
         private IMValueGetter _overloads;
+
+		public List<string> parsedNavLevels;
+		public List<string> parsedNavCaptions;
+
 
         public FFormat(int left, int top, IPObject formatObject, string template, IMHost host, IMValueGetter overloads)
         {
@@ -49,11 +53,23 @@ namespace ProfileCut
 
             backgroundWorkerFormat.RunWorkerAsync();
         }
-       
+		
         private void backgroundWorkerFormat_DoWork(object sender, DoWorkEventArgs e)
-        {
-            Result = "";
-            e.Result = PTemplates.FormatObject(_formatObject, _template, _host, _overloads, backgroundWorkerFormat);
+		{
+			try
+			{
+				ExceptionMessage = "";
+				GeneratedHtml = "";
+				PNavigationInfo navInfo = new PNavigationInfo();
+				e.Result = PTemplates.FormatObject(_formatObject, _template, _host, _overloads, backgroundWorkerFormat, navInfo);
+				this.parsedNavLevels = navInfo.levels;
+				this.parsedNavCaptions = navInfo.captions;
+			}
+			catch (Exception ex)
+			{
+				e.Result = "exception:"+ex.Message;
+				this.ExceptionMessage = ex.Message;
+			}
         }
 
         private void buttonCancel_Click(object sender, EventArgs e)
@@ -63,7 +79,7 @@ namespace ProfileCut
 
         private void backgroundWorkerFormat_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
-            Result = e.Result.ToString();
+            GeneratedHtml = e.Result.ToString();
             this.Close();
         }
 

@@ -24,7 +24,7 @@ namespace Platform2
             return module.QueryValue(varName, false, out value);
         }
 
-        public static string FormatObject(IPObject obj, string template, IMHost host, IMValueGetter overloads, BackgroundWorker worker)
+        public static string FormatObject(IPObject obj, string template, IMHost host, IMValueGetter overloads, BackgroundWorker worker, PNavigationInfo navInfo)
         {
             List<PTemplateAttr> attrs;
             List<PTemplateCollection> fcollects;
@@ -79,7 +79,21 @@ namespace Platform2
                             if (worker != null && worker.CancellationPending)
                                 return "";
 
-                            val += FormatObject(cobj, tmp, host, overloads, worker);
+							bool navAdded = false;
+							if (fcollect.navigatorLevelCaption!="")
+							{
+								if (navInfo != null)
+								{
+									navInfo.captions.Add(fcollect.navigatorLevelCaption);
+									navInfo.levels.Add(fcollect.collectionName);
+									navAdded = true;
+								}
+							}
+							val += FormatObject(cobj, tmp, host, overloads, worker, navInfo);
+
+							// теперь, если уровень навигации добавлялся - нужно сбросить переменную, чтоб в этом цикле не добавить соседние подходящие коллекции
+							if (navAdded)
+								navInfo = null;
                         }
                         else
                             val += "<!" + fcollect.templateName + "!>";
@@ -108,6 +122,18 @@ namespace Platform2
             }
         }
     }
+
+	public class PNavigationInfo
+	{
+		public List<string> levels;
+		public List<string> captions;
+
+		public PNavigationInfo()
+		{
+			levels = new List<string>();
+			captions = new List<string>();
+		}
+	}
 
     internal class PTemplateOperator
     {
@@ -148,18 +174,19 @@ namespace Platform2
 
     internal class PTemplateCollection : PTemplateOperator
     {
-        internal string collectionName { set; get; }
-        internal string templateName { set; get; }
-        internal bool endsWithNewLine { set; get; }
-        internal string navigatorLevelText { set; get; }
+		internal string collectionName;
+		internal string templateName;
+		internal bool endsWithNewLine;
+		internal string navigatorLevelCaption;
         internal PTemplateCollection(string operatorText)
             : base(operatorText)
         {
-            Match match = Regex.Match(operatorText, @"\[(\S+):([^\[\]\+]+)(\+)?\]", RegexOptions.IgnoreCase);
+			Match match = Regex.Match(operatorText, @"\[(\S+):([^\[\]\+\(\)]+)(\+)?(?:\((.+)\))?\]", RegexOptions.IgnoreCase);
 
-            collectionName = match.Groups[1].Value;
-            templateName = match.Groups[2].Value;
-            endsWithNewLine = (match.Groups[3].Value == "+");
+			collectionName = match.Groups[1].Value;
+			templateName = match.Groups[2].Value;
+			endsWithNewLine = (match.Groups[3].Value == "+");
+			navigatorLevelCaption = match.Groups[4].Value;
         }
     }
 }

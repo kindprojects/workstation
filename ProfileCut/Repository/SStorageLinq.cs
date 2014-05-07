@@ -273,5 +273,9 @@ namespace Repository
 
             return ret;
         }
+		public bool ObjectExists(int objectId)
+		{
+			throw new NotImplementedException();
+		}
     }
 }

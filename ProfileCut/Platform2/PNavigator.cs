@@ -141,9 +141,9 @@ namespace Platform2
 		
 		public IPObject Navigate(PNavigatorPath path)
 		{
-			_path.copyPositions(from:path);
+			_path.copyPositions(from:path, partial:true);
 
-			this.Pointer = this.GetObjectAtPathLevel(path.Parts.Count-1, partialReturn: true);
+			this.Pointer = this.GetObjectAtPathLevel(_path.Parts.Count-1, partialReturn: true);
 			return this.Pointer;
 		}
      

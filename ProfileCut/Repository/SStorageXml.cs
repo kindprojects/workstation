@@ -40,6 +40,11 @@ namespace Repository
         {
             throw new NotImplementedException();
         }
+		public bool ObjectExists(int objectId)
+		{
+			throw new NotImplementedException();
+		}
+
         #endregion
         
     }

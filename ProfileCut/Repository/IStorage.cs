@@ -17,5 +17,7 @@ namespace Repository
         List<int> ListCollectionObjects(int objectId, string collName);
 
         void SetAttribute(int objectId, string name, string value);
+		
+		bool ObjectExists(int ObjectId);
     }
 }
