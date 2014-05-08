@@ -1,6 +1,6 @@
 {
-	"Version": "1.0.0.0",
-	"ConnectionString": "charset=WIN1251;datasource=192.168.11.1;database=ms2;user=sysdba;password=mojobaby",
+	"Version": "1.0.0.1",
+	"ConnectionString": "charset=WIN1251;datasource=192.168.11.102;database=profilecut;user=sysdba;password=masterkey",
 	"ModelCode": "PMS",
 	"MasterItemTemplate": "OptItem",
 	"MasterCollectionPath": "Optimizations",

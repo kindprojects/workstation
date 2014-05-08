@@ -93,12 +93,16 @@ namespace ProfileCut
             // подключаем хранилище данных
             this._modelStorage = new SStorageFB(_conf.ConnectionString);
 
-            _reloadModel(this._modelStorage, _conf.ModelCode, _conf.MasterItemTemplate, restorePosition: false);
+			// загружать модель не будем. Это сделает событие таймера
+            //_reloadModel(this._modelStorage, _conf.ModelCode, _conf.MasterItemTemplate, restorePosition: false);
         }
 
         private void FMain_Load(object sender, EventArgs e)
         {
-            WindowState = FormWindowState.Maximized;
+			WindowState = FormWindowState.Maximized;
+			timer1.Interval = _conf.MasterItemsUpdateIntervalMs;
+			timer1_Tick(timer1, new EventArgs());
+			timer1.Start();
         }
 
         public bool QueryValue(string varName, bool caseSensitive, out string value)
@@ -623,5 +627,15 @@ namespace ProfileCut
             else
                 splitContainerAwesomium.Panel1Collapsed = true;
         }
+
+		private void btnExit_Click(object sender, EventArgs e)
+		{
+			Application.Exit();
+		}
+
+		private void timer1_Tick(object sender, EventArgs e)
+		{
+			_reloadModel(this._modelStorage, _conf.ModelCode, _conf.MasterItemTemplate, restorePosition: true);
+		}
     }
 }
