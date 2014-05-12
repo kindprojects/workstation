@@ -61,6 +61,10 @@ namespace ProfileCut
                     "Версия указаная в конфигурационном файле {0} не совпадает с версией приложения {1}", 
                     conf.Version, version));
             conf.fileName = fileName;
+
+            foreach (var cmd in conf.Commands.Buttons) 
+                cmd.SelectedObjects = new List<int>();
+
             return conf;
         }
 
@@ -118,10 +122,17 @@ namespace ProfileCut
     {
         public string Name { set; get; }
         public string TargetAttr { set; get; }
-        public List<RAppConfigVar> TemplateOverloads {set; get; }
+
+        public string SelectedCssClass { set; get; }
+        public string ProcessedCssClass { set; get; }
+        public string ProcessedAttr { set; get; }
+
+        public List<RAppConfigVar> TemplateOverloads { set; get; }
+
+        public List<int> SelectedObjects { set; get; }
 
 		public bool QueryValue(string varName, bool caseSensitive, out string value)
-		{
+		{            
 			string lowerName = varName.ToLower();
 			foreach (RAppConfigVar var in TemplateOverloads)
 			{
@@ -132,6 +143,7 @@ namespace ProfileCut
 				}
 			}
 			value = null;
+            
 			return false;
 		}
 	}

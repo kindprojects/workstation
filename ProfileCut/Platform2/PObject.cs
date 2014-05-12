@@ -55,6 +55,11 @@ namespace Platform2
 			}
         }
 
+        public  Dictionary<int, IPObject> GetObjectsIndex()
+        {
+            return this.objectsIndex;
+        }
+
         public bool GetAttr(string name, bool findInOwners, out string val)
         {
 			// ToDo: можно добавить Dictionary<string,PObject>, в котором запоминать объекты, в которых запрошенные атрибуты были найдены ранее (+) быстрее поиск (-) если появится атрибут в объектах по пути, то он будет "обойдён" этим индексом (!) нужно при появлении атрибута очищать его из всех детей, а это медленно
@@ -202,5 +207,22 @@ namespace Platform2
 			}
 			return x;
 		}
+
+
+        public IPObject GetObjectById(int id)
+        {
+            IPObject obj = null;
+            if (this.objectsIndex.TryGetValue(id, out obj))
+            {
+                if (obj != null && obj.IsChildOf(this.Id))
+                {
+                    return obj;
+                }
+                else
+                    return null;
+            }
+            else
+                return null;
+        }
     }
 }

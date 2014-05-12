@@ -1,25 +1,28 @@
 {
 	"Version": "1.0.0.1",
-	"ConnectionString": "charset=WIN1251;datasource=192.168.11.102;database=profilecut;user=sysdba;password=masterkey",
-	"ModelCode": "PMS",
+	"ConnectionString": "charset=WIN1251;datasource=localhost;database=ProfileCut;user=sysdba;password=masterkey",
+	"ModelCode": "ALUM",
 	"MasterItemTemplate": "OptItem",
 	"MasterCollectionPath": "Optimizations",
 	"DetailTemplate": "OptView",
 	"SelectedHtmlElementClass": "selected",
 	"MasterItemsUpdateIntervalMs": 10000,
-	"Debug": true,
+	"Debug": true,    
     "Commands":
 	{
 		"Buttons":
 		[
 			{
 				"Name": "Печать",
-				"TargetAttr": "print_target",
+				"TargetAttr": "PRINT_STICKERS",
+                "SelectedCssClass": "checkedDetail",
+                "ProcessedCssClass": "processedDetail",                 
+                "ProcessedAttr": "DETAIL_PROCESS",
 				"TemplateOverloads":
 				[
 					{
 						"ParamName" : "PrinterName",
-						"Value" : "ZDesigner GK420d (копия 1)"
+						"Value" : "ZDesigner GK420d"
 					}
 				]
 			}

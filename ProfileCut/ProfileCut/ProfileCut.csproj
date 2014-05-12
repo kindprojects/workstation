@@ -177,6 +177,7 @@
     <None Include="Resources\check23.png" />
     <None Include="Resources\check2.png" />
     <Content Include="dll.dll" />
+    <Content Include="JavaScript1.js" />
     <Content Include="Resources\arrows.png" />
     <Content Include="Resources\circular.ico" />
     <Content Include="Resources\circular_black.ico" />

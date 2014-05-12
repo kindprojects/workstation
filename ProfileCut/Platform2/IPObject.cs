@@ -20,5 +20,9 @@ namespace Platform2
 		bool IsChildOf(int objectId);
 
 		XElement ToXElement();
+
+        IPObject GetObjectById(int id);
+
+        Dictionary<int, IPObject> GetObjectsIndex();
     }
 }

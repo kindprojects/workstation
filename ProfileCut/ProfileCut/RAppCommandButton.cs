@@ -12,11 +12,11 @@ namespace ProfileCut
 {
 	public class RAppCommandButton : Button
 	{
-		public RAppCommand appCommand;
+        public RAppCommand AppCommand { set; get; }
 		public RAppCommandButton(RAppCommand cmd)
 		{
 			this.Text = cmd.Name;
-			this.appCommand = cmd;
+			this.AppCommand = cmd;
 		}
 	}
 }

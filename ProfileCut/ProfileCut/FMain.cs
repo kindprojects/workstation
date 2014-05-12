@@ -45,7 +45,7 @@ namespace ProfileCut
 					if (html != "")
 					{
 						_master = value; // если обновление удалось, то можно сменить объект
-						loadOptHtml(html);
+						loadOptHtml(html);                        
 					}
                 }
                 finally
@@ -183,6 +183,7 @@ namespace ProfileCut
 			webControlDetails.Source = new Uri("file:///" + tmpFilePath.Replace('\\', '/'));
 			webControlDetails.Update();
 		}
+
 		protected void genNavigation(Control owner, List<string>levels, List<string>captions)
 		{
 			if (levels != null)
@@ -211,6 +212,8 @@ namespace ProfileCut
 				{
 					_jsObject = webControlDetails.CreateGlobalJavascriptObject("app");
 					_jsBind();
+
+                    _addOrRemoveProcessedClass();
 
 					enableChildControls(panelNavigator, true);
 					enableChildControls(panelAppCommands, true);
@@ -273,6 +276,45 @@ namespace ProfileCut
             }
 
             return ret;
+        }
+
+        private void _addClassToListObjects(List<int> objects, string className)
+        {
+            string js = "function f(os, c) {"
+                + "for (ii = 0; ii < os.length; ii ++){"
+                + "el = document.getElementById(os[ii]);"
+                + "if (el){"
+                + "if (el.className.indexOf(c) == -1) el.className = el.className + ' ' + c + ' ';}}}";                
+
+            js = js + _createFunctionCall(objects, className);
+
+            webControlDetails.ExecuteJavascript(js);
+        }
+        
+        private void _removeClassFromListObjects(List<int> objects, string className)
+        {
+            string js = "function f(os, c) {"
+                + "for (ii = 0; ii < os.length; ii ++){"
+                + "el = document.getElementById(os[ii]);"
+                + "if (el) {"
+                + "el.className = el.className.replace(c, '');}}}";
+                
+            js = js + _createFunctionCall(objects, className);
+            
+            webControlDetails.ExecuteJavascript(js);
+        }
+
+        private string _createFunctionCall(List<int> objects, string className)
+        {
+            string js = "var ids = [";
+            foreach(int id in objects)
+            {
+                js = js + "'" + id.ToString() + "',";
+            }
+            js = js.Substring(0, js.Length - 1) + "];";
+            js = js + "f(ids, '" + className + "');";
+
+            return js;
         }
 
         private void _addClass(string id, string className)
@@ -346,20 +388,90 @@ namespace ProfileCut
 						throw new Exception("Объект указан неверно (" + arg0 + ")", ex);
 					}
 					//ABaseObject obj = _master.GetObjectById(Convert.ToInt32(id));
-					IPObject obj;
-					if (!_data.objectsIndex.TryGetValue(id, out obj))
-						throw new Exception(string.Format(@"Не удалось найти объект по ID={0}", id));
+                    IPObject obj = _master.GetObjectById(id);
+                   
 
-					if (navDetails != null)
-					{
-						PNavigatorPath path = navDetails.GetPathTo(obj);
-						this.scrollDetailViewOnNavigate = false;
-						navDetails.Navigate(path);
-					}
-					else
-					{
-						throw new Exception("navDetails не создан!");
-					}
+					//if (!_data.objectsIndex.TryGetValue(id, out obj))
+					//	throw new Exception(string.Format(@"Не удалось найти объект по ID={0}", id));
+
+                    if (obj == null)
+                        throw new Exception(string.Format(@"Не удалось найти объект по ID={0}", id));
+
+                    /////////////////////////////////////
+                    if (obj != null)
+                    {
+                        foreach (var cmd in _conf.Commands.Buttons)
+                        {
+                            IPObject targetObj = null;
+                            string targetVal = "";
+
+                            if (obj.FindAttr(cmd.TargetAttr, out targetObj, out targetVal))
+                            {
+                                if (targetObj != null)
+                                {
+                                    int index = cmd.SelectedObjects.IndexOf(targetObj.Id);
+
+                                    if (index == -1)
+                                    {                                       
+                                        string val = "";                                        
+                                        // нет в списке выбранных, но этот объект обработан! Надо сделать его выбранным 
+                                        if (targetObj.GetAttr(cmd.ProcessedAttr, false, out val) && val == "1")
+                                        {
+                                            // снимем признак обработки
+                                            targetObj.SetAttr(cmd.ProcessedAttr, "0");
+                                            targetObj.StorageUpdateAttr(cmd.ProcessedAttr);
+                                            
+                                            List<int> ids = new List<int>();
+                                            ids.Add(targetObj.Id);
+
+                                            // удалим класс обработанного элемента
+                                            _removeClassFromListObjects(ids, cmd.ProcessedCssClass);
+
+                                            // добавим класс выбранного элемента
+                                            _addClassToListObjects(ids, cmd.SelectedCssClass);
+
+                                            // добавим в список выбранных
+                                            cmd.SelectedObjects.Add(targetObj.Id);
+                                        }
+                                        else
+                                        {
+                                            cmd.SelectedObjects.Add(targetObj.Id);
+
+                                            List<int> ids = new List<int>();
+                                            ids.Add(targetObj.Id);
+                                            _addClassToListObjects(ids, cmd.SelectedCssClass);
+                                        }
+                                            
+                                    }
+                                    else
+                                    {                                                                                
+                                        cmd.SelectedObjects.RemoveAt(index);
+                                            
+                                        List<int> ids = new List<int>();
+                                        ids.Add(targetObj.Id);
+                                        _removeClassFromListObjects(ids, cmd.SelectedCssClass);         
+
+                                    }
+
+                                    updateAppCommandsAvailability(panelAppCommands);
+                                }
+                            }
+                            else {
+
+                                if (navDetails != null)
+                                {
+                                    PNavigatorPath path = navDetails.GetPathTo(obj);
+                                    this.scrollDetailViewOnNavigate = false;
+                                    navDetails.Navigate(path);
+                                }
+                                else
+                                {
+                                    throw new Exception("navDetails не создан!");
+                                }
+                            }
+                        }
+                    }
+                    /////////////////////////////////////
 				}
             }
             catch (Exception ex)
@@ -401,36 +513,110 @@ namespace ProfileCut
         }
 
         private void _commandButtonClick(object sender, EventArgs e)
-        {
+        {            
             RAppCommandButton b = sender as RAppCommandButton;
-			IPObject pointer = navDetails != null?navDetails.Pointer : null;
-			string targetAttr = b.appCommand.TargetAttr;
-			if (pointer != null && targetAttr != "")
-			{
-				IPObject objTarget;
-				string scriptAttr;
-				if (pointer.FindAttr(targetAttr, out objTarget, out scriptAttr))
-				{
-					string scriptTemplate;
-					if (objTarget.GetAttr(scriptAttr, true, out scriptTemplate))
-					{
-						string script = PTemplates.FormatObject(objTarget, scriptTemplate, this, b.appCommand, null, null);
-						MScriptManager.Execute(Path.GetDirectoryName(Application.ExecutablePath)
-							, this
-							, script
-							, new ModuleFinishedHandler(this._moduleFinishedCallback)
-						);
-					}
-					else
-					{
-						throw new Exception(string.Format(@"Не найден атрибут '{0}', который должен содержать скрипт для команды {1}", scriptAttr, b.appCommand.Name));
-					}
-				}
-				else
-				{
-					throw new Exception(string.Format(@"Не найден объект, содержащий целевой атрибут '{0}'", targetAttr));
-				}
-			}
+
+            if (b.AppCommand.SelectedObjects.Count > 0)
+            {
+                foreach (int id in b.AppCommand.SelectedObjects)
+                {
+                    IPObject objTarget = _master.GetObjectById(id);
+                    if (objTarget != null)
+                    {
+                        string targetAttr;
+                        if (objTarget.GetAttr(b.AppCommand.TargetAttr, false, out targetAttr))
+                        {
+                            string scriptTemplate;
+                            if (objTarget.GetAttr(targetAttr, true, out scriptTemplate))
+                            {
+                                string script = PTemplates.FormatObject(objTarget, scriptTemplate, this, b.AppCommand, null, null);
+                                MScriptManager.Execute(Path.GetDirectoryName(Application.ExecutablePath)
+                                    , this
+                                    , script
+                                    , new ModuleFinishedHandler(this._moduleFinishedCallback)
+                                );
+
+                                objTarget.SetAttr(b.AppCommand.ProcessedAttr, "1");
+                                objTarget.StorageUpdateAttr(b.AppCommand.ProcessedAttr);
+                            }
+                            else
+                            {
+                                throw new Exception(string.Format(@"Не найден атрибут '{0}', который должен содержать скрипт для команды {1}", targetAttr, b.AppCommand.Name));
+                            }
+                        }
+                        else
+                        {
+                            throw new Exception(string.Format(@"У объекта c ID={0} не найден атрибут '{1}', который должен содержать имя атрибута со скриптом для команды",
+                                id.ToString(), b.AppCommand.TargetAttr));
+                        }
+                    }
+                    else
+                    {
+                        throw new Exception(string.Format(@"Не удалось найти объект по ID={0}", id));
+                    }
+                }
+                b.AppCommand.SelectedObjects.Clear();
+                _addOrRemoveProcessedClass();
+                updateAppCommandsAvailability(panelAppCommands);
+            }
+            else
+            {
+                    IPObject pointer = navDetails != null ? navDetails.Pointer : null;
+                    string targetAttr = b.AppCommand.TargetAttr;
+                    if (pointer != null && targetAttr != "")
+                    {
+                        IPObject objTarget;
+                        string scriptAttr;
+                        if (pointer.FindAttr(targetAttr, out objTarget, out scriptAttr))
+                        {
+                            string scriptTemplate;
+                            if (objTarget.GetAttr(scriptAttr, true, out scriptTemplate))
+                            {
+                                string script = PTemplates.FormatObject(objTarget, scriptTemplate, this, b.AppCommand, null, null);
+                                MScriptManager.Execute(Path.GetDirectoryName(Application.ExecutablePath)
+                                    , this
+                                    , script
+                                    , new ModuleFinishedHandler(this._moduleFinishedCallback)
+                                );
+                            }
+                            else
+                            {
+                                throw new Exception(string.Format(@"Не найден атрибут '{0}', который должен содержать скрипт для команды {1}", scriptAttr, b.AppCommand.Name));
+                            }
+                        }
+                        else
+                        {
+                            throw new Exception(string.Format(@"Не найден объект, содержащий целевой атрибут '{0}'", targetAttr));
+                        }
+                    }
+                
+            }
+        }
+
+        protected void _addOrRemoveProcessedClass()
+        {            
+            foreach(var cmd in _conf.Commands.Buttons)
+            {
+                List<int> addObjList = new List<int>();
+                List<int> removeObjList = new List<int>();                
+                foreach (IPObject obj in _master.GetObjectsIndex().Values)
+                {
+                    string val = "";
+                    if (obj.GetAttr(cmd.ProcessedAttr, false, out val))
+                    {
+                        if (val == "1")
+                            addObjList.Add(obj.Id);
+                        else
+                            removeObjList.Add(obj.Id);
+                    }
+                }
+                if (addObjList.Count() > 0)
+                    _addClassToListObjects(addObjList, cmd.ProcessedCssClass);
+
+                if (removeObjList.Count() > 0)
+                    _removeClassFromListObjects(removeObjList, cmd.ProcessedCssClass);
+            }                            
+
         }
 
         private void _moduleFinishedCallback(IModule module)
@@ -502,11 +688,19 @@ namespace ProfileCut
                     RAppCommandButton btn = (RAppCommandButton)ctrl;
                     IPObject obj;
                     string val;
-					if (this.navDetails != null && this.navDetails.Pointer != null)
-                        btn.Enabled = this.navDetails.Pointer.FindAttr(btn.appCommand.TargetAttr, out obj, out val);
+
+                    if (btn.AppCommand.SelectedObjects.Count() > 0)
+                    {
+                        btn.Enabled = true;
+                    }
                     else
-                        btn.Enabled = false;
-                }
+                    {
+                        if (this.navDetails != null && this.navDetails.Pointer != null)
+                            btn.Enabled = this.navDetails.Pointer.FindAttr(btn.AppCommand.TargetAttr, out obj, out val);
+                        else
+                            btn.Enabled = false;
+                    }
+                }               
             }
         }
 

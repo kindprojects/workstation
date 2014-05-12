@@ -11,7 +11,7 @@ namespace Platform2
     {
         public IPObject Root { set; get; }
 
-		public Dictionary<int,IPObject> objectsIndex;
+		public Dictionary<int, IPObject> objectsIndex {protected set; get; }
 
         public PModel(IStorage rep, string model, bool deferredLoad)
         {
