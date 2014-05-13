@@ -7,7 +7,7 @@
 	"DetailTemplate": "OptView",
 	"SelectedHtmlElementClass": "selected",
 	"MasterItemsUpdateIntervalMs": 10000,
-	"Debug": true,    
+	"Debug": true,        
     "Commands":
 	{
 		"Buttons":
@@ -32,7 +32,9 @@
 	[
 		{
 			"ParamName" : "test",
-			"Value" : "test value"
+			"Value" : "test value",
+            "ParamName" : "PrinterName",
+            "Value" : "ZDesigner GK420d"				
 		}
 	]
 }

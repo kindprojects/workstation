@@ -62,9 +62,6 @@ namespace ProfileCut
                     conf.Version, version));
             conf.fileName = fileName;
 
-            foreach (var cmd in conf.Commands.Buttons) 
-                cmd.SelectedObjects = new List<int>();
-
             return conf;
         }
 
@@ -127,9 +124,7 @@ namespace ProfileCut
         public string ProcessedCssClass { set; get; }
         public string ProcessedAttr { set; get; }
 
-        public List<RAppConfigVar> TemplateOverloads { set; get; }
-
-        public List<int> SelectedObjects { set; get; }
+        public List<RAppConfigVar> TemplateOverloads { set; get; }       
 
 		public bool QueryValue(string varName, bool caseSensitive, out string value)
 		{            

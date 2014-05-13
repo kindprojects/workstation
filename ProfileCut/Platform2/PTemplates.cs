@@ -79,17 +79,17 @@ namespace Platform2
                             if (worker != null && worker.CancellationPending)
                                 return "";
 
-							bool navAdded = false;
-							if (fcollect.navigatorLevelCaption!="")
-							{
-								if (navInfo != null)
-								{
-									navInfo.captions.Add(fcollect.navigatorLevelCaption);
-									navInfo.levels.Add(fcollect.collectionName);
-									navAdded = true;
-								}
-							}
-							val += FormatObject(cobj, tmp, host, overloads, worker, navInfo);
+                            bool navAdded = false;
+                            if (fcollect.navigatorLevelCaption != "")
+                            {
+                                if (navInfo != null)
+                                {
+                                    navInfo.captions.Add(fcollect.navigatorLevelCaption);
+                                    navInfo.levels.Add(fcollect.collectionName);
+                                    navAdded = true;
+                                }
+                            }
+                            val += FormatObject(cobj, tmp, host, overloads, worker, navInfo);
 
 							// теперь, если уровень навигации добавлялся - нужно сбросить переменную, чтоб в этом цикле не добавить соседние подходящие коллекции
 							if (navAdded)
