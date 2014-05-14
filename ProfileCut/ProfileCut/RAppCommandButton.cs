@@ -7,6 +7,7 @@ using System.Windows.Forms;
 using System.Reflection;
 
 using System.ComponentModel.Design.Serialization;
+using Platform2;
 
 namespace ProfileCut
 {
