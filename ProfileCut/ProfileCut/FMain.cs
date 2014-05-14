@@ -242,7 +242,7 @@ namespace ProfileCut
         {
             int prevId = e.prevObject != null ? e.prevObject.Id : 0;
             int newId = e.newObject != null ? e.newObject.Id : 0;
-            _updateActiveHtmlElement(prevId, newId, doScroll: this.scrollDetailViewOnNavigate);
+			_updateActiveHtmlElement(prevId, newId, doScroll: this.scrollDetailViewOnNavigate);
 
             foreach (Control ctrl in panelAppCommands.Controls)
             {
@@ -250,36 +250,23 @@ namespace ProfileCut
                 {
                     RAppCommandButton btn = (RAppCommandButton)ctrl;
 
-                    if (e.newObject != null)
-                    {
-                        if (btn.AppCommand.ProcessedAttr != null && btn.AppCommand.ProcessedAttr.Trim().Length > 0)
-                        {
-                            IPObject targetObj;
-                            string targetVal = "";
-                            if (e.newObject.FindAttr(btn.AppCommand.TargetAttr, out targetObj, out targetVal))
-                            {
-                                int index = btn.SelectedObjects.IndexOf(targetObj.Id);
-                                // Нет в списке выбранных?
-                                if (index == -1)
-                                    _addObjectToSelected(targetObj.Id, btn);
-                                else
-                                    _removeObjectFromSelected(targetObj.Id, btn);
-                            }
-                        }
-                        else
-                        {
-                            if (btn.SelectedObjects.Count() > 0)
-                            {
-                                _removeObjectFromSelected(btn.SelectedObjects[0], btn);
-                                btn.SelectedObjects.Clear();
-                            }
-
-                            IPObject processObj;
-                            string val;
-                            if (this.navDetails != null && this.navDetails.Pointer != null)
-                                if (this.navDetails.Pointer.FindAttr(btn.AppCommand.TargetAttr, out processObj, out val))
-                                    _addObjectToSelected(navDetails.Pointer.Id, btn);
-                        }
+					// если CSS-класс выделения не задан, то мы не должны накаплиавть объекты в очереди (т.к. нельзя их увидеть)
+					if (String.IsNullOrEmpty(btn.AppCommand.SelectedCssClass))
+						btn.ObjectsQueue.Clear();
+                    
+					if (e.newObject != null)
+					{
+						IPObject targetObj;
+						string targetVal = "";
+						// подходит ли объект
+						if (e.newObject.FindAttr(btn.AppCommand.TargetAttr, out targetObj, out targetVal))
+						{
+							// если не было - добавляем, иначе убираем
+							if (btn.ObjectsQueue.IndexOf(targetObj.Id) < 0)
+								_addObjectToCommandQueue(targetObj.Id, btn);
+							else
+								_removeObjectFromCommandQueue(targetObj.Id, btn);
+						}
                     }
                 }
             }
@@ -463,35 +450,32 @@ namespace ProfileCut
             }
         }
 
-        protected void _addObjectToSelected(int id, RAppCommandButton commandBtn)
+        protected void _addObjectToCommandQueue(int id, RAppCommandButton commandBtn)
         {
-            if (commandBtn.AppCommand.SelectedCssClass != null && commandBtn.AppCommand.SelectedCssClass.Trim().Length > 0)
+            if (!String.IsNullOrEmpty(commandBtn.AppCommand.SelectedCssClass))
             {
                 // добавим класс выбранного элемента
                 _addClass(id.ToString(), commandBtn.AppCommand.SelectedCssClass);
-
-                // добавим в список выбранных
-                commandBtn.SelectedObjects.Add(id);
-            }
+			}
+			// добавим в список выбранных
+			commandBtn.ObjectsQueue.Add(id);
         }
 
-        protected void _removeObjectFromSelected(int id, RAppCommandButton commandBtn, int indexInList = -1)
+        protected void _removeObjectFromCommandQueue(int id, RAppCommandButton commandBtn)
         {
-            if (commandBtn.AppCommand.SelectedCssClass != null && commandBtn.AppCommand.SelectedCssClass.Trim().Length > 0)
-            {
-                // положение объекта в списке неизвестно?
-                if (indexInList == -1)
-                    indexInList = commandBtn.SelectedObjects.IndexOf(id);
+			int index = commandBtn.ObjectsQueue.IndexOf(id);
 
-                if (indexInList >= 0)
-                {
-                    // удалим класс обработанного элемента
-                    _removeClass(id.ToString(), commandBtn.AppCommand.SelectedCssClass);
-
-                    // удалим из списка выбарных
-                    commandBtn.SelectedObjects.RemoveAt(indexInList);
-                }
+            if (!String.IsNullOrEmpty(commandBtn.AppCommand.SelectedCssClass))
+			{
+				// удалим класс обработанного элемента
+				_removeClass(id.ToString(), commandBtn.AppCommand.SelectedCssClass);
             }
+			// положение объекта в списке неизвестно?
+			if (index >= 0)
+			{
+				// удалим из списка выбарных
+				commandBtn.ObjectsQueue.RemoveAt(index);
+			}
         }
 
         // устанавливает атрибут объекта и сохраняет в БД  
@@ -537,9 +521,9 @@ namespace ProfileCut
         private void _commandButtonClick(object sender, EventArgs e)
         {
             RAppCommandButton b = sender as RAppCommandButton;
-            if (b.SelectedObjects.Count > 0)
+            if (b.ObjectsQueue.Count > 0)
             {
-                foreach (int id in b.SelectedObjects)
+                foreach (int id in b.ObjectsQueue)
                 {
                     IPObject targetObj = _master.GetObjectById(id);
                     if (targetObj != null)
@@ -579,7 +563,7 @@ namespace ProfileCut
                         throw new Exception(string.Format(@"Не удалось найти объект по ID={0}", id));
                     }
                 }
-                b.SelectedObjects.Clear();
+                b.ObjectsQueue.Clear();
                 _addProcessedClass();
                 updateAppCommandsAvailability(panelAppCommands);
             }
@@ -671,7 +655,7 @@ namespace ProfileCut
                 {
                     RAppCommandButton btn = (RAppCommandButton)ctrl;                    
                     
-                    if (btn.SelectedObjects.Count() > 0)
+                    if (btn.ObjectsQueue.Count() > 0)
                         btn.Enabled = true;
                     else
                         btn.Enabled = false;
@@ -686,7 +670,7 @@ namespace ProfileCut
             if (navDetails != null)
             {
                 _clearSelectedObjetsListsAndRemoveSelectedClass(panelAppCommands);
-                navDetails.Navigate(b.Depth, b.Direction, overStep: true);                    
+                navDetails.Navigate(b.Depth, b.Direction, overStep: true);
             }
         }
 
@@ -698,8 +682,8 @@ namespace ProfileCut
                 if (ctrl is RAppCommandButton)
                 {
                     RAppCommandButton btn = (RAppCommandButton)ctrl;
-                    _removeClassFromListObjects(btn.SelectedObjects, btn.AppCommand.SelectedCssClass);
-                    btn.SelectedObjects.Clear();
+                    _removeClassFromListObjects(btn.ObjectsQueue, btn.AppCommand.SelectedCssClass);
+                    btn.ObjectsQueue.Clear();
                 }
             }            
         }

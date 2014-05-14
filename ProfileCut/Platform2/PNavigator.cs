@@ -135,6 +135,10 @@ namespace Platform2
             }
             else
             {
+				if (this.OnNavigated != null)
+				{
+					OnNavigated(this, new NavigatedEventArgs(this.Pointer, this.Pointer));
+				}
                 return null;
             }
         }

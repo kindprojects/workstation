@@ -14,14 +14,14 @@ namespace ProfileCut
 	public class RAppCommandButton : Button
 	{
         public RAppCommand AppCommand { set; get; }
-        public List<int> SelectedObjects { set; get; }
+        public List<int> ObjectsQueue { set; get; }
 		
         public RAppCommandButton(RAppCommand cmd)
 		{
 			this.Text = cmd.Name;
 			this.AppCommand = cmd;
 
-            SelectedObjects = new List<int>();
+            ObjectsQueue = new List<int>();
 		}
 	}
 }
