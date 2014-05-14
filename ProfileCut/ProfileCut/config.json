@@ -7,7 +7,8 @@
 	"DetailTemplate": "OptView",
 	"SelectedHtmlElementClass": "selected",
 	"MasterItemsUpdateIntervalMs": 10000,
-	"Debug": true,        
+	"NavigatorMinButtonWidth" : 30,
+	"Debug": true,
     "Commands":
 	{
 		"Buttons":

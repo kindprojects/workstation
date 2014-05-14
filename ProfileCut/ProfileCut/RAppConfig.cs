@@ -23,7 +23,8 @@ namespace ProfileCut
         public string DetailTemplate { set; get; }
         public string SelectedHtmlElementClass { set; get; }
         public string Navigation  { set; get; }
-        public int MasterItemsUpdateIntervalMs { set; get; }
+		public int MasterItemsUpdateIntervalMs { set; get; }
+		public int NavigatorMinButtonWidth { set; get; }
         public bool Debug { set; get; }
         public RAppCommands Commands { set; get; }
 		public List<RAppConfigVar> HostVars {set; get;}

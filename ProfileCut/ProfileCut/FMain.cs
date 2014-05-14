@@ -487,6 +487,7 @@ namespace ProfileCut
 
         private void _createNavButtons(Control owner, List<string> names)
         {
+			const int padding = 10;
 			owner.Controls.Clear();
             int depth = 0;
             int x = 0;
@@ -494,7 +495,7 @@ namespace ProfileCut
 			{
 				foreach (string name in names)
 				{
-					x = _createLevelButtons(owner, depth, name, x);
+					x = _createLevelButtons(owner, depth, name, x)+padding;
 					depth++;
 				}
 			}
@@ -594,7 +595,8 @@ namespace ProfileCut
 
         private int _createLevelButtons(Control owner, int depthTag, string text, int x)
         {
-            const int btnWidth = 40;
+			int minBtnWidth = _conf.NavigatorMinButtonWidth;
+			const int spacing = 1;
 
             Panel p = new Panel();
             p.Location = new System.Drawing.Point(x, 0);
@@ -603,25 +605,43 @@ namespace ProfileCut
             p.Controls.Add(l);
             l.Text = text;
             l.TextAlign = System.Drawing.ContentAlignment.TopCenter;
-            l.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+			l.Font = this.Font;// new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             l.AutoSize = true;
-            int labWidth = l.Width;
+            int labWidth = Math.Max(l.Width, minBtnWidth*2)+spacing*2;
+			int btnWidth = (labWidth - spacing) / 2;
+			l.Height = 12;
             l.AutoSize = false;
             l.Width = labWidth;
-            l.Height = owner.Height;
-            p.Width = labWidth + 2 * btnWidth + 1;
+			l.TextAlign = System.Drawing.ContentAlignment.TopCenter;
+            p.Width = labWidth;
+			//p.BorderStyle = BorderStyle.FixedSingle;
 
             RNavigatorButton b = new RNavigatorButton(depthTag, NAV_DIRECTION.UP);
             p.Controls.Add(b);
+            b.Left = l.Left;
             b.Width = btnWidth;
-            b.Height = owner.Height;
-            b.Left = l.Width;
-            b.Top = 0;
+			b.Top = l.Height;
+            b.Height = owner.Height - l.Height;
+
             b.Click += new System.EventHandler(this._navButtonClick);
             b.BackgroundImage = global::ProfileCut.Resource.arrow151;
             b.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
             b.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
 
+
+			b = new RNavigatorButton(depthTag, NAV_DIRECTION.DOWN);
+			p.Controls.Add(b);
+			b.Left = l.Left + btnWidth + spacing;
+			b.Width = btnWidth;
+			b.Top = l.Height;
+			b.Height = owner.Height - l.Height;
+
+			b.Click += new System.EventHandler(this._navButtonClick);
+			b.BackgroundImage = global::ProfileCut.Resource.caret;
+			b.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+			b.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+			
+			/*
             b = new RNavigatorButton(depthTag, NAV_DIRECTION.DOWN);
             p.Controls.Add(b);
             b.Width = btnWidth;
@@ -631,7 +651,7 @@ namespace ProfileCut
             b.Click += new System.EventHandler(this._navButtonClick);
             b.BackgroundImage = global::ProfileCut.Resource.caret;
             b.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            b.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            b.FlatStyle = System.Windows.Forms.FlatStyle.Flat;*/
 
             owner.Controls.Add(p);
             p.Parent = owner;
