@@ -602,7 +602,7 @@ namespace ProfileCut
             Label l = new Label();
             p.Controls.Add(l);
             l.Text = text;
-            l.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            l.TextAlign = System.Drawing.ContentAlignment.TopCenter;
             l.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             l.AutoSize = true;
             int labWidth = l.Width;
