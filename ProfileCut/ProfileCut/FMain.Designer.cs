@@ -30,7 +30,7 @@
         {
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FMain));
-            this.timer1 = new System.Windows.Forms.Timer(this.components);
+            this.timerListOptimizationsRefresh = new System.Windows.Forms.Timer(this.components);
             this.panelNavigator = new System.Windows.Forms.Panel();
             this.labeOpt = new System.Windows.Forms.Label();
             this.buttonRefresh = new System.Windows.Forms.Button();
@@ -49,7 +49,7 @@
             // 
             // timer1
             // 
-            this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
+            this.timerListOptimizationsRefresh.Tick += new System.EventHandler(this.timer1_Tick);
             // 
             // panelNavigator
             // 
@@ -199,7 +199,7 @@
 
         #endregion
 
-        private System.Windows.Forms.Timer timer1;
+        private System.Windows.Forms.Timer timerListOptimizationsRefresh;
         private System.Windows.Forms.Panel panelNavigator;
         private System.Windows.Forms.Label labeOpt;
 		private System.Windows.Forms.Button buttonRefresh;

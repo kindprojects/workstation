@@ -35,7 +35,7 @@ namespace ProfileCut
                 IPObject prev = _master;
                 try
                 {
-                    timer1.Stop();
+                    timerListOptimizationsRefresh.Stop();
 
                     // пересоздадим команды
                     _createAppCommandsButtons(panelAppCommands, _conf.Commands.Buttons);
@@ -45,15 +45,15 @@ namespace ProfileCut
                     enableChildControls(panelAppCommands, false);
 					List<string> navLevels;
 					List<string> navCaptions;
-					string html = genOptHtml(value, out navLevels, out navCaptions);
-					genNavigation(panelNavigator, navLevels, navCaptions);
+					string html = genOptHtml(value, out navLevels, out navCaptions);					
 					if (html != "")
 					{
+                        genNavigation(panelNavigator, navLevels, navCaptions);
 						_master = value; // если обновление удалось, то можно сменить объект
 						loadOptHtml(html);                        
 					}
 
-                    timer1.Start();
+                    timerListOptimizationsRefresh.Start();
                 }
                 finally
                 {
@@ -73,6 +73,10 @@ namespace ProfileCut
                         }
                     }
                 }
+                enableChildControls(panelNavigator, true);
+                enableChildControls(panelAppCommands, true);
+                
+                updateAppCommandsAvailability(panelAppCommands);
             }
             get { return _master; }
         }
@@ -107,9 +111,9 @@ namespace ProfileCut
         private void FMain_Load(object sender, EventArgs e)
         {
 			WindowState = FormWindowState.Maximized;
-			timer1.Interval = _conf.MasterItemsUpdateIntervalMs;
-			timer1_Tick(timer1, new EventArgs());
-			timer1.Start();
+			timerListOptimizationsRefresh.Interval = _conf.MasterItemsUpdateIntervalMs;
+			timer1_Tick(timerListOptimizationsRefresh, new EventArgs());
+			timerListOptimizationsRefresh.Start();
         }
 
         public bool QueryValue(string varName, bool caseSensitive, out string value)
@@ -222,8 +226,8 @@ namespace ProfileCut
 
                     _addProcessedClass();
 
-					enableChildControls(panelNavigator, true);
-					enableChildControls(panelAppCommands, true);
+                    //enableChildControls(panelNavigator, true);
+                    //enableChildControls(panelAppCommands, true);
 
 					navDetailPath.resetPositions();
 					navDetails = new PNavigator(this.master, this.navDetailPath);
