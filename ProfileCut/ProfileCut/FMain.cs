@@ -575,13 +575,15 @@ namespace ProfileCut
         }
 
         protected void _addProcessedClass()
-        {            
+        {
             foreach(var cmd in _conf.Commands.Buttons)
             {
+				if (String.IsNullOrEmpty(cmd.ProcessedAttr))
+					continue;
                 List<int> addObjList = new List<int>();
                 foreach (IPObject obj in _master.GetObjectsIndex().Values)
                 {
-                    string val = "";                    
+                    string val = "";
                     if (obj.GetAttr(cmd.ProcessedAttr, false, out val))
                     {
                         if (val == "1")

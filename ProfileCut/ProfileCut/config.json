@@ -1,11 +1,11 @@
 {
 	"Version": "1.0.0.1",
 	"ConnectionString": "charset=WIN1251;datasource=localhost;database=ProfileCut;user=sysdba;password=masterkey",
-	"ModelCode": "ALUM",
+	"ModelCode": "ARM!207",
 	"MasterItemTemplate": "OptItem",
 	"MasterCollectionPath": "Optimizations",
 	"DetailTemplate": "OptView",
-	"SelectedHtmlElementClass": "selected",
+	"SelectedHtmlElementClass": "selectedObject",
 	"MasterItemsUpdateIntervalMs": 10000,
 	"NavigatorMinButtonWidth" : 30,
 	"Debug": true,
@@ -17,7 +17,7 @@
 				"Name": "Печать",
 				"TargetAttr": "PRINT_STICKERS",
                 "SelectedCssClass": "checkedDetail",
-                "ProcessedCssClass": "processedDetail",                 
+                "ProcessedCssClass": "processedDetail",
                 "ProcessedAttr": "DETAIL_PROCESS",
 				"TemplateOverloads":
 				[
