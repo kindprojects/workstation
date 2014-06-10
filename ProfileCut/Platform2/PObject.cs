@@ -119,15 +119,17 @@ namespace Platform2
 		public void SetAttr(string name, string value)
         {
             string val = "";
-			string lowerName = name.ToLower();
-            if (!_attrs.TryGetValue(lowerName, out val))
+
+            if (!String.IsNullOrEmpty(name))
             {
-                _attrs.Add(lowerName, value);
+                string lowerName = name.ToLower();
+                if (!_attrs.TryGetValue(lowerName, out val))
+                    _attrs.Add(lowerName, value);
+                else
+                    _attrs[lowerName] = value;
             }
             else
-            {
-                _attrs[lowerName] = value;
-            }            
+                throw new Exception("Имя атрибута не задано");
         }
 
         public bool FindAttr(string attrName, out IPObject obj, out string val)
@@ -212,17 +214,23 @@ namespace Platform2
         public IPObject GetObjectById(int id)
         {
             IPObject obj = null;
-            if (this.objectsIndex.TryGetValue(id, out obj))
+
+            if (this.Id != id)
             {
-                if (obj != null && obj.IsChildOf(this.Id))
+                if (this.objectsIndex.TryGetValue(id, out obj))
                 {
-                    return obj;
+                    if (obj != null && obj.IsChildOf(this.Id))
+                    {
+                        return obj;
+                    }
+                    else
+                        return null;
                 }
                 else
                     return null;
             }
             else
-                return null;
+                return this;
         }
     }
 }

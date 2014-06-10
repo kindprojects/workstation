@@ -49,8 +49,8 @@ namespace ProfileCut
 					if (html != "")
 					{
                         genNavigation(panelNavigator, navLevels, navCaptions);
-						_master = value; // если обновление удалось, то можно сменить объект
-						loadOptHtml(html);                        
+						_master = value; // если обновление удалось, то можно сменить объект						
+                        loadOptHtml(html);                        
 					}
 
                     timerListOptimizationsRefresh.Start();
@@ -547,14 +547,17 @@ namespace ProfileCut
                                 );
                                     
                                 // удалим css класс - выбран
-                                _removeClass(targetObj.Id.ToString(), b.AppCommand.SelectedCssClass);
+                                if (!String.IsNullOrEmpty(b.AppCommand.SelectedCssClass))
+                                    _removeClass(targetObj.Id.ToString(), b.AppCommand.SelectedCssClass);
 
                                 // установим объекту признак - обработан
-                                _setObjectAttr(targetObj, b.AppCommand.ProcessedAttr, "1");
+                                if (!String.IsNullOrEmpty(b.AppCommand.ProcessedAttr))
+                                    _setObjectAttr(targetObj, b.AppCommand.ProcessedAttr, "1");
                             }
                             else
                             {
-                                throw new Exception(string.Format(@"Не найден атрибут '{0}', который должен содержать скрипт для команды {1}", targetAttr, b.AppCommand.Name));
+                                throw new Exception(string.Format(@"Не найден атрибут '{0}', который должен содержать скрипт для команды {1}", 
+                                    targetAttr, b.AppCommand.Name));
                             }
                         }
                         else
@@ -568,6 +571,7 @@ namespace ProfileCut
                         throw new Exception(string.Format(@"Не удалось найти объект по ID={0}", id));
                     }
                 }
+
                 b.ObjectsQueue.Clear();
                 _addProcessedClass();
                 updateAppCommandsAvailability(panelAppCommands);
