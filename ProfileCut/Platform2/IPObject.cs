@@ -18,11 +18,8 @@ namespace Platform2
         void StorageUpdateAttr(string name);
 		IPCollection onwerCollection { get; }
 		bool IsChildOf(int objectId);
-
 		XElement ToXElement();
-
         IPObject GetObjectById(int id);
-
         Dictionary<int, IPObject> GetObjectsIndex();
     }
 }

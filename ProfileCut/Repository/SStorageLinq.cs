@@ -277,5 +277,11 @@ namespace Repository
 		{
 			throw new NotImplementedException();
 		}
+
+
+        public void DeleteObject(string objectId)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

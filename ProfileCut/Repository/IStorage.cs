@@ -18,6 +18,8 @@ namespace Repository
 
         void SetAttribute(int objectId, string name, string value);
 		
-		bool ObjectExists(int ObjectId);
+		bool ObjectExists(int objectId);
+
+        void DeleteObject(string objectId);
     }
 }

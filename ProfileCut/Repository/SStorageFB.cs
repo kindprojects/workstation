@@ -148,6 +148,26 @@ namespace Repository
             return ret;
         }
 
+        private void _sqlDelete(string sqlQuery, string[] paramList) 
+        {
+            _openConnection();
+
+            using (FbTransaction trans = _db.BeginTransaction())
+            {
+                using (FbCommand cmd = new FbCommand(sqlQuery, _db, trans))
+                {
+                    for (int ii = 0; ii < Math.Floor(paramList.Count() / 2.0); ii++)
+                    {
+                        cmd.Parameters.AddWithValue(paramList[ii * 2], paramList[ii * 2 + 1]);
+                    }
+
+                    cmd.ExecuteNonQuery();
+                }
+
+                trans.Commit();
+            }
+        }
+
         private string _genLocalDBPathIfLocalDB(string connectionString)
         {
             // строит путь к файлу БД от текущей папки, если в качестве сервера указан localhost или 127.0.0.1
@@ -313,6 +333,10 @@ namespace Repository
 			return (this._sqlIntField(@"select first 1 1 from objects where objectid = @id", paramList, 0) == 1);
 		}
 
+        public void DeleteObject(string objectId)
+        {
+            throw new NotImplementedException();
+        }
         #endregion
     }
 }

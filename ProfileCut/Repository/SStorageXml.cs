@@ -43,9 +43,12 @@ namespace Repository
 		public bool ObjectExists(int objectId)
 		{
 			throw new NotImplementedException();
-		}
+		}        
 
+        public void DeleteObject(string objectId)
+        {
+            throw new NotImplementedException();
+        }
         #endregion
-        
     }
 }
