@@ -13,13 +13,17 @@ namespace Repository
 {
     public class SStorageFB : IStorage, IDisposable
     {        
-        private FbConnection _db;
+        protected FbConnection _db;
+
+        protected List<SCommand> _commands;
 
         public SStorageFB(string connectionString)
         {
 			string modified = this._genLocalDBPathIfLocalDB(connectionString);
 
 			_db = new FbConnection(connectionString); // отказались от использования модифицированного пути, слишком много нюансов. Алиас на сервере надежнее и правильнее.
+
+            _commands = new List<SCommand>();
         }
 
         #region Service
@@ -296,47 +300,53 @@ namespace Repository
             return ret;
         }
 
-        public void SetAttribute(int objectId, string name, string value)
-        {
-            string[] paramList = { "attributecode", name };
-
-            List<Dictionary<string, string>> q = _sqlSelect(
-                "select attributeid from attributes a where upper(attributecode) = upper(@attributecode)",
-                paramList
-            );
-
-            string attrId = "";
-            if (q.Count() == 0)
-            {
-                int? retId = _sqlInsert(
-                    "insert into attributes (attributecode) values (upper(@attributecode)) returning attributeid",
-                    paramList);
-
-                if (retId != null)
-                    attrId = retId.ToString();
-            }
-            else
-                q[0].TryGetValue("attributeid", out attrId);
-
-            if (attrId != "")
-            {
-                string[] insParamList = { "attributeid", attrId, "objectid", objectId.ToString(), "val", value };
-                int? retObjectId = _sqlInsert(
-                    "update or insert into object_attributes (attributeid, objectid, val) values (@attributeid, @objectid, @val) returning objectid",
-                    insParamList);
-            }
-        }
-
 		public bool ObjectExists(int ObjectID)
 		{
 			string[] paramList = {"id", ObjectID.ToString()};
 			return (this._sqlIntField(@"select first 1 1 from objects where objectid = @id", paramList, 0) == 1);
 		}
 
-        public void DeleteObject(string objectId)
+        public void DeleteObject(int objectId)
         {
-            throw new NotImplementedException();
+            _commands.Add(new SDeleteCommand(objectId));
         }
+
+        public void SetAttribute(int objectId, string name, string value)
+        {
+            _commands.Add(new SSetAttrCommand(objectId, name, value));
+        }
+
+        public bool Commit()
+        {
+            bool ret = true;
+
+            try
+            {
+                _openConnection();
+
+                using (FbTransaction trans = _db.BeginTransaction())
+                {
+                    foreach (var command in _commands)
+                        command.Execute(_db, trans);
+
+                    trans.Commit();
+                }
+
+                _commands = new List<SCommand>();
+            }
+            catch (Exception ex)
+            {
+                ret = false;
+            }
+
+            return ret;
+        }
+
         #endregion
+
+        public void Rollback()
+        {
+            _commands = new List<SCommand>();
+        }
     }
 }

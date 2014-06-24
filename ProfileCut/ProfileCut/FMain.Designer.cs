@@ -41,13 +41,14 @@
             this.webControlDetails = new Awesomium.Windows.Forms.WebControl(this.components);
             this.buttonHide = new System.Windows.Forms.Button();
             this.btnExit = new System.Windows.Forms.Button();
+            this.buttonOptRemove = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainerAwesomium)).BeginInit();
             this.splitContainerAwesomium.Panel1.SuspendLayout();
             this.splitContainerAwesomium.Panel2.SuspendLayout();
             this.splitContainerAwesomium.SuspendLayout();
             this.SuspendLayout();
             // 
-            // timer1
+            // timerListOptimizationsRefresh
             // 
             this.timerListOptimizationsRefresh.Tick += new System.EventHandler(this.timer1_Tick);
             // 
@@ -172,11 +173,25 @@
             this.btnExit.UseVisualStyleBackColor = true;
             this.btnExit.Click += new System.EventHandler(this.btnExit_Click);
             // 
+            // buttonOptRemove
+            // 
+            this.buttonOptRemove.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.buttonOptRemove.BackgroundImage = global::ProfileCut.Resource.remove;
+            this.buttonOptRemove.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.buttonOptRemove.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.buttonOptRemove.Location = new System.Drawing.Point(53, 340);
+            this.buttonOptRemove.Name = "buttonOptRemove";
+            this.buttonOptRemove.Size = new System.Drawing.Size(40, 38);
+            this.buttonOptRemove.TabIndex = 14;
+            this.buttonOptRemove.UseVisualStyleBackColor = true;
+            this.buttonOptRemove.Click += new System.EventHandler(this.buttonOptRemove_Click);
+            // 
             // FMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(594, 390);
+            this.Controls.Add(this.buttonOptRemove);
             this.Controls.Add(this.btnExit);
             this.Controls.Add(this.buttonHide);
             this.Controls.Add(this.splitContainerAwesomium);
@@ -210,6 +225,7 @@
         private Awesomium.Windows.Forms.WebControl webControlDetails;
         private System.Windows.Forms.Button buttonHide;
 		private System.Windows.Forms.Button btnExit;
+        private System.Windows.Forms.Button buttonOptRemove;
     }
 }
 

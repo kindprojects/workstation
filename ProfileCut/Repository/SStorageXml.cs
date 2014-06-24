@@ -45,10 +45,20 @@ namespace Repository
 			throw new NotImplementedException();
 		}        
 
-        public void DeleteObject(string objectId)
+        public void DeleteObject(int objectId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool Commit()
         {
             throw new NotImplementedException();
         }
         #endregion
+
+        public void Rollback()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -278,8 +278,17 @@ namespace Repository
 			throw new NotImplementedException();
 		}
 
+        public void DeleteObject(int objectId)
+        {
+            throw new NotImplementedException();
+        }
 
-        public void DeleteObject(string objectId)
+        public bool Commit()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Rollback()
         {
             throw new NotImplementedException();
         }

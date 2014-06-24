@@ -486,7 +486,9 @@ namespace ProfileCut
         protected void _setObjectAttr(IPObject obj, string attrName, string val)
         {
             obj.SetAttr(attrName, val);
+            
             obj.StorageUpdateAttr(attrName);
+            _modelStorage.Commit();            
         }
 
         private void _createNavButtons(Control owner, List<string> names)
@@ -802,7 +804,10 @@ namespace ProfileCut
                 if (!master.GetAttr("CUTOPT", false, out attr))
                     attr = "";
                 master.SetAttr("CUTOPT", attr == "" ? "#" : "");
+                
                 master.StorageUpdateAttr("CUTOPT");
+                _modelStorage.Commit();
+                
 				// обновить текст отдельной строчки listBox'а не получается - не реагирует. Приходится формировать список целиком
 				_refreshOptimizationList(master.Id);
             }
@@ -825,5 +830,26 @@ namespace ProfileCut
 		{
 			_reloadModel(this._modelStorage, _conf.ModelCode, _conf.MasterItemTemplate, restorePosition: true);
 		}
+
+        private void _loadEmptyHtmlToWebControl()
+        {
+            webControlDetails.LoadHTML("<!DOCTYPE html><html><head></head><body></body></html>");
+        }
+
+        private void buttonOptRemove_Click(object sender, EventArgs e)
+        {                     
+            if (this.master != null)
+            {
+                if (MessageBox.Show(String.Format("Удалить оптимизацию {0}?", formatMasterItem(this.master)),
+                    "Внимание", MessageBoxButtons.OKCancel, MessageBoxIcon.Exclamation) == System.Windows.Forms.DialogResult.OK)
+                {
+                    _data.DeleteObject(this.master);
+                    _modelStorage.Commit();
+
+                    _refreshOptimizationList(master.Id);
+                    _loadEmptyHtmlToWebControl();
+                }
+            }            
+        }
     }
 }

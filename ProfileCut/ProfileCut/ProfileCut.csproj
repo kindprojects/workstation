@@ -135,6 +135,7 @@
     <Compile Include="RAppCommandButton.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Content Include="Resources\remove.png" />
     <EmbeddedResource Include="FFormat.resx">
       <DependentUpon>FFormat.cs</DependentUpon>
     </EmbeddedResource>

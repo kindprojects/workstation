@@ -15,11 +15,15 @@ namespace Repository
         Dictionary<string, string> ListAttributes(int objectId);
         
         List<int> ListCollectionObjects(int objectId, string collName);
-
-        void SetAttribute(int objectId, string name, string value);
-		
+        		
 		bool ObjectExists(int objectId);
 
-        void DeleteObject(string objectId);
+        void SetAttribute(int objectId, string name, string value);
+
+        void DeleteObject(int objectId);
+
+        bool Commit();
+
+        void Rollback();
     }
 }
