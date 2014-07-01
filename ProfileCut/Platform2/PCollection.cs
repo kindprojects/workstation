@@ -12,7 +12,7 @@ namespace Platform2
 
 		private bool _deferredLoad;
 
-        internal List<PObject> _items { set;  get; }
+        internal List<PObject> _items { set; get; }
 		
         private bool _loaded;
 
@@ -130,17 +130,5 @@ namespace Platform2
 
 			}
 		}
-
-        public void RemoveObject(IPObject obj)
-        {
-            try
-            {
-                this._items.Remove((PObject)obj);
-            }
-            catch (Exception ex) 
-            {
-                throw new Exception(String.Format("Не удалось получить экземпляр обьекта.Невозможно удалить объект из коллекции {0}. {1}", this.Name, ex.Message));
-            }
-        }
     }
 }
