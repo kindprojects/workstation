@@ -56,9 +56,9 @@
             // 
             this.panelNavigator.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.panelNavigator.Location = new System.Drawing.Point(217, 340);
+            this.panelNavigator.Location = new System.Drawing.Point(217, 412);
             this.panelNavigator.Name = "panelNavigator";
-            this.panelNavigator.Size = new System.Drawing.Size(171, 38);
+            this.panelNavigator.Size = new System.Drawing.Size(233, 38);
             this.panelNavigator.TabIndex = 4;
             // 
             // labeOpt
@@ -86,7 +86,7 @@
             // panelAppCommands
             // 
             this.panelAppCommands.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.panelAppCommands.Location = new System.Drawing.Point(394, 340);
+            this.panelAppCommands.Location = new System.Drawing.Point(456, 412);
             this.panelAppCommands.Name = "panelAppCommands";
             this.panelAppCommands.Size = new System.Drawing.Size(97, 38);
             this.panelAppCommands.TabIndex = 9;
@@ -97,7 +97,7 @@
             this.buttonMarkOpimization.BackgroundImage = global::ProfileCut.Resource.check;
             this.buttonMarkOpimization.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
             this.buttonMarkOpimization.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.buttonMarkOpimization.Location = new System.Drawing.Point(7, 340);
+            this.buttonMarkOpimization.Location = new System.Drawing.Point(7, 412);
             this.buttonMarkOpimization.Name = "buttonMarkOpimization";
             this.buttonMarkOpimization.Size = new System.Drawing.Size(40, 38);
             this.buttonMarkOpimization.TabIndex = 10;
@@ -122,7 +122,7 @@
             // splitContainerAwesomium.Panel2
             // 
             this.splitContainerAwesomium.Panel2.Controls.Add(this.webControlDetails);
-            this.splitContainerAwesomium.Size = new System.Drawing.Size(591, 331);
+            this.splitContainerAwesomium.Size = new System.Drawing.Size(653, 403);
             this.splitContainerAwesomium.SplitterDistance = 212;
             this.splitContainerAwesomium.TabIndex = 11;
             // 
@@ -136,7 +136,7 @@
             this.listBoxOptimizations.ItemHeight = 25;
             this.listBoxOptimizations.Location = new System.Drawing.Point(6, 47);
             this.listBoxOptimizations.Name = "listBoxOptimizations";
-            this.listBoxOptimizations.Size = new System.Drawing.Size(203, 281);
+            this.listBoxOptimizations.Size = new System.Drawing.Size(203, 353);
             this.listBoxOptimizations.TabIndex = 1;
             this.listBoxOptimizations.SelectedIndexChanged += new System.EventHandler(this.listBoxOptimizations_SelectedIndexChanged);
             // 
@@ -144,7 +144,7 @@
             // 
             this.webControlDetails.Dock = System.Windows.Forms.DockStyle.Fill;
             this.webControlDetails.Location = new System.Drawing.Point(0, 0);
-            this.webControlDetails.Size = new System.Drawing.Size(375, 331);
+            this.webControlDetails.Size = new System.Drawing.Size(437, 403);
             this.webControlDetails.TabIndex = 0;
             this.webControlDetails.DocumentReady += new Awesomium.Core.UrlEventHandler(this.Awesomium_Windows_Forms_WebControl_DocumentReady);
             // 
@@ -154,7 +154,7 @@
             this.buttonHide.BackgroundImage = global::ProfileCut.Resource.arrows;
             this.buttonHide.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
             this.buttonHide.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.buttonHide.Location = new System.Drawing.Point(170, 340);
+            this.buttonHide.Location = new System.Drawing.Point(170, 412);
             this.buttonHide.Name = "buttonHide";
             this.buttonHide.Size = new System.Drawing.Size(40, 38);
             this.buttonHide.TabIndex = 12;
@@ -165,7 +165,7 @@
             // 
             this.btnExit.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.btnExit.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnExit.Location = new System.Drawing.Point(497, 340);
+            this.btnExit.Location = new System.Drawing.Point(559, 412);
             this.btnExit.Name = "btnExit";
             this.btnExit.Size = new System.Drawing.Size(85, 38);
             this.btnExit.TabIndex = 13;
@@ -179,7 +179,7 @@
             this.buttonOptRemove.BackgroundImage = global::ProfileCut.Resource.remove;
             this.buttonOptRemove.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
             this.buttonOptRemove.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.buttonOptRemove.Location = new System.Drawing.Point(53, 340);
+            this.buttonOptRemove.Location = new System.Drawing.Point(53, 412);
             this.buttonOptRemove.Name = "buttonOptRemove";
             this.buttonOptRemove.Size = new System.Drawing.Size(40, 38);
             this.buttonOptRemove.TabIndex = 14;
@@ -190,7 +190,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(594, 390);
+            this.ClientSize = new System.Drawing.Size(656, 462);
             this.Controls.Add(this.buttonOptRemove);
             this.Controls.Add(this.btnExit);
             this.Controls.Add(this.buttonHide);
