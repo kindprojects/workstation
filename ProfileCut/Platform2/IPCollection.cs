@@ -11,6 +11,7 @@ namespace Platform2
 		IPObject ownerObject { get; }
 		string CollectionName { get; }
 		int IndexOf(IPObject o);
-		int Count{get;}
+        int Count { get; }
+        void RemoveObject(IPObject obj);
 	}
 }
