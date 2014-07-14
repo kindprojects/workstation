@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Platform.Properties {
+namespace ProfileCut.Properties {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]

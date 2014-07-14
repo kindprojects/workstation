@@ -608,6 +608,7 @@ namespace ProfileCut
         private int _createLevelButtons(Control owner, int depthTag, string text, int x)
         {
 			int minBtnWidth = _conf.NavigatorMinButtonWidth;
+
 			const int spacing = 1;
 
             Panel p = new Panel();
@@ -619,8 +620,9 @@ namespace ProfileCut
             l.TextAlign = System.Drawing.ContentAlignment.TopCenter;
 			l.Font = this.Font;// new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             l.AutoSize = true;
-            int labWidth = Math.Max(l.Width, minBtnWidth*2)+spacing*2;
+            int labWidth = Math.Max(l.Width, minBtnWidth * 2) + spacing * 2;
 			int btnWidth = (labWidth - spacing) / 2;
+
 			l.Height = 12;
             l.AutoSize = false;
             l.Width = labWidth;
@@ -632,14 +634,19 @@ namespace ProfileCut
             p.Controls.Add(b);
             b.Left = l.Left;
             b.Width = btnWidth;
-			b.Top = l.Height;
-            b.Height = owner.Height - l.Height;
+            b.Top = l.Height;
+            this.tableLayoutPanelButtons.Height = l.Width + b.Width;
+			
+            //b.Top = l.Height;
+            //b.Height = owner.Height - l.Height;
+            b.Height = btnWidth;
+            
+            b.Anchor = AnchorStyles.Bottom;
 
             b.Click += new System.EventHandler(this._navButtonClick);
             b.BackgroundImage = global::ProfileCut.Resource.arrow151;
             b.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
             b.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-
 
 			b = new RNavigatorButton(depthTag, NAV_DIRECTION.DOWN);
 			p.Controls.Add(b);
@@ -663,7 +670,7 @@ namespace ProfileCut
             b.Click += new System.EventHandler(this._navButtonClick);
             b.BackgroundImage = global::ProfileCut.Resource.caret;
             b.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            b.FlatStyle = System.Windows.Forms.FlatStyle.Flat;*/
+            b.FlatStyle = System.Windows.Forms.FlatStyle.Flat; */
 
             owner.Controls.Add(p);
             p.Parent = owner;

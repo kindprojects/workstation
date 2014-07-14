@@ -7,7 +7,7 @@
     <ProjectGuid>{5241879D-4C91-41F9-829B-5CA1D0827741}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Platform</RootNamespace>
+    <RootNamespace>ProfileCut</RootNamespace>
     <AssemblyName>ProfileCut</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -107,18 +107,24 @@
     <Compile Include="FFormat.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="FormMain.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormMain.Designer.cs">
+      <DependentUpon>FormMain.cs</DependentUpon>
+    </Compile>
+    <Compile Include="RMainPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="RMainPanel.Designer.cs">
+      <DependentUpon>RMainPanel.cs</DependentUpon>
+    </Compile>
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="RAppConfig.cs" />
-    <Compile Include="FMain.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="FMain.Designer.cs">
-      <DependentUpon>FMain.cs</DependentUpon>
-    </Compile>
     <Compile Include="Program.cs">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Compile>
@@ -135,12 +141,18 @@
     <Compile Include="RAppCommandButton.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="RUpDownButtons.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="RUpDownButtons.Designer.cs">
+      <DependentUpon>RUpDownButtons.cs</DependentUpon>
+    </Compile>
     <Content Include="Resources\remove.png" />
     <EmbeddedResource Include="FFormat.resx">
       <DependentUpon>FFormat.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="FMain.resx">
-      <DependentUpon>FMain.cs</DependentUpon>
+    <EmbeddedResource Include="FormMain.resx">
+      <DependentUpon>FormMain.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
@@ -150,6 +162,9 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resource.Designer.cs</LastGenOutput>
       <CustomToolNamespace>ProfileCut</CustomToolNamespace>
+    </EmbeddedResource>
+    <EmbeddedResource Include="RMainPanel.resx">
+      <DependentUpon>RMainPanel.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="App.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
