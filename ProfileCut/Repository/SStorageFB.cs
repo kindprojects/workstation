@@ -9,7 +9,7 @@ using System.IO;
 using System.Windows.Forms;
 using System.Data;
 
-namespace Repository
+namespace Storage
 {
     public class SStorageFB : IStorage, IDisposable
     {        
@@ -77,8 +77,6 @@ namespace Repository
                         for (int jj = 0; jj < reader.FieldCount; jj++)
                         {
                             row.Add(reader.GetName(jj).ToLower(), values[jj].ToString());
-
-                            //row.Add(reader.GetName(jj).ToLower(), reader.GetValue(jj).ToString());
                         }
                         ret.Add(row);
                     }
@@ -159,14 +157,6 @@ namespace Repository
         public Dictionary<string, string> ListAttributes(int objectId)
         {
             Dictionary<string, string> ret = new Dictionary<string, string>();
-
-            //string[] paramList = { "objectid", objectId.ToString() };
-            //List<Dictionary<string, string>> q = _sqlSelect(
-            //    "select a.attributecode, coalesce(oa.blobval, oa.val) as val "
-            //    + " from object_attributes oa"
-            //    + " left join attributes a on a.attributeid = oa.attributeid"
-            //    + " where oa.objectid = @objectid"
-            //    , paramList);
 
             string[] paramList = { "objectid", objectId.ToString() };
             List<Dictionary<string, string>> q = _sqlSelect(

@@ -1,0 +1,1 @@
+﻿<%@ ServiceHost Language="C#" Debug="true" Service="WcfImportService.ImportService" CodeBehind="Service1.svc.cs" %>

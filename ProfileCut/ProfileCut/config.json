@@ -1,11 +1,11 @@
 {
 	"Version": "1.0.0.1",
 	"ConnectionString": "charset=WIN1251;datasource=localhost;database=ProfileCut;user=sysdba;password=masterkey",
-	"ModelCode": "pms",
+	"ModelCode": "podst",
 	"MasterItemTemplate": "OptItem",
 	"MasterCollectionPath": "Optimizations",
 	"DetailTemplate": "OptView",
-	"SelectedHtmlElementClass": "selected",
+	"SelectedHtmlElementClass": "selectedObject",
 	"MasterItemsUpdateIntervalMs": 10000,
 	"NavigatorMinButtonWidth" : 50,
 	"Debug": true,
@@ -15,7 +15,7 @@
 		[
 			{
 				"Name": "Печать",
-				"TargetAttr": "print_target",
+				"TargetAttr": "print_stickers",
 				"TemplateOverloads":
 				[
 					{

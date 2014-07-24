@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Xml.Linq;
+using System.Net;
 
-using Repository;
+using Storage;
 
 namespace Platform2
 {
@@ -20,7 +21,7 @@ namespace Platform2
 
         private Dictionary<string, string> _attrs;
 
-        private Dictionary<string,PCollection> _collections;
+        private Dictionary<string, PCollection> _collections;
 
 		private bool _deferredLoad;
 
@@ -45,7 +46,7 @@ namespace Platform2
 				objectsIndex.Add(id, this);
 
 			// загрузка коллекций
-			_collections = new Dictionary<string,PCollection>();
+			_collections = new Dictionary<string, PCollection>();
 			
 			List<string> collectsNames = storage.ListCollections(Id);
 			foreach (string name in collectsNames)
@@ -55,10 +56,10 @@ namespace Platform2
 			}
         }
 
-        public  Dictionary<int, IPObject> GetObjectsIndex()
+        public Dictionary<int, IPObject> GetObjectsIndex()
         {
             return this.objectsIndex;
-        }
+        }        
 
         public bool GetAttr(string name, bool findInOwners, out string val)
         {
@@ -96,18 +97,23 @@ namespace Platform2
             return false;
         }
 
-        internal PCollection GetCollection(string name, bool createIfNotFound)
+        public IPCollection GetCollection(string name, bool createIfNotFound)
         {
 			name = name.ToLower();
             PCollection coll;
 
-            if (this._collections.TryGetValue(name, out coll)){
+            if (this._collections.TryGetValue(name, out coll))
+            {
                 return coll;
-            }else if (createIfNotFound){
+            }
+            else if (createIfNotFound)
+            {
 				coll = new PCollection(this, name, this._deferredLoad);
 				_collections.Add(name, coll);
                 return coll;
-            }else{
+            }
+            else
+            {
 				throw new Exception(string.Format("Коллекция {0} не найдена!", name));
 			}
         }
@@ -231,6 +237,30 @@ namespace Platform2
             }
             else
                 return this;
+        }
+       
+        public List<string> GetCollectionNames()
+        {
+            return this._collections.Select(f => f.Key).ToList<string>();
+        }
+
+        public string GenHtml()
+        {
+            string content = "";
+            if (this._ownerCollection != null)
+                content = "<div><a href=\"../\">...</a></div>";
+
+            foreach(var a in this._attrs)
+            {
+                content = content + String.Format("<div>{0}: {1}</div>", a.Key, WebUtility.HtmlEncode(a.Value));
+            }
+
+            foreach(var c in this._collections)
+            {
+                content = content + String.Format("<div><a href=\"{0}/\">{0}<a></div>", c.Key);
+            }
+
+            return content;
         }
     }
 }

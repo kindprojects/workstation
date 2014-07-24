@@ -8,7 +8,7 @@ using System.IO;
 using System.Windows.Forms;
 using System.Data;
 
-namespace Repository
+namespace Storage
 {
     class SStorageLinq : IStorage, IDisposable
     {

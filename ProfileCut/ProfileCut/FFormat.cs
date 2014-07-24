@@ -63,7 +63,7 @@ namespace ProfileCut
 			}
 			catch (Exception ex)
 			{
-				e.Result = "exception:"+ex.Message;
+				e.Result = "exception:" + ex.Message;
 				this.ExceptionMessage = ex.Message;
 			}
         }

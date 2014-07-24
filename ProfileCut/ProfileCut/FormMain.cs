@@ -7,7 +7,7 @@ using System.IO;
 using Awesomium.Core;
 
 using ModuleConnect;
-using Repository;
+using Storage;
 using Platform2;
 
 namespace ProfileCut
@@ -46,7 +46,7 @@ namespace ProfileCut
                     List<string> navLevels;
                     List<string> navCaptions;
                     string html = genOptHtml(value, out navLevels, out navCaptions);
-                    if (html != "")
+                    if (!String.IsNullOrEmpty(html))
                     {
                         genNavigation(panelNavigator, navLevels, navCaptions);
                         _master = value; // если обновление удалось, то можно сменить объект						
@@ -97,6 +97,7 @@ namespace ProfileCut
 
             // настройка навигации
             this.navMasterPath = new PNavigatorPath(_conf.MasterCollectionPath + ":0");
+            
             // команды
             _createAppCommandsButtons(panelAppCommands, _conf.Commands.Buttons);
             enableChildControls(panelAppCommands, false);
@@ -105,7 +106,6 @@ namespace ProfileCut
             this._modelStorage = new SStorageFB(_conf.ConnectionString);
 
             // загружать модель не будем. Это сделает событие таймера
-            //_reloadModel(this._modelStorage, _conf.ModelCode, _conf.MasterItemTemplate, restorePosition: false);
         }
 
         private void FMain_Load(object sender, EventArgs e)

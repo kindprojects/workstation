@@ -113,12 +113,6 @@
     <Compile Include="FormMain.Designer.cs">
       <DependentUpon>FormMain.cs</DependentUpon>
     </Compile>
-    <Compile Include="RMainPanel.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="RMainPanel.Designer.cs">
-      <DependentUpon>RMainPanel.cs</DependentUpon>
-    </Compile>
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -141,12 +135,6 @@
     <Compile Include="RAppCommandButton.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="RUpDownButtons.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="RUpDownButtons.Designer.cs">
-      <DependentUpon>RUpDownButtons.cs</DependentUpon>
-    </Compile>
     <Content Include="Resources\remove.png" />
     <EmbeddedResource Include="FFormat.resx">
       <DependentUpon>FFormat.cs</DependentUpon>
@@ -162,9 +150,6 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resource.Designer.cs</LastGenOutput>
       <CustomToolNamespace>ProfileCut</CustomToolNamespace>
-    </EmbeddedResource>
-    <EmbeddedResource Include="RMainPanel.resx">
-      <DependentUpon>RMainPanel.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="App.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>

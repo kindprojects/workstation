@@ -142,5 +142,27 @@ namespace Platform2
                 throw new Exception(String.Format("Не удалось получить экземпляр обьекта.Невозможно удалить объект из коллекции {0}. {1}", this.Name, ex.Message));
             }
         }
+
+
+        public IPObject GetObject(string key)
+        {
+            return this.FindObjectByAttrValue("_key", key);
+        }
+
+        public string GenHtml()
+        {
+            _loadIfNotLoaded();
+
+            
+            string content = "<div><a href=\"../\">...</a></div>";
+            foreach (var i in this._items)
+            {
+                string keyValue = "";
+                i.GetAttr("_key", false, out keyValue);
+                content += String.Format("<div>id: {0} _key: <a href=\"{1}/\">{1}</a></div>", i.Id, keyValue);
+            }
+
+            return content;
+        }
     }
 }

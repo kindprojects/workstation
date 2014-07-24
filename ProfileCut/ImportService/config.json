@@ -1,0 +1,4 @@
+{
+    "connectionString":"charset=WIN1251;datasource=localhost;database=ProfileCut;user=sysdba;password=masterkey",
+    "port":8000
+}

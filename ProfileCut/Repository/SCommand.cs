@@ -6,7 +6,7 @@ using System.Text;
 using FirebirdSql.Data.FirebirdClient;
 using System.Data;
 
-namespace Repository
+namespace Storage
 {
     public abstract class SCommand
     {        
