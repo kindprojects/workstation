@@ -49,13 +49,14 @@
             this.contextMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripMenuItemStop});
             this.contextMenuStrip.Name = "contextMenuStrip";
-            this.contextMenuStrip.Size = new System.Drawing.Size(99, 26);
+            this.contextMenuStrip.Size = new System.Drawing.Size(153, 48);
             // 
             // toolStripMenuItemStop
             // 
             this.toolStripMenuItemStop.Name = "toolStripMenuItemStop";
-            this.toolStripMenuItemStop.Size = new System.Drawing.Size(98, 22);
-            this.toolStripMenuItemStop.Text = "Stop";
+            this.toolStripMenuItemStop.Size = new System.Drawing.Size(152, 22);
+            this.toolStripMenuItemStop.Text = "Остановить";
+            this.toolStripMenuItemStop.Click += new System.EventHandler(this.toolStripMenuItemStop_Click);
             // 
             // listViewLogs
             // 

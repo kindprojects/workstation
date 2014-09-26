@@ -107,6 +107,12 @@
     <Compile Include="FFormat.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="FormDelOpt.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormDelOpt.Designer.cs">
+      <DependentUpon>FormDelOpt.cs</DependentUpon>
+    </Compile>
     <Compile Include="FormMain.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -138,6 +144,9 @@
     <Content Include="Resources\remove.png" />
     <EmbeddedResource Include="FFormat.resx">
       <DependentUpon>FFormat.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FormDelOpt.resx">
+      <DependentUpon>FormDelOpt.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="FormMain.resx">
       <DependentUpon>FormMain.cs</DependentUpon>
@@ -229,6 +238,10 @@
     <ProjectReference Include="..\ModuleDrawingPrinter\ModuleDrawingPrinter.csproj">
       <Project>{f6a47346-455c-4e31-8348-431eab4b8b0d}</Project>
       <Name>ModuleDrawingPrinter</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ModuleZebraPrinter\ModuleZebraPrinter.csproj">
+      <Project>{4adf998b-5e75-42fe-ab21-16a94bcc0ea8}</Project>
+      <Name>ModuleZebraPrinter</Name>
     </ProjectReference>
     <ProjectReference Include="..\Platform2\Platform2.csproj">
       <Project>{09126158-cbb3-4b8a-a888-2d440bc871f3}</Project>

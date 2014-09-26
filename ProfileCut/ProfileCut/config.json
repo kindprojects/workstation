@@ -1,21 +1,32 @@
-{
+﻿{
 	"Version": "1.0.0.1",
 	"ConnectionString": "charset=WIN1251;datasource=localhost;database=ProfileCut;user=sysdba;password=masterkey",
-	"ModelCode": "podst",
+	"ModelCode": "impost",
 	"MasterItemTemplate": "OptItem",
 	"MasterCollectionPath": "Optimizations",
 	"DetailTemplate": "OptView",
-	"SelectedHtmlElementClass": "selectedObject",
-	"MasterItemsUpdateIntervalMs": 10000,
+	"SelectedHtmlElementClass": "selected",
+	"MasterItemsUpdateIntervalMs": 100000,
 	"NavigatorMinButtonWidth" : 50,
 	"Debug": true,
     "Commands":
 	{
 		"Buttons":
 		[
-			{
-				"Name": "Печать",
-				"TargetAttr": "print_stickers",
+            {
+				"Name": "Печать на оптимиз.",
+				"TargetAttr": "PRINT_STICKERS",                
+				"TemplateOverloads":
+				[
+					{
+						"ParamName" : "PrinterName",
+						"Value" : "ZDesigner GK420d"
+					}
+				]
+			},
+            {
+				"Name": "Печать на хлыст",
+				"TargetAttr": "PRINT_STICKERS_CANE",                
 				"TemplateOverloads":
 				[
 					{
@@ -31,6 +42,8 @@
 		{
 			"ParamName" : "test",
 			"Value" : "test value",
+            "ParamName" : "PrinterName",
+            "Value" : "ZDesigner GK420d"				
 		}
 	]
 }

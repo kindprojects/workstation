@@ -31,7 +31,7 @@ namespace ProfileCut
         protected IPObject master
         {
             set
-            {
+            {               
                 IPObject prev = _master;
                 try
                 {
@@ -176,6 +176,7 @@ namespace ProfileCut
 
             if (html != "")
                 html = _addScriptsToBody(html);
+            
             return html;
         }
         protected void loadOptHtml(string html)
@@ -551,11 +552,11 @@ namespace ProfileCut
                                 );
 
                                 // удалим css класс - выбран
-                                if (!String.IsNullOrEmpty(b.AppCommand.SelectedCssClass))
+                                if (!String.IsNullOrWhiteSpace(b.AppCommand.SelectedCssClass))
                                     _removeClass(targetObj.Id.ToString(), b.AppCommand.SelectedCssClass);
 
                                 // установим объекту признак - обработан
-                                if (!String.IsNullOrEmpty(b.AppCommand.ProcessedAttr))
+                                if (!String.IsNullOrWhiteSpace(b.AppCommand.ProcessedAttr))
                                     _setObjectAttr(targetObj, b.AppCommand.ProcessedAttr, "1");
                             }
                             else
@@ -729,7 +730,6 @@ namespace ProfileCut
 
             // загрузка модели
             _data = new PModel(storage, modelCode, deferredLoad: true);
-
             _refreshOptimizationList(currentId);
         }
 
@@ -738,10 +738,11 @@ namespace ProfileCut
             listBoxOptimizations.Items.Clear();
 
             navMasterPath.resetPositions();
-            PNavigator navMasterItems = new PNavigator(_data.Root, navMasterPath);
+            PNavigator navMasterItems = new PNavigator(_data.Root, navMasterPath);            
 
             if (navMasterItems.Pointer.Id != _data.Root.Id)
             {
+                ListBox.ObjectCollection items = new ListBox.ObjectCollection(listBoxOptimizations);
                 int selectIndex = -1;
                 do
                 {
@@ -749,24 +750,32 @@ namespace ProfileCut
                     if (obj != null)
                     {
                         RMasterItem item = new RMasterItem();
-                        item.Title = formatMasterItem(obj);
+                        item.Title = formatMasterItem(obj);                        
                         item.Object = obj;
-                        int index = listBoxOptimizations.Items.Add(item);
+                        items.Add(item);
+
                         if (obj.Id == selectObjectWithId)
-                            selectIndex = index;
+                            selectIndex = items.Count - 1;
                     }
-                    if (selectIndex >= 0)
-                        listBoxOptimizations.SelectedIndex = selectIndex;
                 }
                 while (navMasterItems.Navigate(0, NAV_DIRECTION.DOWN, false) != null);
+
+                listBoxOptimizations.BeginUpdate();
+                listBoxOptimizations.Items.Clear();
+                listBoxOptimizations.Items.AddRange(items);
+                if (selectIndex >= 0)
+                    listBoxOptimizations.SelectedIndex = selectIndex;
+                listBoxOptimizations.EndUpdate();
             }
+
+            //listBoxOptimizations.EndUpdate();
         }
 
         protected string formatMasterItem(IPObject obj)
         {
             string template;
             if (!obj.GetAttr(_conf.MasterItemTemplate, true, out template))
-                throw new Exception(string.Format(@"Шаблон наименования оптимизации (атрибут {0}) не найден!", _conf.MasterItemTemplate));
+                throw new Exception(string.Format("Шаблон наименования оптимизации (атрибут {0}) не найден!", _conf.MasterItemTemplate));
 
             return PTemplates.FormatObject(obj, template, host: this, overloads: null, worker: null, navInfo: null);
         }
@@ -832,18 +841,34 @@ namespace ProfileCut
 
         private void buttonOptRemove_Click(object sender, EventArgs e)
         {
-            if (this.master != null)
-            {
-                if (MessageBox.Show(String.Format("Удалить оптимизацию {0}?", formatMasterItem(this.master)),
-                    "Внимание", MessageBoxButtons.OKCancel, MessageBoxIcon.Exclamation) == System.Windows.Forms.DialogResult.OK)
-                {
-                    _data.DeleteObject(this.master);
-                    _modelStorage.Commit();
+            //if (this.master != null)
+            //{
+            //    if (MessageBox.Show(String.Format("Удалить оптимизацию {0}?", formatMasterItem(this.master)),
+            //        "Внимание", MessageBoxButtons.OKCancel, MessageBoxIcon.Exclamation) == System.Windows.Forms.DialogResult.OK)
+            //    {
+            //        _data.DeleteObject(this.master);
+            //        _modelStorage.Commit();
 
-                    _refreshOptimizationList(master.Id);
-                    _loadEmptyHtmlToWebControl();
-                }
+            //        _refreshOptimizationList(master.Id);
+            //        _loadEmptyHtmlToWebControl();
+            //    }
+            //}
+
+            timerListOptimizationsRefresh.Enabled = false;
+
+            List<RMasterItem> objects = new List<RMasterItem>();
+            foreach (RMasterItem item in listBoxOptimizations.Items)
+            {
+                objects.Add(item);
             }
+
+            FormDelOpt formDel = new FormDelOpt(objects, _modelStorage, _data);
+            if (formDel.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {                
+                _reloadModel(this._modelStorage, _conf.ModelCode, _conf.MasterItemTemplate, restorePosition: true);
+                _loadEmptyHtmlToWebControl();
+            }
+            timerListOptimizationsRefresh.Enabled = true;            
         }
     }
 }

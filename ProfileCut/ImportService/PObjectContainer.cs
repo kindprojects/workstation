@@ -47,6 +47,5 @@ namespace ImportService
         {
             Objects = new List<PObject>();
         }
-
     }
 }

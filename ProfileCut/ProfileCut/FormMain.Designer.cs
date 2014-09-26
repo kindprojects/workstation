@@ -74,7 +74,7 @@
             // splitContainerMain.Panel2
             // 
             this.splitContainerMain.Panel2.Controls.Add(this.tableLayoutPanelButtons);
-            this.splitContainerMain.Size = new System.Drawing.Size(702, 497);
+            this.splitContainerMain.Size = new System.Drawing.Size(792, 497);
             this.splitContainerMain.SplitterDistance = 443;
             this.splitContainerMain.TabIndex = 0;
             // 
@@ -95,7 +95,7 @@
             // splitContainerOptimization.Panel2
             // 
             this.splitContainerOptimization.Panel2.Controls.Add(this.webControlDetails);
-            this.splitContainerOptimization.Size = new System.Drawing.Size(702, 443);
+            this.splitContainerOptimization.Size = new System.Drawing.Size(792, 443);
             this.splitContainerOptimization.SplitterDistance = 220;
             this.splitContainerOptimization.TabIndex = 0;
             // 
@@ -139,7 +139,7 @@
             // 
             this.webControlDetails.Dock = System.Windows.Forms.DockStyle.Fill;
             this.webControlDetails.Location = new System.Drawing.Point(0, 0);
-            this.webControlDetails.Size = new System.Drawing.Size(478, 443);
+            this.webControlDetails.Size = new System.Drawing.Size(568, 443);
             this.webControlDetails.TabIndex = 1;
             this.webControlDetails.DocumentReady += new Awesomium.Core.UrlEventHandler(this.Awesomium_Windows_Forms_WebControl_DocumentReady);
             // 
@@ -148,7 +148,7 @@
             this.tableLayoutPanelButtons.ColumnCount = 4;
             this.tableLayoutPanelButtons.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 220F));
             this.tableLayoutPanelButtons.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanelButtons.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 100F));
+            this.tableLayoutPanelButtons.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 174F));
             this.tableLayoutPanelButtons.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 100F));
             this.tableLayoutPanelButtons.Controls.Add(this.panelAppCommands, 2, 0);
             this.tableLayoutPanelButtons.Controls.Add(this.panelNavigator, 1, 0);
@@ -159,16 +159,16 @@
             this.tableLayoutPanelButtons.Name = "tableLayoutPanelButtons";
             this.tableLayoutPanelButtons.RowCount = 1;
             this.tableLayoutPanelButtons.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanelButtons.Size = new System.Drawing.Size(702, 50);
+            this.tableLayoutPanelButtons.Size = new System.Drawing.Size(792, 50);
             this.tableLayoutPanelButtons.TabIndex = 0;
             // 
             // panelAppCommands
             // 
             this.panelAppCommands.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.panelAppCommands.Location = new System.Drawing.Point(505, 3);
+            this.panelAppCommands.Location = new System.Drawing.Point(521, 3);
             this.panelAppCommands.Name = "panelAppCommands";
-            this.panelAppCommands.Size = new System.Drawing.Size(94, 44);
+            this.panelAppCommands.Size = new System.Drawing.Size(168, 44);
             this.panelAppCommands.TabIndex = 3;
             // 
             // panelNavigator
@@ -177,7 +177,7 @@
             this.panelNavigator.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panelNavigator.Location = new System.Drawing.Point(223, 3);
             this.panelNavigator.Name = "panelNavigator";
-            this.panelNavigator.Size = new System.Drawing.Size(276, 44);
+            this.panelNavigator.Size = new System.Drawing.Size(292, 44);
             this.panelNavigator.TabIndex = 2;
             // 
             // panelOptButtons
@@ -234,7 +234,7 @@
             // 
             this.panelExitButton.Controls.Add(this.btnExit);
             this.panelExitButton.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panelExitButton.Location = new System.Drawing.Point(605, 3);
+            this.panelExitButton.Location = new System.Drawing.Point(695, 3);
             this.panelExitButton.Name = "panelExitButton";
             this.panelExitButton.Size = new System.Drawing.Size(94, 44);
             this.panelExitButton.TabIndex = 1;
@@ -259,7 +259,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(702, 497);
+            this.ClientSize = new System.Drawing.Size(792, 497);
             this.Controls.Add(this.splitContainerMain);
             this.Name = "FormMain";
             this.Text = "FMain2";

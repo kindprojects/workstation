@@ -138,14 +138,14 @@ namespace GenCode128
       /// <param name="BarWeight">Base thickness for bar width (1 or 2 works well)</param>
       /// <param name="AddQuietZone">Add required horiz margins (use if output is tight)</param>
       /// <returns>An Image of the Code128 barcode representing the message</returns>
-      public static Image MakeBarcodeImage(string InputData, int BarWeight, int BarHeight, bool AddQuietZone )
+      public static Image MakeBarcodeImage(string InputData, float BarWeight, int BarHeight, bool AddQuietZone )
       {
          // get the Code128 codes to represent the message
          Code128Content content = new Code128Content( InputData );
          int[] codes = content.Codes;
 
-         int width, height;
-         width = ( (codes.Length-3) * 11 + 35) * BarWeight;
+         float width, height;
+         width = (((codes.Length - 3) * 11 + 35) * BarWeight);
          //height = Convert.ToInt32( System.Math.Ceiling( Convert.ToSingle(width) * .15F) );
          height = BarHeight;
 
@@ -155,7 +155,7 @@ namespace GenCode128
          }
 
          // get surface to draw on
-         Image myimg = new System.Drawing.Bitmap(width, height);
+         Image myimg = new System.Drawing.Bitmap((int)width, (int)height);
          using (Graphics gr = Graphics.FromImage(myimg))
          {
 
@@ -163,17 +163,17 @@ namespace GenCode128
             gr.FillRectangle(System.Drawing.Brushes.White, 0, 0, width, height);
 
             // skip quiet zone
-            int cursor = AddQuietZone ? cQuietWidth * BarWeight : 0;
+            float cursor = AddQuietZone ? cQuietWidth * BarWeight : 0;
 
-            for (int codeidx = 0; codeidx < codes.Length; codeidx++)
+            for (int codeidx = 0; codeidx < codes.Length; codeidx ++)
             {
                int code = codes[codeidx];
 
                // take the bars two at a time: a black and a white
                for (int bar = 0; bar < 8; bar += 2)
                {
-                  int barwidth = cPatterns[code, bar] * BarWeight;
-                  int spcwidth = cPatterns[code, bar + 1] * BarWeight;
+                  float barwidth = cPatterns[code, bar] * BarWeight;
+                  float spcwidth = cPatterns[code, bar + 1] * BarWeight / 1.03F;
 
                   // if width is zero, don't try to draw it
                   if (barwidth > 0)

@@ -7,9 +7,9 @@ using FirebirdSql.Data.FirebirdClient;
 
 namespace ImportService.Repository.Fb
 {
-    internal class RepObject : Repository, IRepObject
+    internal class RepObject
     {        
-        public int? Add(int collectionId)
+        public int? Add(FbConnection conn, FbTransaction trans, int collectionId)
         {
             string query = "SELECT * FROM sp_add_object(@collectionId)";
 
@@ -17,21 +17,19 @@ namespace ImportService.Repository.Fb
 
             try
             {
-                using (FbConnection connection = new FbConnection(ConnectionString))
+
+                using (FbCommand cmd = new FbCommand(query, conn, trans))
                 {
-                    connection.Open();
-                    using (FbCommand cmd = new FbCommand(query, connection))
+                    cmd.Parameters.AddWithValue("collectionId", collectionId);
+                    using (FbDataReader reader = cmd.ExecuteReader())
                     {
-                        cmd.Parameters.AddWithValue("collectionId", collectionId);
-                        using (FbDataReader reader = cmd.ExecuteReader())
+                        if (reader.Read())
                         {
-                            if (reader.Read())
-                            {
-                                ret = !reader.IsDBNull(0) ? reader.GetInt32(0) as int? : null;
-                            }
+                            ret = !reader.IsDBNull(0) ? reader.GetInt32(0) as int? : null;
                         }
                     }
                 }
+
             }
             catch (Exception ex)
             {
@@ -41,7 +39,7 @@ namespace ImportService.Repository.Fb
             return ret;                                    
         }
 
-        public int Delete(int id)
+        public int Delete(FbConnection conn, FbTransaction trans, int id)
         {
             string query = "EXECUTE PROCEDURE sp_delete_object(@id)";
 
@@ -49,14 +47,10 @@ namespace ImportService.Repository.Fb
 
             try
             {
-                using (FbConnection connection = new FbConnection(ConnectionString))
+                using (FbCommand cmd = new FbCommand(query, conn, trans))
                 {
-                    connection.Open();
-                    using (FbCommand cmd = new FbCommand(query, connection))
-                    {
-                        cmd.Parameters.AddWithValue("id", id);
-                        ret = cmd.ExecuteNonQuery();
-                    }
+                    cmd.Parameters.AddWithValue("id", id);
+                    ret = cmd.ExecuteNonQuery();
                 }
             }
             catch (Exception ex)
@@ -65,6 +59,41 @@ namespace ImportService.Repository.Fb
             }
 
             return ret;                                       
+        }
+
+        public List<int> Find(FbConnection conn, FbTransaction trans, int ownerObjectId, string collectionName, string attrName, string attrValue)
+        {
+            string query = "SELECT objectid FROM sp_find_objects(@ownerObjectId, @collectionName, @attrName, '=', @attrValue)";
+
+            List<int> ret = new List<int>();
+
+            try
+            {
+
+                using (FbCommand cmd = new FbCommand(query, conn, trans))
+                {
+                    cmd.Parameters.AddWithValue("ownerObjectId", ownerObjectId);
+                    cmd.Parameters.AddWithValue("collectionName", collectionName);
+                    cmd.Parameters.AddWithValue("attrName", attrName);
+                    cmd.Parameters.AddWithValue("attrValue", attrValue);
+
+                    using (FbDataReader reader = cmd.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            ret.Add(reader.GetInt32(0));
+                        }
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(String.Format("Ошибка SQL запроса. {0}", ex.Message));
+            }
+
+            return ret;                
+
         }
     }
 }

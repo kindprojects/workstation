@@ -31,10 +31,12 @@ namespace Storage
 		{
 			this.Dispose(false);
 		}
-		protected virtual void Dispose(bool ceanManaged)
+		
+        protected virtual void Dispose(bool ceanManaged)
 		{
 			this._db.Dispose();
 		}
+        
         private bool _isOpen()
         {
             return (_db.State == System.Data.ConnectionState.Open);
@@ -48,8 +50,7 @@ namespace Storage
 
         private void _closeConnection()
         {
-            if (this._isOpen())
-                _db.Close();
+            _db.Close();
         }
 
         private List<Dictionary<string, string>> _sqlSelect(string sqlQuery, string[] paramList)
@@ -82,6 +83,8 @@ namespace Storage
                     }
                 }
             }
+
+            _closeConnection();
 
             return ret;
         }        
@@ -206,6 +209,8 @@ namespace Storage
             return ret;
         }
 
+
+
 		public bool ObjectExists(int ObjectID)
 		{
 			string[] paramList = {"id", ObjectID.ToString()};
@@ -244,6 +249,10 @@ namespace Storage
             {
                 ret = false;
             }
+            finally
+            {
+                _closeConnection();
+            }
 
             return ret;
         }
@@ -253,6 +262,26 @@ namespace Storage
         public void Rollback()
         {
             _commands = new List<SCommand>();
+        }
+
+
+        public List<string> GetModelCodes()
+        {
+            List<string> ret = new List<string>();
+            string[] paramList = {};
+
+            List<Dictionary<string, string>> q = _sqlSelect(
+                "select m.modelcode from models m"
+                , paramList);
+
+            foreach (Dictionary<string, string> row in q)
+            {
+                string code = "";
+                if (row.TryGetValue("modelcode", out code))
+                    ret.Add(code);
+            }
+
+            return ret;
         }
     }
 }

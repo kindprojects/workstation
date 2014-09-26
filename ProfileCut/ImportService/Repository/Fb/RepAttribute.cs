@@ -8,26 +8,21 @@ using FirebirdSql.Data.FirebirdClient;
 
 namespace ImportService.Repository.Fb
 {
-    internal class RepAttribute : Repository, IRepAttribute
-    {   
-
-        public void Set(int objectId, string code, string val)
+    internal class RepAttribute
+    {       
+        public void Set(FbConnection conn, FbTransaction trans,  int objectId, string code, string val)
         {
             string query = "EXECUTE PROCEDURE sp_set_attribute(@objectId, @attributeCode, @val)";
 
             try
-            {
-                using (FbConnection connection = new FbConnection(ConnectionString))
+            {           
+                using (FbCommand cmd = new FbCommand(query, conn, trans))
                 {
-                    connection.Open();
-                    using (FbCommand cmd = new FbCommand(query, connection))
-                    {
-                        cmd.Parameters.AddWithValue("objectId", objectId);
-                        cmd.Parameters.AddWithValue("attributeCode", code);
-                        cmd.Parameters.AddWithValue("val", val);
+                    cmd.Parameters.AddWithValue("objectId", objectId);
+                    cmd.Parameters.AddWithValue("attributeCode", code);
+                    cmd.Parameters.AddWithValue("val", val);
 
-                        cmd.ExecuteNonQuery();
-                    }
+                    cmd.ExecuteNonQuery();
                 }
             }
             catch (Exception ex)

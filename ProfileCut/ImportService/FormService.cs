@@ -36,5 +36,11 @@ namespace ImportService
         protected void ServiceStart()
         {           
         }
+
+        private void toolStripMenuItemStop_Click(object sender, EventArgs e)
+        {
+            this.ShowInTaskbar = true;
+            Application.Exit();
+        }
     }
 }

@@ -33,6 +33,10 @@ namespace ImportService
                 ServiceEndpoint ep = host.AddServiceEndpoint(typeof(IContract), binding, "");
                 ServiceDebugBehavior stp = host.Description.Behaviors.Find<ServiceDebugBehavior>();
                 stp.HttpHelpPageEnabled = false;
+                binding.MaxBufferSize = System.Int32.MaxValue;
+                binding.MaxReceivedMessageSize = System.Int32.MaxValue;
+                binding.MaxBufferPoolSize = System.Int64.MaxValue;
+
             }
             catch (Exception ex)
             {

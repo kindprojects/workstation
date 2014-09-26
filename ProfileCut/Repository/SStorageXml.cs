@@ -60,5 +60,11 @@ namespace Storage
         {
             throw new NotImplementedException();
         }
+
+
+        public List<string> GetModelCodes()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

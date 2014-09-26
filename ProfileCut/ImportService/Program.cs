@@ -24,22 +24,21 @@ namespace ImportService
             {
                 Host = new WebHost();
                 Host.Start();
+
+                Logger.Trace("Сервис запущен");
+
+                Application.EnableVisualStyles();
+                Application.SetCompatibleTextRenderingDefault(false);
+
+                Application.Run(new FormService());
+
+                Logger.Trace("Сервис остановлен");            
             }
             catch (Exception ex)
             {
                 Program.Logger.Error(ex.Message);
-
                 Application.Exit();
-            }
-
-            Logger.Trace("Сервис запущен");
-
-            Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
-
-            Application.Run(new FormService());
-
-            Logger.Trace("Сервис остановлен");
+            }            
         }   
     }
 }

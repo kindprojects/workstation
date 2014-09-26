@@ -7,36 +7,32 @@ using FirebirdSql.Data.FirebirdClient;
 
 namespace ImportService.Repository.Fb
 {
-    internal class RepModel: Repository, IRepModel
+    internal class RepModel
     {
-        public IModel Select(string code)
+        public IModel Select(FbConnection conn, FbTransaction trans, string code)
         {
             string query = "SELECT * FROM models WHERE modelcode = UPPER(@modelcode)";
 
             IModel ret = null;
 
             try
-            {
-                using (FbConnection connection = new FbConnection(ConnectionString))
+            {                
+                using (FbCommand cmd = new FbCommand(query, conn, trans))
                 {
-                    connection.Open();
-                    using (FbCommand cmd = new FbCommand(query, connection))
+                    cmd.Parameters.AddWithValue("modelcode", code.ToUpper());
+                    using (FbDataReader reader = cmd.ExecuteReader())
                     {
-                        cmd.Parameters.AddWithValue("modelcode", code.ToUpper());
-                        using (FbDataReader reader = cmd.ExecuteReader())
+                        if (reader.Read())
                         {
-                            if (reader.Read())
+                            ret = new Model
                             {
-                                ret = new Model
-                                {
-                                    Id = reader.GetInt32(0),
-                                    Code = reader.GetString(1),
-                                    ObjectIdRoot = reader.GetInt32(2)
-                                };
-                            }
+                                Id = reader.GetInt32(0),
+                                Code = reader.GetString(1),
+                                ObjectIdRoot = reader.GetInt32(2)
+                            };
                         }
                     }
-                }
+                }                
             }
             catch (Exception ex)
             {

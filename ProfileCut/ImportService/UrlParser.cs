@@ -11,10 +11,12 @@ using System.ServiceModel;
 using System.ServiceModel.Web;
 using System.Net;
 using System.Web;
+using System.Net.Http;
 using ImportService.Repository;
 using ImportService.Repository.Fb;
 using System.Threading;
 using System.IO;
+using FirebirdSql.Data.FirebirdClient;
 
 
 namespace ImportService
@@ -25,69 +27,146 @@ namespace ImportService
         Collection
     }
 
-    internal class UrlParser : IContract
-    {       
-        public XmlElement GetObjectsAsXml(string model, string path)
+    [ServiceBehavior(InstanceContextMode = InstanceContextMode.PerSession
+        , ConcurrencyMode = ConcurrencyMode.Multiple)]
+    public class UrlParser : IContract
+    {
+        public XmlElement GetObjectsAsXml(string path)
         {
-            try
-            {
-                TargetPath target = new TargetPath(model, path);
-            }
-            catch(Exception ex)
-            {                
-                _throwNewWebExeption(model, path, ex.Message);
-            }
+            XmlDocument doc = new XmlDocument();
+            doc.LoadXml("<?xml version=\"1.0\" encoding=\"UTF-8\"?><error>Не реализовано</error>");
 
-            return _getXmlElement("<nodes><node>This is XML</node></nodes>");
+            return doc.DocumentElement;
         }
 
         public void PostObjects(string model, string path, XmlElement xml)
         {
+            //HttpResponseMessage response = new HttpResponseMessage();
             try
             {
                 TargetPath target = new TargetPath(model, path);                
                 PObjectContainer obj = _parseXML<PObjectContainer>(xml);
-                
-                // здесь нам нужна только коллекция
                 PObjectContainer container = _parseXML<PObjectContainer>(xml);
-                 
-                SaveToDb(target.PlatformCollection.ownerObject.Id, target.PlatformCollection.CollectionName, container.Objects);
+
+                using (FbConnection conn = new FbConnection(Program.Config.connectionString))
+                {
+                    conn.Open();
+                    FbTransaction trans = conn.BeginTransaction();
+
+                    if (target.Type == TargetPathType.Object)
+                        throw new Exception("Ошибка в ImportService. Для добовления объектов не реализовано");
+
+                    SaveToDb(conn, trans, target.PlatformCollection.ownerObject.Id, target.PlatformCollection.CollectionName, container.Objects);
+                    trans.Commit();
+                }
             }
             catch(Exception ex)
             {
-                _throwNewWebExeption(model, path, ex.Message);        
+                Program.Logger.Error(ex.Message);
+                _throwNewWebExeption(model, path, String.Format("Ошибка в ImportService. {0}", ex.Message));
+            }
+        }
+
+        public void PostModel(PObjectContainer container)
+        {
+            try
+            {
+                TargetPath target = new TargetPath(container.ModelCode, "");
+
+                using (FbConnection conn = new FbConnection(Program.Config.connectionString))
+                {
+                    conn.Open();
+                    FbTransaction trans = conn.BeginTransaction();
+                    foreach (PObject obj in container.Objects)
+                    {
+                        foreach (PCollection collection in obj.Collections)
+                        {
+                            SaveToDb(conn, trans, target.PlatfromObject.Id, collection.Name, collection.Objects);
+                        }
+                    }
+
+                    trans.Commit();
+                }
+            }
+            catch (Exception ex)
+            {
+                Program.Logger.Error(ex.Message);
+                _throwNewWebExeption(container.ModelCode, "", String.Format("Ошибка в ImportService. {0}", ex.Message));
             }            
+
         }
 
         public void DeleteObjects(string model, string path)
         {
-            throw new NotImplementedException();
+            HttpResponseMessage response = new HttpResponseMessage();
+
+            try
+            {
+                TargetPath target = new TargetPath(model, path);                
+              
+                using (FbConnection conn = new FbConnection(Program.Config.connectionString))
+                {
+                    conn.Open();
+                    FbTransaction trans = conn.BeginTransaction();
+
+                    if (target.Type == TargetPathType.Object)
+                        new RepObject().Delete(conn, trans, target.PlatfromObject.Id);
+                    else
+                        new RepCollection().Delete(conn, trans, target.PlatformCollection.ownerObject.Id, target.PlatformCollection.CollectionName);
+
+                    trans.Commit();
+                }
+            }
+            catch(Exception ex)
+            {
+                Program.Logger.Error(ex.Message);
+                _throwNewWebExeption(model, path, String.Format("Ошибка в ImportService. {0}", ex.Message));                
+            }            
         }
 
         public Stream ViewAsHtml(string model, string path)
         {
-            string html = _getFullHtml("");
+            try
+            {
+                TargetPath target = new TargetPath(model, path);
 
-            TargetPath target = new TargetPath(model, path);
+                string content = "";
+                if (target.Type == TargetPathType.Collection)
+                    content = target.PlatformCollection.GenHtml();
+                else
+                    content = target.PlatfromObject.GenHtml();
+                
+                return _getResponseStream(_getFullHtml(content));
+            }
+            catch (Exception ex)
+            {
+                return _getResponseStream(_getFullHtml(ex.Message));
+            }   
+        }
 
-            string content = "";
-            if (target.Type == TargetPathType.Collection)
-                content = target.PlatformCollection.GenHtml();
-            else
-                content = target.PlatfromObject.GenHtml();
+        public Stream ViewModelsAsHtml()
+        {
+            List<string> models = new SStorageFB(Program.Config.connectionString).GetModelCodes();
 
-            html = _getFullHtml(content);
-            
+            string content = "<h3>View</h3><div><a href=\"../\">&larr;&nbsp;Назад</a></div><div><b>Модели:</b></div>";
+            foreach(string model in models)
+                content += String.Format("<div><a href=\"{0}/\">{0}<a></div>", model);
+
+            return _getResponseStream(_getFullHtml(content));
+        }
+
+        private Stream _getResponseStream(string html)
+        {
             byte[] resultBytes = Encoding.UTF8.GetBytes(html);
             WebOperationContext.Current.OutgoingResponse.ContentType = "text/html";
-            
-            return new MemoryStream(resultBytes);                        
+
+            return new MemoryStream(resultBytes);             
         }
 
-        private string _getOptimizationHtml(string optimizationName, string path)
-        {
-            return String.Format("<a href=\"{0}/{1}\">{2}<a>", Program.Host.Point.AbsoluteUri, path, optimizationName);
-        }
+        //private string _getOptimizationHtml(string optimizationName, string path)
+        //{
+        //    return String.Format("<a href=\"{0}/{1}\">{2}<a>", Program.Host.Point.AbsoluteUri, path, optimizationName);
+        //}
 
         private string _getFullHtml(string content)
         {
@@ -135,25 +214,46 @@ namespace ImportService
             return container;
         }
 
-        private bool SaveToDb(int rootObjectId, string collectionName, List<PObject> objects)
+        private void _deleteOptimization(FbConnection conn, FbTransaction trans, int ownerObjectId, string grorderId)
         {
+            RepObject rep = new RepObject();
+            List<int> ids = rep.Find(conn, trans, ownerObjectId, "optimizations", "grorderid", grorderId);
+            foreach (int id in ids)
+                rep.Delete(conn, trans, id);
+        }
+
+
+        private bool SaveToDb(FbConnection conn, FbTransaction trans, int rootObjectId, string collectionName, List<PObject> objects)
+        {
+            int? collectionId = new RepCollection().Get(conn, trans, rootObjectId, collectionName, true);
+            if (collectionId == null)
+                throw new Exception(String.Format("Коллекция {0} не найдена и не создана", collectionName));
+
             foreach (PObject o in objects)
             {
-                int? collectionId = new RepCollection().Get(rootObjectId, collectionName, true);
-                if (collectionId == null)
-                    throw new Exception(String.Format("Коллекция {0} не найдена и не создана", collectionName));
+                //int? collectionId = new RepCollection().Get(conn, trans, rootObjectId, collectionName, true);
+                //if (collectionId == null)
+                //    throw new Exception(String.Format("Коллекция {0} не найдена и не создана", collectionName));
 
-                int? newObjectId = new RepObject().Add((int)collectionId);
+                if (collectionName.ToLower().Trim() == "optimizations")
+                {
+                    string grorderId = o.Attributes.FirstOrDefault(f => f.Name.ToLower().Trim() == "grorderid").Value;
+
+                    if (!String.IsNullOrWhiteSpace(grorderId))
+                        _deleteOptimization(conn, trans, rootObjectId, grorderId);
+                }
+
+                int? newObjectId = new RepObject().Add(conn, trans, (int)collectionId);
                 if (newObjectId == null)
                     throw new Exception(String.Format("Объект в коллекции {0} не создан", collectionName));
 
                 foreach (PAttribute a in o.Attributes)
-                    new RepAttribute().Set((int)newObjectId, a.Name, a.Value);
+                    new RepAttribute().Set(conn, trans, (int)newObjectId, a.Name, a.Value);
 
                 foreach (PCollection c in o.Collections)
                 {
                     // рекурсия
-                    SaveToDb((int)newObjectId, c.Name, c.Objects);
+                    SaveToDb(conn, trans, (int)newObjectId, c.Name, c.Objects);
                 }
             }
 
@@ -167,6 +267,15 @@ namespace ImportService
                 return collection.GetObject(attr.Value);
             else
                 return null;            
+        }
+
+        public Stream Help()
+        {
+            string content = "<h3>ImportService Api</h3><div><b>GET:</b></div><div><a href=\"View/\">View<a><div><div><a href=\"Objects/\">Objects<a><div></br>"
+                + "<div><b>POST:</b></div><div>Objects</div></br>"
+                + "<div><b>DELETE:</b></div><div>Objects</div>"; 
+                
+            return _getResponseStream(_getFullHtml(content));
         }
     }
 
@@ -182,8 +291,8 @@ namespace ImportService
         {
             string[] pathes = path.Split('/');
 
-            if (pathes == null || pathes.Length == 0)
-                throw new Exception(String.Format("Неверный путь {0} для модели {1}", path, model));
+            //if (pathes == null || pathes.Length == 0)
+            //    throw new Exception(String.Format("Неверный путь {0} для модели {1}", path, model));
             
             PModel platformModel;
             try
@@ -192,7 +301,9 @@ namespace ImportService
             }
             catch (Exception ex)
             {
-                throw new Exception(String.Format("Не удалось загрузить модель. {0}", ex.Message));
+                Program.Logger.Error(ex.Message);
+
+                throw new Exception(String.Format("Ошибка в ImportService. Не удалось загрузить модель. {0}", ex.Message));
             }
            
             this.Type = pathes.Count().IsEven() ? TargetPathType.Object : TargetPathType.Collection;

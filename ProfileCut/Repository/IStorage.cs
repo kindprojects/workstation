@@ -22,6 +22,8 @@ namespace Storage
 
         void DeleteObject(int objectId);
 
+        List<string> GetModelCodes();
+
         bool Commit();
 
         void Rollback();

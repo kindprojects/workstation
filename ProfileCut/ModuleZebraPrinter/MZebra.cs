@@ -1,5 +1,4 @@
-﻿using HardwareInterfaces;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Printing;
 using System.Drawing;
@@ -90,7 +89,7 @@ namespace ModuleZebraPrinter
         }
     }
 
-    public class Printer : IStickerPrinter
+    public class Printer
     {
         private MZebraPrinter _printer;
         private List<MPage> _pages;

@@ -17,19 +17,33 @@ namespace ImportService
     public interface IContract
     {
         [OperationContract]
-        [WebInvoke(UriTemplate = "/data/{model}/{*path}", Method = "GET")]
-        XmlElement GetObjectsAsXml(string model, string path);
+        //[WebInvoke(UriTemplate = "/objects/{model}/{*path}", Method = "GET")]
+        [WebInvoke(UriTemplate = "/objects/{*path}", Method = "GET")]
+        XmlElement GetObjectsAsXml(string path);
 
         [OperationContract]
-        [WebInvoke(UriTemplate = "/data/{model}/{*path}", Method = "POST", BodyStyle = WebMessageBodyStyle.WrappedRequest)]
+        [WebInvoke(UriTemplate = "/objects/{model}/{*path}", Method = "POST", BodyStyle = WebMessageBodyStyle.Bare, RequestFormat = WebMessageFormat.Xml)]        
         void PostObjects(string model, string path, XmlElement xml);
+        //HttpResponseMessage PostObjects(string model, string path, XmlElement xml);
 
         [OperationContract]
-        [WebInvoke(UriTemplate = "/data/{model}/{*path}", Method = "DELETE")]
+        [WebInvoke(UriTemplate = "/objects/{model}/{*path}", Method = "DELETE")]
         void DeleteObjects(string model, string path);
 
         [OperationContract]
+        [WebInvoke(UriTemplate = "/models", Method = "POST", BodyStyle = WebMessageBodyStyle.WrappedRequest)]
+        void PostModel(PObjectContainer container);
+
+        [OperationContract]
         [WebGet(UriTemplate = "/view/{model}/{*path}")]
-        Stream ViewAsHtml(string model, string path);        
+        Stream ViewAsHtml(string model, string path);
+
+        [OperationContract]
+        [WebGet(UriTemplate = "/view/")]
+        Stream ViewModelsAsHtml(); 
+       
+        [OperationContract]
+        [WebInvoke(UriTemplate = "", Method = "GET")]
+        Stream Help();
     }  
 }

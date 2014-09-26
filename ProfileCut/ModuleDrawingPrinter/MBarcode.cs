@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Drawing;
 using GenCode128;
+using BarcodeLib;
 
 namespace ModuleNamespace
 {
@@ -36,10 +37,22 @@ namespace ModuleNamespace
         public Image Render(Graphics context)
         {
             float heightInPixel = new Bitmap(1,1).VerticalResolution * this.Height / 25.4F;
-            Image img = Code128Rendering.MakeBarcodeImage(this.Text, 1, (int)heightInPixel, true);                        
-            Bitmap b = new Bitmap(img.Width, (int)heightInPixel);
+            //Image img = Code128Rendering.MakeBarcodeImage(this.Text, 1F, (int)heightInPixel, false);     
+
+            Barcode bar = new Barcode();
+            bar.IncludeLabel = false;
+            bar.Alignment = AlignmentPositions.LEFT;
+            bar.Height = (int)heightInPixel;
+            bar.Width = this.Text.Length * 10 + 50;
+            bar.RotateFlipType = RotateFlipType.RotateNoneFlipNone;
+            bar.BackColor = Color.White;
+            bar.ForeColor = Color.Black;       
+            
+            Image img = bar.Encode(TYPE.CODE128, this.Text);
+
+            Bitmap b = new Bitmap(img.Width, img.Height);
             Graphics g = Graphics.FromImage((Image)b);
-            g.DrawImage(img, 0, 0, (int)img.Width, (int)heightInPixel);
+            g.DrawImage(img, 0, 0, (int)img.Width, img.Height);
             g.Dispose();
 
             return (Image)b;

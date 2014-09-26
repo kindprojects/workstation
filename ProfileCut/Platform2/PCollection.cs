@@ -149,20 +149,37 @@ namespace Platform2
             return this.FindObjectByAttrValue("_key", key);
         }
 
+        public string GetViewText()
+        {
+            return this.Name;
+        }
+
         public string GenHtml()
         {
             _loadIfNotLoaded();
 
-            
-            string content = "<div><a href=\"../\">...</a></div>";
-            foreach (var i in this._items)
+            string content = "<div><h3>Коллекция: " + this.GetViewText() + "</h3></div><div><a href=\"../\">&larr;&nbsp;Назад</a></div><div><b>Объекты:</b></div>";
+
+            if (this._items.Count == 0)
+                content += "<div style=\"font-style:oblique\">объектов нет</div>";
+
+            foreach (var o in this._items)
             {
-                string keyValue = "";
-                i.GetAttr("_key", false, out keyValue);
-                content += String.Format("<div>id: {0} _key: <a href=\"{1}/\">{1}</a></div>", i.Id, keyValue);
+                content += String.Format("<div><a href=\"{0}/\">{1}</a></div>", o.GetKey(), o.GetViewText());
             }
 
             return content;
+        }
+
+        public List<IPObject> GetObjects()
+        {
+            _loadIfNotLoaded();
+
+            List<IPObject> list = new List<IPObject>();
+            foreach (var o in _items)
+                list.Add(o);
+
+            return list;
         }
     }
 }

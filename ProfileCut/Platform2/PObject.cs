@@ -244,23 +244,66 @@ namespace Platform2
             return this._collections.Select(f => f.Key).ToList<string>();
         }
 
+        public string GetKey()
+        {
+            string key = "";
+            if (this.GetAttr("_key", false, out key))
+                return key;
+            else
+                return this.Id.ToString();                
+        }
+
+        public string GetViewText()
+        {
+            return String.Format("id: {0}; _key: {1}", this.Id, this.GetKey());
+        }
+
         public string GenHtml()
         {
             string content = "";
-            if (this._ownerCollection != null)
-                content = "<div><a href=\"../\">...</a></div>";
+            content = "<div><h3>Объект: " + this.GetViewText() + "</h3></div><div><a href=\"../\">&larr;&nbsp;Назад</a></div><div><b>Коллекции:</b></div>";                               
+
+            if (this._collections.Count == 0)
+                content += "<div style=\"font-style:oblique\">коллекций нет</div>";
+
+            foreach (var c in this._collections)
+            {
+                content = content + String.Format("<div><a href=\"{0}/\">{0}<a></div>", c.Value.GetViewText());
+            }
+
+            content += "<div><b>Атрибуты:</b></div><table style=\"width:100%;border:1px solid black;border-collapse:collapse\">";
+
+            if (this._attrs.Count == 0)
+                content += "<div style=\"font-style:oblique\">атрибутов нет</div>";
 
             foreach(var a in this._attrs)
             {
-                content = content + String.Format("<div>{0}: {1}</div>", a.Key, WebUtility.HtmlEncode(a.Value));
+                content += String.Format("<tr><td style=\"width:10%;border:1px solid black\">{0}</td><td style=\"border:1px solid black\">{1}</td></tr>"
+                    , a.Key, WebUtility.HtmlEncode(a.Value).Replace("\n", "</br>"));
             }
-
-            foreach(var c in this._collections)
-            {
-                content = content + String.Format("<div><a href=\"{0}/\">{0}<a></div>", c.Key);
-            }
+            content += "</table>";
 
             return content;
+        }
+
+
+        public Dictionary<string, string> GetAttrs()
+        {
+            return _attrs;
+        }
+
+
+        public Dictionary<string, IPCollection> GetCollections()
+        {
+            Dictionary<string, IPCollection> ret = new Dictionary<string, IPCollection>();
+
+            foreach(var coll in _collections)
+            {                
+                coll.Value._loadIfNotLoaded();
+                ret.Add(coll.Key, coll.Value);
+            }
+
+            return ret;
         }
     }
 }

@@ -55,6 +55,10 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\BarcodeLib\BarcodeLib.csproj">
+      <Project>{f8646414-0c9c-49bb-9da3-3923bf78a398}</Project>
+      <Name>BarcodeLib</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\GenCode128\GenCode128\GenCode128.csproj">
       <Project>{32817bf9-e380-4467-9c7f-936f4b122bc7}</Project>
       <Name>GenCode128</Name>

@@ -15,5 +15,7 @@ namespace Platform2
         int Count { get; }
         void RemoveObject(IPObject obj);
         string GenHtml();
+
+        List<IPObject> GetObjects();
 	}
 }

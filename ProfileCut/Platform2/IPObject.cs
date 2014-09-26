@@ -24,5 +24,8 @@ namespace Platform2
         IPObject GetObjectById(int id);
         Dictionary<int, IPObject> GetObjectsIndex();
         string GenHtml();
+        Dictionary<string, string> GetAttrs();
+
+        Dictionary<string, IPCollection> GetCollections();
     }
 }
